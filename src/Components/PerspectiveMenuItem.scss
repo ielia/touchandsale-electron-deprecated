@@ -1,12 +1,14 @@
 @import './colors';
 
 .perspective-menu-item {
+  background-color: $main-background-color;
   border: none;
   border-radius: 5px;
   display: flex;
   flex: 0 0 auto;
   margin: 2px;
   overflow: hidden;
+  padding: 0;
   user-select: none;
   vertical-align: middle;
 

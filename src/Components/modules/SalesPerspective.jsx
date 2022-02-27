@@ -39,36 +39,36 @@ export default function SalesPerspective() {
             <Layout key="horizontal0" orientation="horizontal">
                 <Layout key="vertical0" orientation="vertical">
                     <TabbedViewContainer key="tabbed0">
-                        <View key="items" label="Items" className="items" shortcutKeys="cI" actions={[]} focused={true} maximized={false}>
+                        <View key="items" label="Items" className="items" shortcutKeys="cI" actions={[]} selected={true} maximized={false}>
                             Items
                         </View>
                     </TabbedViewContainer>
                     <TabbedViewContainer key="tabbed1">
-                        <View key="file" label="Ficha" className="file" shortcutKeys="F5" actions={[]} focused={false} maximized={false}>
+                        <View key="file" label="Ficha" className="file" shortcutKeys="F5" actions={[]} selected={false} maximized={false}>
                             Ficha
                         </View>
-                        <View key="icons" label="Íconos" className="icons" shortcutKeys="F6" actions={[]} focused={false} maximized={false}>
+                        <View key="icons" label="Íconos" className="icons" shortcutKeys="F6" actions={[]} selected={false} maximized={false}>
                             Íconos
                         </View>
-                        <View key="clients" label="Clientes" className="clients" shortcutKeys="F7" actions={[]} focused={true} maximized={false}>
+                        <View key="clients" label="Clientes" className="clients" shortcutKeys="F7" actions={[]} selected={true} maximized={false}>
                             Clientes
                         </View>
-                        <View key="agreements" label="Convenios" className="agreements" shortcutKeys="F8" actions={[]} focused={false} maximized={false}>
+                        <View key="agreements" label="Convenios" className="agreements" shortcutKeys="F8" actions={[]} selected={false} maximized={false}>
                             Convenios
                         </View>
                     </TabbedViewContainer>
                 </Layout>
                 <Layout key="vertical1" orientation="vertical">
                     <TabbedViewContainer key="tabbed0">
-                        <View key="payments" label="Pagos" className="payments" shortcutKeys="F9" actions={[]} focused={true} maximized={false}>
+                        <View key="payments" label="Pagos" className="payments" shortcutKeys="F9" actions={[]} selected={true} maximized={false}>
                             Pagos
                         </View>
                     </TabbedViewContainer>
                     <TabbedViewContainer key="tabbed1">
-                        <View key="news" label="Noticias" className="news" shortcutKeys="cN" actions={[]} focused={true} maximized={false}>
+                        <View key="news" label="Noticias" className="news" shortcutKeys="cN" actions={[]} selected={true} maximized={false}>
                             Noticias
                         </View>
-                        <View key="assistant" label="Asistente" className="assistant" shortcutKeys="cA" actions={[]} focused={false} maximized={false}>
+                        <View key="assistant" label="Asistente" className="assistant" shortcutKeys="cA" actions={[]} selected={false} maximized={false}>
                             Asistente
                         </View>
                     </TabbedViewContainer>

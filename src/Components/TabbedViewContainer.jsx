@@ -8,19 +8,20 @@ export default function TabbedViewContainer({children}) {
         <div className="tabbed-view-container">
             <div className="tabbed-top">
                 <div className="tabs">
-                    {React.Children.map(children, child =>
+                    {React.Children.map(children, (child, index) =>
                         <ViewTab
                             key={child.key}
                             label={child.props.label}
                             shortcutKeys={child.props.shortcutKeys}
                             actions={child.props.actions}
-                            focused={child.props.focused}
+                            zIndex={(children.length ?? 0) - index}
+                            selected={child.props.selected}
                         />
                     )}
                 </div>
             </div>
             <div className="content">
-                {React.Children.toArray(children).filter(child => child.props.focused)}
+                {React.Children.toArray(children).filter(child => child.props.selected)}
             </div>
         </div>
     );

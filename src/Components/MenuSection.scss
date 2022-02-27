@@ -1,4 +1,5 @@
 .menu-section {
+  align-items: center;
   display: flex;
   flex: 0 0 auto;
   justify-items: flex-start;
@@ -6,7 +7,8 @@
   padding-bottom: 2px;
 
   .handle {
-    transform: rotate(90deg);
+    font-size: smaller;
+    font-stretch: ultra-condensed;
     user-select: none;
   }
 }

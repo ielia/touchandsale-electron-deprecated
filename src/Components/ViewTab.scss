@@ -11,7 +11,16 @@
   &:last-child {
     margin-right: 0;
   }
+  &:focus {
+    .outline {
+      background-color: $main-focus-color;
+    }
+    .selection-tail .shape {
+      fill: $main-focus-color;
+    }
+  }
   .outline {
+    background-color: $main-background-color;
     border-top-right-radius: 5px;
     border-right: 1px solid $main-border-color;
     border-top: 1px solid $main-border-color;
@@ -31,8 +40,16 @@
       user-select: none;
     }
   }
+  .selection-tail {
+    .line {
+      stroke: $main-border-color;
+    }
+    .shape {
+      fill: $main-background-color;
+    }
+  }
 
-  &.focused {
+  &.selected {
     &:not(:last-child) {
       .selection-tail {
         border-top: 1px solid black;
@@ -43,19 +60,20 @@
       border-top-right-radius: 0;
     }
 
-    & .selection-tail {
+    .selection-tail {
       border: none;
+      height: 26px;
       margin-bottom: 0;
       margin-top: 0;
       padding: 0;
       width: 25px;
     }
-    & + .view-tab .outline {
+    + .view-tab .outline {
       border-top-left-radius: 0;
       margin-left: -4px;
     }
   }
-  &:not(.focused) {
+  &:not(.selected) {
     .outline {
       border-right: 1px solid black;
       border-top-right-radius: 5px;
