@@ -1,0 +1,34 @@
+@import './ViewTab';
+
+.tabbed-view-container {
+  border: 1px solid black;
+  border-radius: 5px;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+
+  & > .tabbed-top {
+    display: flex;
+    flex: 0 0 auto;
+    justify-items: flex-start;
+
+    & > .tabs {
+      display: flex;
+      flex: 0 0 auto;
+      justify-items: flex-start;
+    }
+  }
+
+  & > .content {
+    border-top: 1px solid black;
+    display: flex;
+    flex: 1 1 auto;
+    padding: 5px;
+  }
+}
+
+@mixin colorize-tabbed-view-container($accentColor) {
+  @include colorize-view-tab($accentColor);
+}

@@ -1,0 +1,23 @@
+.perspective-selector {
+  border-radius: 5px;
+  color: #ffffff;
+  display: flex;
+  margin: 2px;
+  overflow: hidden;
+  padding: 0;
+  user-select: none;
+
+  .name {
+    border-right: 2px solid #ffffff;
+    text-transform: uppercase;
+  }
+  .name, .shortcut {
+    padding: 2px;
+  }
+}
+
+@mixin colorize-perspective-selector($accentColor) {
+  .perspective-selector {
+    background-color: $accentColor;
+  }
+}

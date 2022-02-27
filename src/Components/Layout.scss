@@ -1,0 +1,17 @@
+@import './TabbedViewContainer';
+
+.layout {
+  display: flex;
+  flex: 1 1 auto;
+
+  &.horizontal {
+    flex-direction: row;
+  }
+  &.vertical {
+    flex-direction: column;
+  }
+}
+
+@mixin colorize-layout($accentColor) {
+  @include colorize-tabbed-view-container($accentColor);
+}

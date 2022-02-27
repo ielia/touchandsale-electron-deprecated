@@ -1,0 +1,30 @@
+@import './colors';
+@import './Layout';
+@import './PerspectiveMenuItem';
+@import './PerspectiveSelector';
+
+.perspective {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+
+  .perspective-name, .perspective-menu-item {
+    color: #ffffff;
+  }
+  & > .body {
+    display: flex;
+    flex: 1 1 auto;
+  }
+}
+
+@mixin colorize-perspective($accentColor) {
+  &.perspective {
+    .perspective-name {
+      background-color: $accentColor;
+    }
+    @include colorize-layout($accentColor);
+    @include colorize-perspective-selector($accentColor);
+    @include colorize-perspective-menu-item($accentColor);
+  }
+}

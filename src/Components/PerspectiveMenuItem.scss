@@ -1,0 +1,26 @@
+@import './colors';
+
+.perspective-menu-item {
+  border: none;
+  border-radius: 5px;
+  display: flex;
+  flex: 0 0 auto;
+  margin: 2px;
+  overflow: hidden;
+  user-select: none;
+  vertical-align: middle;
+
+  .name {
+    background-color: $button-label-color;
+  }
+  .name, .shortcut {
+    color: #ffffff;
+    padding: 2px;
+  }
+}
+
+@mixin colorize-perspective-menu-item($accentColor) {
+  .perspective-menu-item .shortcut {
+    background-color: $accentColor;
+  }
+}

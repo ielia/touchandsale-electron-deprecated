@@ -1,0 +1,12 @@
+.menu-section {
+  display: flex;
+  flex: 0 0 auto;
+  justify-items: flex-start;
+  padding-top: 2px;
+  padding-bottom: 2px;
+
+  .handle {
+    transform: rotate(90deg);
+    user-select: none;
+  }
+}
