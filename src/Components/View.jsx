@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function View({name, className, shortcutKeys, actions, focused, maximized, children}) {
+export default function View({label, className, shortcutKeys, actions, focused, maximized, children}) {
     return (
         <div className="className">
             {children}

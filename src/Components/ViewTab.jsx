@@ -1,10 +1,10 @@
 import React from 'react';
 
-export default function ViewTab({name, shortcutKeys, actions, focused}) {
+export default function ViewTab({label, shortcutKeys, actions, focused}) {
     return (
         <div className={`view-tab${focused ? ' focused' : ''}`}>
             <div className="outline">
-                <div className="name">{name}</div>
+                <div className="label">{label}</div>
                 <div className="shortcut">{shortcutKeys}</div>
             </div>
             <svg className="selection-tail" viewBox="0 0 100 100">

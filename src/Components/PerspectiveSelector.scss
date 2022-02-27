@@ -7,11 +7,11 @@
   padding: 0;
   user-select: none;
 
-  .name {
+  .label {
     border-right: 2px solid #ffffff;
     text-transform: uppercase;
   }
-  .name, .shortcut {
+  .label, .shortcut {
     padding: 2px;
   }
 }

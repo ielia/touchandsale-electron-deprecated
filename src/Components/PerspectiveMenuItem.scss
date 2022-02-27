@@ -10,10 +10,10 @@
   user-select: none;
   vertical-align: middle;
 
-  .name {
+  .label {
     background-color: $button-label-color;
   }
-  .name, .shortcut {
+  .label, .shortcut {
     color: #ffffff;
     padding: 2px;
   }

@@ -5,12 +5,12 @@ import MenuSection from './MenuSection';
 import PerspectiveSelector from "./PerspectiveSelector";
 import './Perspective.scss';
 
-export default function Perspective({name, shortcutKeys, className, menuSections, children}) {
+export default function Perspective({label, shortcutKeys, className, menuSections, children}) {
     return (
         <div className={`perspective ${className}`}>
             <Menu>
                 <MenuSection>
-                    <PerspectiveSelector name={name}/>
+                    <PerspectiveSelector label={label}/>
                 </MenuSection>
                 {menuSections}
                 <MenuSection>

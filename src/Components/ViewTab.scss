@@ -19,14 +19,15 @@
     flex: 0 0 auto;
     padding: 2px 5px 2px 7px;
 
-    .name {
+    .label {
       background-color: $tab-label-color;
       color: #ffffff;
       min-width: 100px;
     }
-    .name, .shortcut {
+    .label, .shortcut {
       color: #ffffff;
       padding-inline: 5px;
+      text-align: start;
       user-select: none;
     }
   }

@@ -9,7 +9,7 @@
   flex-direction: column;
   height: 100%;
 
-  .perspective-name, .perspective-menu-item {
+  .perspective-label, .perspective-menu-item {
     color: #ffffff;
   }
   & > .body {
@@ -20,7 +20,7 @@
 
 @mixin colorize-perspective($accentColor) {
   &.perspective {
-    .perspective-name {
+    .perspective-label {
       background-color: $accentColor;
     }
     @include colorize-layout($accentColor);

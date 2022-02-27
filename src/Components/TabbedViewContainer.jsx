@@ -11,7 +11,7 @@ export default function TabbedViewContainer({children}) {
                     {React.Children.map(children, child =>
                         <ViewTab
                             key={child.key}
-                            name={child.props.name}
+                            label={child.props.label}
                             shortcutKeys={child.props.shortcutKeys}
                             actions={child.props.actions}
                             focused={child.props.focused}
