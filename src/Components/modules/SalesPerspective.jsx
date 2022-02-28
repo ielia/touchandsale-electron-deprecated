@@ -1,14 +1,32 @@
 import React from 'react';
 
 import './SalesPerspective.scss';
-import Layout from "../Layout";
-import Perspective from '../Perspective';
 import MenuSection from '../MenuSection';
+import Perspective from '../Perspective';
 import PerspectiveMenuItem from '../PerspectiveMenuItem';
-import TabbedViewContainer from '../TabbedViewContainer';
 import View from '../View';
+import ViewSetLayout from '../ViewSetLayout';
 
 export default function SalesPerspective() {
+    const layout = {
+        horizontal: [
+            {
+                vertical: [
+                    {group: 'top-left', keys: ['items'], selected: 'items', weight: 0.6},
+                    {group: 'bottom-left', keys: ['file', 'icons', 'clients', 'agreements'], selected: 'clients', weight: 0.4}
+                ],
+                weight: 0.65,
+            },
+            {
+                vertical: [
+                    {group: 'top-right', keys: ['payments'], selected: 'payments', weight: 0.6},
+                    {group: 'bottom-right', keys: ['news', 'assistant'], selected: 'news', weight: 0.4}
+                ],
+                weight: 0.35,
+            },
+        ],
+        weight: 1
+    };
     return (
         <Perspective
             label="Ventas"
@@ -36,44 +54,32 @@ export default function SalesPerspective() {
                 </MenuSection>,
             ]}
         >
-            <Layout key="horizontal0" orientation="horizontal">
-                <Layout key="vertical0" orientation="vertical">
-                    <TabbedViewContainer key="tabbed0">
-                        <View key="items" label="Items" className="items" shortcutKeys="cI" actions={[]} selected={true} maximized={false}>
-                            Items
-                        </View>
-                    </TabbedViewContainer>
-                    <TabbedViewContainer key="tabbed1">
-                        <View key="file" label="Ficha" className="file" shortcutKeys="F5" actions={[]} selected={false} maximized={false}>
-                            Ficha
-                        </View>
-                        <View key="icons" label="Íconos" className="icons" shortcutKeys="F6" actions={[]} selected={false} maximized={false}>
-                            Íconos
-                        </View>
-                        <View key="clients" label="Clientes" className="clients" shortcutKeys="F7" actions={[]} selected={true} maximized={false}>
-                            Clientes
-                        </View>
-                        <View key="agreements" label="Convenios" className="agreements" shortcutKeys="F8" actions={[]} selected={false} maximized={false}>
-                            Convenios
-                        </View>
-                    </TabbedViewContainer>
-                </Layout>
-                <Layout key="vertical1" orientation="vertical">
-                    <TabbedViewContainer key="tabbed0">
-                        <View key="payments" label="Pagos" className="payments" shortcutKeys="F9" actions={[]} selected={true} maximized={false}>
-                            Pagos
-                        </View>
-                    </TabbedViewContainer>
-                    <TabbedViewContainer key="tabbed1">
-                        <View key="news" label="Noticias" className="news" shortcutKeys="cN" actions={[]} selected={true} maximized={false}>
-                            Noticias
-                        </View>
-                        <View key="assistant" label="Asistente" className="assistant" shortcutKeys="cA" actions={[]} selected={false} maximized={false}>
-                            Asistente
-                        </View>
-                    </TabbedViewContainer>
-                </Layout>
-            </Layout>
+            <ViewSetLayout layout={layout}>
+                <View key="items" label="Items" className="items" shortcutKeys="cI" actions={[]} selected={true} maximized={false}>
+                    Items
+                </View>
+                <View key="file" label="Ficha" className="file" shortcutKeys="F5" actions={[]} selected={false} maximized={false}>
+                    Ficha
+                </View>
+                <View key="icons" label="Íconos" className="icons" shortcutKeys="F6" actions={[]} selected={false} maximized={false}>
+                    Íconos
+                </View>
+                <View key="clients" label="Clientes" className="clients" shortcutKeys="F7" actions={[]} selected={true} maximized={false}>
+                    Clientes
+                </View>
+                <View key="agreements" label="Convenios" className="agreements" shortcutKeys="F8" actions={[]} selected={false} maximized={false}>
+                    Convenios
+                </View>
+                <View key="payments" label="Pagos" className="payments" shortcutKeys="F9" actions={[]} selected={true} maximized={false}>
+                    Pagos
+                </View>
+                <View key="news" label="Noticias" className="news" shortcutKeys="cN" actions={[]} selected={true} maximized={false}>
+                    Noticias
+                </View>
+                <View key="assistant" label="Asistente" className="assistant" shortcutKeys="cA" actions={[]} selected={false} maximized={false}>
+                    Asistente
+                </View>
+            </ViewSetLayout>
         </Perspective>
     );
 };

@@ -1,9 +1,9 @@
-import { RecoilRoot } from 'recoil';
-// import logo from './logo.svg';
+import {RecoilRoot} from 'recoil';
+
 import './App.css';
 import SalesPerspective from './Components/modules/SalesPerspective';
 
-function App() {
+export default function App() {
     return (
         <RecoilRoot>
             <div className="app">
@@ -27,6 +27,4 @@ function App() {
             </div>
         </RecoilRoot>
     );
-}
-
-export default App;
+};

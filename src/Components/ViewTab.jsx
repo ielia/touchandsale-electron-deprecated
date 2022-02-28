@@ -1,5 +1,7 @@
 import React from 'react';
 
+import './ViewTab.scss';
+
 export default function ViewTab({label, shortcutKeys, actions, zIndex, selected}) {
     return (
         <div className={`view-tab${selected ? ' selected' : ''}`} tabIndex={selected ? 1 : -1} style={{zIndex}}>

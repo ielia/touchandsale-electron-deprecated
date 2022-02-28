@@ -1,7 +1,7 @@
 @import './colors';
-@import './Layout';
 @import './PerspectiveMenuItem';
 @import './PerspectiveSelector';
+@import './ViewSetLayout';
 
 .perspective {
   display: flex;
@@ -23,7 +23,7 @@
     .perspective-label {
       background-color: $accentColor;
     }
-    @include colorize-layout($accentColor);
+    @include colorize-view-set-layout($accentColor);
     @include colorize-perspective-selector($accentColor);
     @include colorize-perspective-menu-item($accentColor);
   }

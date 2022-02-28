@@ -3,7 +3,7 @@ import React from 'react';
 import './TabbedViewContainer.scss';
 import ViewTab from './ViewTab';
 
-export default function TabbedViewContainer({children}) {
+export default function TabbedViewContainer({selectedViewKey, children}) {
     return (
         <div className="tabbed-view-container">
             <div className="tabbed-top">
@@ -15,13 +15,13 @@ export default function TabbedViewContainer({children}) {
                             shortcutKeys={child.props.shortcutKeys}
                             actions={child.props.actions}
                             zIndex={(children.length ?? 0) - index}
-                            selected={child.props.selected}
+                            selected={child.key === selectedViewKey}
                         />
                     )}
                 </div>
             </div>
             <div className="content">
-                {React.Children.toArray(children).filter(child => child.props.selected)}
+                {React.Children.map(children, child => child).find(child => child.key === selectedViewKey) /* horrid patch to use 'find' */}
             </div>
         </div>
     );

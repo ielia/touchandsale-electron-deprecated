@@ -2,7 +2,6 @@
 
 .layout {
   display: flex;
-  flex: 1 1 auto;
 
   &.horizontal {
     flex-direction: row;
@@ -10,8 +9,13 @@
   &.vertical {
     flex-direction: column;
   }
+
+  .layout-content {
+    display: flex;
+    flex: 1 1 auto;
+  }
 }
 
-@mixin colorize-layout($accentColor) {
+@mixin colorize-view-set-layout($accentColor) {
   @include colorize-tabbed-view-container($accentColor);
 }

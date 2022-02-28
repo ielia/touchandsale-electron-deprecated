@@ -1,9 +1,9 @@
 import React from 'react';
 
+import './Perspective.scss';
 import Menu from './Menu';
 import MenuSection from './MenuSection';
-import PerspectiveSelector from "./PerspectiveSelector";
-import './Perspective.scss';
+import PerspectiveSelector from './PerspectiveSelector';
 
 export default function Perspective({label, shortcutKeys, className, menuSections, children}) {
     return (
