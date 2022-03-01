@@ -11,14 +11,6 @@
   &:last-child {
     margin-right: 0;
   }
-  &:focus {
-    .outline {
-      background-color: $main-focus-color;
-    }
-    .selection-tail .shape {
-      fill: $main-focus-color;
-    }
-  }
   .outline {
     background-color: $main-background-color;
     border-top-right-radius: 5px;
@@ -78,6 +70,15 @@
       border-right: 1px solid black;
       border-top-right-radius: 5px;
     }
+  }
+}
+
+.tabbed-view-container:focus-within .view-tab.selected {
+  .outline {
+    background-color: $main-focus-color;
+  }
+  .selection-tail .shape {
+    fill: $main-focus-color;
   }
 }
 

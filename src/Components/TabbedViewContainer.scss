@@ -22,11 +22,20 @@
     }
   }
 
-  & > .content {
+  & > .tabbed-view-content {
     border-top: 1px solid $main-border-color;
     display: flex;
     flex: 1 1 auto;
-    padding: 5px;
+
+    & > .tab-content {
+      border: 5px transparent;
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+  &:focus-within > .tabbed-view-content > .tab-content {
+    border: 5px solid $main-focus-color;
   }
 }
 

@@ -20,8 +20,10 @@ export default function TabbedViewContainer({selectedViewKey, children}) {
                     )}
                 </div>
             </div>
-            <div className="content">
-                {React.Children.map(children, child => child).find(child => child.key === selectedViewKey) /* horrid patch to use 'find' */}
+            <div className="tabbed-view-content">
+                <div className="tab-content" tabindex="1">
+                    {React.Children.map(children, child => child).find(child => child.key === selectedViewKey) /* horrid patch to use 'find' */}
+                </div>
             </div>
         </div>
     );
