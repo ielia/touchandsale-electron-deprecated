@@ -1,11 +1,13 @@
-import React from 'react';
+import {PureComponent} from 'react';
 
 import './Menu.scss';
 
-export default function Menu({children}) {
-    return (
-        <div className="menu">
-            {children}
-        </div>
-    );
-}
+export default class Menu extends PureComponent {
+    render() {
+        return (
+            <div className="menu">
+                {this.props.children}
+            </div>
+        );
+    }
+};
