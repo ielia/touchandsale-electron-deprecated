@@ -13,7 +13,9 @@
   }
   .outline {
     background-color: $main-background-color;
+    border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+    border-left: 1px solid $main-border-color;
     border-right: 1px solid $main-border-color;
     border-top: 1px solid $main-border-color;
     display: flex;
@@ -61,6 +63,7 @@
       width: 25px;
     }
     + .view-tab .outline {
+      border-left: none;
       border-top-left-radius: 0;
       margin-left: -4px;
     }

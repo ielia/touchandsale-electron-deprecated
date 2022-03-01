@@ -11,12 +11,14 @@ export default class TabbedViewContainer extends PureComponent {
 
     handleViewSelection(viewKey) {
         const {onViewSelected, containerId} = this.props;
-        console.log('handleViewSelection:', viewKey, 'containerId:', containerId);
         onViewSelected(containerId, viewKey);
     }
 
     render() {
         const {children, selectedViewKey} = this.props;
+        const childrenCount = Children.count(children);
+        // Horrid patch to find a child without using 'toArray' that contextualise keys:
+        const indexOfSelected = Children.map(children, (child, index) => child.props.viewId === selectedViewKey ? index : null).find(i => i !== null);
         return (
             <div className="tabbed-view-container">
                 <div className="tabbed-top">
@@ -26,10 +28,10 @@ export default class TabbedViewContainer extends PureComponent {
                                 key={child.props.viewId}
                                 actions={child.props.actions}
                                 label={child.props.label}
-                                selected={child.key === selectedViewKey}
+                                selected={index === indexOfSelected}
                                 shortcutKeys={child.props.shortcutKeys}
                                 viewId={child.props.viewId}
-                                zIndex={(Children.count(children) ?? 0) - index}
+                                zIndex={index < indexOfSelected ? index : index === indexOfSelected ? childrenCount : childrenCount - index + indexOfSelected}
                                 onSelected={this.handleViewSelection}
                             />
                         )}
@@ -37,7 +39,7 @@ export default class TabbedViewContainer extends PureComponent {
                 </div>
                 <div className="tabbed-view-content">
                     <div className="tab-content" tabIndex="1">
-                        {Children.map(children, child => child.key === selectedViewKey ? child : null).find(child => child) /* horrid patch to use 'find' */}
+                        {children[indexOfSelected]}
                     </div>
                 </div>
             </div>

@@ -36,7 +36,6 @@ export default class SalesPerspective extends PureComponent {
     }
 
     handleViewSelection(tabbedContainerId, viewId) {
-        console.log('tabbedContainerId:', tabbedContainerId, 'viewId:', viewId);
         const layout = this.updateSelections(this.state.layout, tabbedContainerId, viewId);
         this.setState({layout});
     }
@@ -48,7 +47,6 @@ export default class SalesPerspective extends PureComponent {
             result = {group, selected: (group === tabbedContainerId) ? viewId : selected, ...other};
         } else {
             const [orientation, content] = horizontal ? ['horizontal', horizontal] : ['vertical', vertical];
-            console.log('updateSelections - layout:', layout, '- orientation:', orientation, '- content:', content);
             result = {[orientation]: content.map(c => this.updateSelections(c, tabbedContainerId, viewId)), ...other};
         }
         return result;
