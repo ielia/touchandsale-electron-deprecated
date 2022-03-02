@@ -8,9 +8,11 @@
   &:first-child .outline {
     padding-left: 5px;
   }
+
   &:last-child {
     margin-right: 0;
   }
+
   .outline {
     background-color: $main-background-color;
     border-top-left-radius: 5px;
@@ -27,6 +29,7 @@
       color: #ffffff;
       min-width: 100px;
     }
+
     .label, .shortcut {
       color: #ffffff;
       padding-inline: 5px;
@@ -34,10 +37,12 @@
       user-select: none;
     }
   }
+
   .selection-tail {
     .line {
       stroke: $main-border-color;
     }
+
     .shape {
       fill: $main-background-color;
     }
@@ -49,6 +54,7 @@
         border-top: 1px solid black;
       }
     }
+
     .outline {
       border-right: none;
       border-top-right-radius: 0;
@@ -62,12 +68,14 @@
       padding: 0;
       width: 25px;
     }
+
     + .view-tab .outline {
       border-left: none;
       border-top-left-radius: 0;
       margin-left: -4px;
     }
   }
+
   &:not(.selected) {
     .outline {
       border-right: 1px solid black;
@@ -80,6 +88,7 @@
   .outline {
     background-color: $main-focus-color;
   }
+
   .selection-tail .shape {
     fill: $main-focus-color;
   }

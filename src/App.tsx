@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './App.css';
+import './App.scss';
 import SalesPerspective from './Components/modules/SalesPerspective';
 
 export default function App() {

@@ -74,7 +74,8 @@ export default class ViewTab extends PureComponent<Props> {
     render() {
         const {label, selected, shortcutKey, zIndex} = this.props;
         return (
-            <div className={`view-tab${selected ? ' selected' : ''}`} tabIndex={selected ? 1 : -1} style={{zIndex: `${zIndex}`}} onClick={this.handleClick} onKeyDown={this.handleKeyDown} ref={this.selfRef}>
+            <div className={`view-tab${selected ? ' selected' : ''}`} tabIndex={selected ? 1 : -1} style={{zIndex: `${zIndex}`}} onClick={this.handleClick}
+                 onKeyDown={this.handleKeyDown} ref={this.selfRef}>
                 <div className="outline">
                     <div className="label">{label}</div>
                     <div className="shortcut">{shortcutKeyToString(shortcutKey)}</div>
