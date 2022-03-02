@@ -1,8 +1,12 @@
-import {PureComponent} from 'react';
+import React, {PureComponent} from 'react';
 
 import './PerspectiveSelector.scss';
 
-export default class PerspectiveSelector extends PureComponent {
+interface Props {
+    label: string;
+}
+
+export default class PerspectiveSelector extends PureComponent<Props> {
     render() {
         const label = this.props.label;
         return (

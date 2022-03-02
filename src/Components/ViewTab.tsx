@@ -1,10 +1,23 @@
-import {PureComponent, createRef} from 'react';
+import React, {PureComponent, RefObject, createRef} from 'react';
 
 import './ViewTab.scss';
+import {ShortcutKey} from '../commons';
 import {shortcutKeyToString} from '../commons';
 
-export default class ViewTab extends PureComponent {
-    constructor(props) {
+interface Props {
+    actions: any;
+    label: string;
+    onSelected?: (viewId: string) => void;
+    selected?: boolean;
+    shortcutKey?: ShortcutKey;
+    viewId: string;
+    zIndex?: number;
+}
+
+export default class ViewTab extends PureComponent<Props> {
+    selfRef: RefObject<HTMLDivElement>;
+
+    constructor(props: Props) {
         super(props);
         this.handleClick = this.handleClick.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -28,21 +41,21 @@ export default class ViewTab extends PureComponent {
         onSelected(viewId);
     }
 
-    handleKeyDown(event) {
+    handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
         const key = event.key;
         const {onSelected, viewId} = this.props;
         if (key === ' ' || key === 'Enter') {
             onSelected(viewId);
         } else if (['ArrowLeft', 'ArrowRight', 'Left', 'Right'].indexOf(key) >= 0) {
             const current = this.selfRef.current;
-            const sibling = (key === 'ArrowLeft' || key === 'Left') ? current.previousSibling : current.nextSibling;
+            const sibling = (key === 'ArrowLeft' || key === 'Left') ? current.previousElementSibling : current.nextElementSibling;
             if (sibling) {
-                sibling.focus();
+                (sibling as HTMLElement).focus();
             }
         }
     }
 
-    handleShortcutKey(event) {
+    handleShortcutKey(event: KeyboardEvent) {
         const {onSelected, shortcutKey, viewId} = this.props;
         // TODO: See what to do with the metaKey.
         if (event.key.toUpperCase() === shortcutKey.key.toUpperCase()
@@ -61,7 +74,7 @@ export default class ViewTab extends PureComponent {
     render() {
         const {label, selected, shortcutKey, zIndex} = this.props;
         return (
-            <div className={`view-tab${selected ? ' selected' : ''}`} tabIndex={selected ? 1 : -1} style={{zIndex}} onClick={this.handleClick} onKeyDown={this.handleKeyDown} ref={this.selfRef}>
+            <div className={`view-tab${selected ? ' selected' : ''}`} tabIndex={selected ? 1 : -1} style={{zIndex: `${zIndex}`}} onClick={this.handleClick} onKeyDown={this.handleKeyDown} ref={this.selfRef}>
                 <div className="outline">
                     <div className="label">{label}</div>
                     <div className="shortcut">{shortcutKeyToString(shortcutKey)}</div>

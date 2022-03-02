@@ -1,4 +1,4 @@
-import {PureComponent} from 'react';
+import React, {PureComponent} from 'react';
 
 import './SalesPerspective.scss';
 import MenuSection from '../MenuSection';
@@ -7,8 +7,15 @@ import PerspectiveMenuItem from '../PerspectiveMenuItem';
 import View from '../View';
 import ViewSetLayout from '../ViewSetLayout';
 
-export default class SalesPerspective extends PureComponent {
-    constructor(props) {
+interface Props {
+}
+
+interface State {
+    layout: any;
+}
+
+export default class SalesPerspective extends PureComponent<Props, State> {
+    constructor(props: any) {
         super(props);
         this.handleViewSelection = this.handleViewSelection.bind(this);
 
@@ -35,18 +42,18 @@ export default class SalesPerspective extends PureComponent {
         };
     }
 
-    handleViewSelection(tabbedContainerId, viewId) {
+    handleViewSelection(tabbedContainerId: string, viewId: string) {
         this.setState({layout: this.updateSelections(this.state.layout, tabbedContainerId, viewId)});
     }
 
-    updateSelections(layout, tabbedContainerId, viewId) {
+    updateSelections(layout: any, tabbedContainerId: string, viewId: string) {
         const {horizontal, group, keys, selected, vertical, ...other} = layout;
         let result;
         if (group) {
             result = {group, keys, selected: (group === tabbedContainerId) || (!tabbedContainerId && keys.indexOf(viewId) >= 0) ? viewId : selected, ...other};
         } else {
             const [orientation, content] = horizontal ? ['horizontal', horizontal] : ['vertical', vertical];
-            result = {[orientation]: content.map(child => this.updateSelections(child, tabbedContainerId, viewId)), ...other};
+            result = {[orientation]: content.map((child: any) => this.updateSelections(child, tabbedContainerId, viewId)), ...other};
         }
         return result;
     }

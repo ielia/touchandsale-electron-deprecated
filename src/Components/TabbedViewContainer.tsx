@@ -1,29 +1,37 @@
-import {Children, PureComponent} from 'react';
+import React, {Children, PureComponent} from 'react';
 
 import './TabbedViewContainer.scss';
+import {ShortcutKey} from '../commons';
 import ViewTab from './ViewTab';
 
-export default class TabbedViewContainer extends PureComponent {
-    constructor(props) {
+interface Props {
+    children: React.ReactNode[];
+    containerId: string;
+    onViewSelected: Function;
+    selectedViewId: string;
+}
+
+export default class TabbedViewContainer extends PureComponent<Props> {
+    constructor(props: Props) {
         super(props);
         this.handleViewSelection = this.handleViewSelection.bind(this);
     }
 
-    handleViewSelection(viewKey) {
+    handleViewSelection(viewId: string) {
         const {onViewSelected, containerId} = this.props;
-        onViewSelected(containerId, viewKey);
+        onViewSelected(containerId, viewId);
     }
 
     render() {
-        const {children, selectedViewKey} = this.props;
+        const {children, selectedViewId} = this.props;
         const childrenCount = Children.count(children);
         // Horrid patch to find a child without using 'toArray' that contextualise keys:
-        const indexOfSelected = Children.map(children, (child, index) => child.props.viewId === selectedViewKey ? index : null).find(i => i !== null);
+        const indexOfSelected = Children.map(children, (child: { props: { viewId: string } }, index) => child.props.viewId === selectedViewId ? index : null).find(i => i !== null);
         return (
             <div className="tabbed-view-container">
                 <div className="tabbed-top">
                     <div className="tabs">
-                        {Children.map(children, (child, index) =>
+                        {Children.map(children, (child: { props: { actions: any, label: string, shortcutKey: ShortcutKey, viewId: string } }, index) =>
                             <ViewTab
                                 key={child.props.viewId}
                                 actions={child.props.actions}
@@ -38,7 +46,7 @@ export default class TabbedViewContainer extends PureComponent {
                     </div>
                 </div>
                 <div className="tabbed-view-content">
-                    <div className="tab-content" tabIndex="1">
+                    <div className="tab-content" tabIndex={1}>
                         {children[indexOfSelected]}
                     </div>
                 </div>

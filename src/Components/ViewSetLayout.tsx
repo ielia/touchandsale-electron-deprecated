@@ -1,10 +1,25 @@
-import {PureComponent} from 'react';
+import React, {Children, PureComponent} from 'react';
 
 import './ViewSetLayout.scss';
 import TabbedViewContainer from './TabbedViewContainer';
+import View from './View';
 
-export default class ViewSetLayout extends PureComponent {
-    buildTree(currentKey, {horizontal, group, keys, selected, vertical, weight}, keyedChildren, onViewSelected) {
+type ViewSelectedListener = (containerId: string, viewId: string) => boolean | void;
+
+interface Props {
+    layout: any;
+    onViewSelected: ViewSelectedListener;
+}
+
+export default class ViewSetLayout extends PureComponent<Props> {
+    buildTree(currentKey: string, {
+        horizontal,
+        group,
+        keys,
+        selected,
+        vertical,
+        weight
+    }: { horizontal?: any[], group?: string, keys?: string[], selected?: string, vertical?: any[], weight?: number }, keyedChildren: any, onViewSelected: ViewSelectedListener) {
         const [orientation, subLayouts] = horizontal ? ['horizontal', horizontal] : vertical ? ['vertical', vertical] : [null, null];
         const style = {flex: `1 1 ${100.0 * weight}%`};
         if (orientation) {
@@ -17,7 +32,7 @@ export default class ViewSetLayout extends PureComponent {
         } else {
             return (
                 <div className="layout-content" key={group} style={style}>
-                    <TabbedViewContainer containerId={group} selectedViewKey={selected} onViewSelected={onViewSelected}>
+                    <TabbedViewContainer containerId={group} selectedViewId={selected} onViewSelected={onViewSelected}>
                         {keys.map(key => keyedChildren[key])}
                     </TabbedViewContainer>
                 </div>
@@ -27,10 +42,10 @@ export default class ViewSetLayout extends PureComponent {
 
     render() {
         const {layout, children, onViewSelected} = this.props;
-        const keyedChildren = children.reduce((acc, child) => {
-            acc[child.key] = child;
+        const keyedChildren = Children.toArray(children).reduce((acc: any, child: View) => {
+            acc[child.props.viewId] = child;
             return acc;
         }, {});
-        return this.buildTree([], layout, keyedChildren, onViewSelected);
+        return this.buildTree('', layout, keyedChildren, onViewSelected);
     }
 };

@@ -1,10 +1,16 @@
-import {PureComponent} from 'react';
+import React, {PureComponent} from 'react';
 
 import './PerspectiveMenuItem.scss';
 
-export default class PerspectiveMenuItem extends PureComponent {
+interface Props {
+    label: string;
+    shortcutKey: {};
+    title: string;
+}
+
+export default class PerspectiveMenuItem extends PureComponent<Props> {
     render() {
-        const {title, label, shortcutKey} = this.props;
+        const {label, shortcutKey, title} = this.props;
         return (
             <button className="perspective-menu-item" title={title}>
                 <div className="label">{label}</div>

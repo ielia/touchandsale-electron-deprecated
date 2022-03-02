@@ -1,4 +1,4 @@
-import {PureComponent} from 'react';
+import React, {PureComponent} from 'react';
 
 import '../commons';
 import './Perspective.scss';
@@ -6,9 +6,15 @@ import Menu from './Menu';
 import MenuSection from './MenuSection';
 import PerspectiveSelector from './PerspectiveSelector';
 
-export default class Perspective extends PureComponent {
+interface Props {
+    className: string;
+    label: string;
+    menuSections: any;
+    shortcutKey: string;
+}
+
+export default class Perspective extends PureComponent<Props> {
     render() {
-        // const {children, className, label, menuSections, shortcutKey} = this.props;
         const {children, className, label, menuSections} = this.props;
         return (
             <div className={`perspective ${className}`}>
