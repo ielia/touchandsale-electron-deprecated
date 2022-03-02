@@ -8,7 +8,19 @@ export default class ViewTab extends PureComponent {
         super(props);
         this.handleClick = this.handleClick.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleShortcutKey = this.handleShortcutKey.bind(this);
         this.selfRef = createRef();
+    }
+
+    componentDidMount() {
+        const {shortcutKey, viewId} = this.props;
+        if (shortcutKey && viewId) {
+            document.addEventListener('keydown', this.handleShortcutKey);
+        }
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleShortcutKey);
     }
 
     handleClick() {
@@ -27,6 +39,22 @@ export default class ViewTab extends PureComponent {
             if (sibling) {
                 sibling.focus();
             }
+        }
+    }
+
+    handleShortcutKey(event) {
+        const {onSelected, shortcutKey, viewId} = this.props;
+        // TODO: See what to do with the metaKey.
+        if (event.key.toUpperCase() === shortcutKey.key.toUpperCase()
+            && !!event.altKey === !!shortcutKey.altKey
+            && !!event.ctrlKey === !!shortcutKey.ctrlKey
+            && !!event.metaKey === !!shortcutKey.metaKey
+            && !!event.shiftKey === !!shortcutKey.shiftKey
+        ) {
+            this.selfRef.current.focus();
+            onSelected(viewId);
+            event.preventDefault();
+            event.stopPropagation();
         }
     }
 

@@ -1,29 +1,13 @@
 import {PureComponent} from 'react';
 
 import './SalesPerspective.scss';
-import {shortcutKeyToString} from '../../commons';
 import MenuSection from '../MenuSection';
 import Perspective from '../Perspective';
 import PerspectiveMenuItem from '../PerspectiveMenuItem';
 import View from '../View';
 import ViewSetLayout from '../ViewSetLayout';
 
-let CURRENT_PERSPECTIVE;
-
 export default class SalesPerspective extends PureComponent {
-    static handleViewSelectionShortcut(event) {
-        if (CURRENT_PERSPECTIVE) {
-            const viewId = CURRENT_PERSPECTIVE.referencesByShortcutKey[shortcutKeyToString(event)];
-            if (viewId) {
-                CURRENT_PERSPECTIVE.handleViewSelection(null, viewId);
-            }
-        }
-    }
-
-    static perspectiveListenerSet = false;
-
-    referencesByShortcutKey = {};
-
     constructor(props) {
         super(props);
         this.handleViewSelection = this.handleViewSelection.bind(this);
@@ -51,26 +35,8 @@ export default class SalesPerspective extends PureComponent {
         };
     }
 
-    componentDidMount() {
-        CURRENT_PERSPECTIVE = this;
-        if (!SalesPerspective.perspectiveListenerSet) {
-            document.addEventListener('keyup', SalesPerspective.handleViewSelectionShortcut);
-            SalesPerspective.perspectiveListenerSet = true;
-        }
-    }
-
-    componentWillUnmount() {
-        if (CURRENT_PERSPECTIVE === this) {
-            CURRENT_PERSPECTIVE = null;
-        }
-    }
-
     handleViewSelection(tabbedContainerId, viewId) {
         this.setState({layout: this.updateSelections(this.state.layout, tabbedContainerId, viewId)});
-    }
-
-    registerViewShortcut(shortcutKey, viewId) {
-        this.referencesByShortcutKey[shortcutKeyToString(shortcutKey)] = viewId;
     }
 
     updateSelections(layout, tabbedContainerId, viewId) {
@@ -115,28 +81,28 @@ export default class SalesPerspective extends PureComponent {
                 ]}
             >
                 <ViewSetLayout layout={layout} onViewSelected={this.handleViewSelection}>
-                    <View key="items" perspective={this} viewId="items" label="Items" className="items" shortcutKey={{key: 'I', ctrlKey: true}} actions={[]}>
+                    <View key="items" viewId="items" label="Items" className="items" shortcutKey={{key: 'I', ctrlKey: true}} actions={[]}>
                         Items
                     </View>
-                    <View key="file" perspective={this} viewId="file" label="Ficha" className="file" shortcutKey={{key: 'F5'}} actions={[]}>
+                    <View key="file" viewId="file" label="Ficha" className="file" shortcutKey={{key: 'F5'}} actions={[]}>
                         Ficha
                     </View>
-                    <View key="icons" perspective={this} viewId="icons" label="Íconos" className="icons" shortcutKey={{key: 'F6'}} actions={[]}>
+                    <View key="icons" viewId="icons" label="Íconos" className="icons" shortcutKey={{key: 'F6'}} actions={[]}>
                         Íconos
                     </View>
-                    <View key="clients" perspective={this} viewId="clients" label="Clientes" className="clients" shortcutKey={{key: 'F7'}} actions={[]}>
+                    <View key="clients" viewId="clients" label="Clientes" className="clients" shortcutKey={{key: 'F7'}} actions={[]}>
                         Clientes
                     </View>
-                    <View key="agreements" perspective={this} viewId="agreements" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>
+                    <View key="agreements" viewId="agreements" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>
                         Convenios
                     </View>
-                    <View key="payments" perspective={this} viewId="payments" label="Pagos" className="payments" shortcutKey={{key: 'F9'}} actions={[]}>
+                    <View key="payments" viewId="payments" label="Pagos" className="payments" shortcutKey={{key: 'F9'}} actions={[]}>
                         Pagos
                     </View>
-                    <View key="news" perspective={this} viewId="news" label="Noticias" className="news" shortcutKey={{key: 'N', ctrlKey: true}} actions={[]}>
+                    <View key="news" viewId="news" label="Noticias" className="news" shortcutKey={{key: 'N', ctrlKey: true}} actions={[]}>
                         Noticias
                     </View>
-                    <View key="assistant" perspective={this} viewId="assistant" label="Asistente" className="assistant" shortcutKey={{key: 'A', ctrlKey: true}} actions={[]}>
+                    <View key="assistant" viewId="assistant" label="Asistente" className="assistant" shortcutKey={{key: 'A', ctrlKey: true}} actions={[]}>
                         Asistente
                     </View>
                 </ViewSetLayout>
