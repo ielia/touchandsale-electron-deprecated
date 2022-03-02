@@ -1,13 +1,29 @@
 import {PureComponent} from 'react';
 
 import './SalesPerspective.scss';
+import {shortcutKeyToString} from '../../commons';
 import MenuSection from '../MenuSection';
 import Perspective from '../Perspective';
 import PerspectiveMenuItem from '../PerspectiveMenuItem';
 import View from '../View';
 import ViewSetLayout from '../ViewSetLayout';
 
+let CURRENT_PERSPECTIVE;
+
 export default class SalesPerspective extends PureComponent {
+    static handleViewSelectionShortcut(event) {
+        if (CURRENT_PERSPECTIVE) {
+            const viewId = CURRENT_PERSPECTIVE.referencesByShortcutKey[shortcutKeyToString(event)];
+            if (viewId) {
+                CURRENT_PERSPECTIVE.handleViewSelection(null, viewId);
+            }
+        }
+    }
+
+    static perspectiveListenerSet = false;
+
+    referencesByShortcutKey = {};
+
     constructor(props) {
         super(props);
         this.handleViewSelection = this.handleViewSelection.bind(this);
@@ -35,19 +51,36 @@ export default class SalesPerspective extends PureComponent {
         };
     }
 
+    componentDidMount() {
+        CURRENT_PERSPECTIVE = this;
+        if (!SalesPerspective.perspectiveListenerSet) {
+            document.addEventListener('keyup', SalesPerspective.handleViewSelectionShortcut);
+            SalesPerspective.perspectiveListenerSet = true;
+        }
+    }
+
+    componentWillUnmount() {
+        if (CURRENT_PERSPECTIVE === this) {
+            CURRENT_PERSPECTIVE = null;
+        }
+    }
+
     handleViewSelection(tabbedContainerId, viewId) {
-        const layout = this.updateSelections(this.state.layout, tabbedContainerId, viewId);
-        this.setState({layout});
+        this.setState({layout: this.updateSelections(this.state.layout, tabbedContainerId, viewId)});
+    }
+
+    registerViewShortcut(shortcutKey, viewId) {
+        this.referencesByShortcutKey[shortcutKeyToString(shortcutKey)] = viewId;
     }
 
     updateSelections(layout, tabbedContainerId, viewId) {
-        const {horizontal, group, selected, vertical, ...other} = layout;
+        const {horizontal, group, keys, selected, vertical, ...other} = layout;
         let result;
         if (group) {
-            result = {group, selected: (group === tabbedContainerId) ? viewId : selected, ...other};
+            result = {group, keys, selected: (group === tabbedContainerId) || (!tabbedContainerId && keys.indexOf(viewId) >= 0) ? viewId : selected, ...other};
         } else {
             const [orientation, content] = horizontal ? ['horizontal', horizontal] : ['vertical', vertical];
-            result = {[orientation]: content.map(c => this.updateSelections(c, tabbedContainerId, viewId)), ...other};
+            result = {[orientation]: content.map(child => this.updateSelections(child, tabbedContainerId, viewId)), ...other};
         }
         return result;
     }
@@ -58,52 +91,52 @@ export default class SalesPerspective extends PureComponent {
             <Perspective
                 label="Ventas"
                 className="sales"
-                shortcutKeys="aV"
+                shortcutKey="aV"
                 menuSections={[
                     <MenuSection key="section0">
-                        <PerspectiveMenuItem key="op-type" title="Tipo de operación" label="Oper." shortcutKeys="F3"/>
-                        <PerspectiveMenuItem key="def-vals" title="Valores por defecto" label="V.Defe." shortcutKeys="F12"/>
-                        <PerspectiveMenuItem key="last-ops" title="Consulta de operaciones anteriores" label="Consul." shortcutKeys="F11"/>
-                        <PerspectiveMenuItem key="repeat" title="Repetir condiciones de la operación anterior" label="Repetir" shortcutKeys="cF12"/>
-                        <PerspectiveMenuItem key="save-temp" title="Guarda operación en curso de forma temporal" label="G.Tem." shortcutKeys="cF10"/>
-                        <PerspectiveMenuItem key="sum" title="Visualizar suma de operaciones previas" label="Suma" shortcutKeys="a+"/>
-                        <PerspectiveMenuItem key="expiration" title="Cambiar fecha de vencimiento (Presupuesto)" label="Vto." shortcutKeys="cF"/>
-                        <PerspectiveMenuItem key="client-log" title="Histórico Cliente" label="Histór." shortcutKeys="cH"/>
+                        <PerspectiveMenuItem key="op-type" title="Tipo de operación" label="Oper." shortcutKey="F3"/>
+                        <PerspectiveMenuItem key="def-vals" title="Valores por defecto" label="V.Defe." shortcutKey="F12"/>
+                        <PerspectiveMenuItem key="last-ops" title="Consulta de operaciones anteriores" label="Consul." shortcutKey="F11"/>
+                        <PerspectiveMenuItem key="repeat" title="Repetir condiciones de la operación anterior" label="Repetir" shortcutKey="cF12"/>
+                        <PerspectiveMenuItem key="save-temp" title="Guarda operación en curso de forma temporal" label="G.Tem." shortcutKey="cF10"/>
+                        <PerspectiveMenuItem key="sum" title="Visualizar suma de operaciones previas" label="Suma" shortcutKey="a+"/>
+                        <PerspectiveMenuItem key="expiration" title="Cambiar fecha de vencimiento (Presupuesto)" label="Vto." shortcutKey="cF"/>
+                        <PerspectiveMenuItem key="client-log" title="Histórico Cliente" label="Histór." shortcutKey="cH"/>
                     </MenuSection>,
                     <MenuSection key="section1">
-                        <PerspectiveMenuItem key="load-obs" title="Cargar observaciones" label="Observ." shortcutKeys="cO"/>
-                        <PerspectiveMenuItem key="stock-deposit" title="Depósitos de Stock" label="Depós." shortcutKeys="cP"/>
-                        <PerspectiveMenuItem key="stock-query" title="Interconsulta de Stock" label="Interc." shortcutKeys="cS"/>
-                        <PerspectiveMenuItem key="load-temp" title="Rescata temporal" label="R.Tem." shortcutKeys="cT"/>
-                        <PerspectiveMenuItem key="save-op" title="Guarda operación en curso de forma pendiente" label="G.Pend." shortcutKeys="aF10"/>
-                        <PerspectiveMenuItem key="print-prev" title="Vista previa impresión" label="V.Impr." shortcutKeys="csP"/>
-                        <PerspectiveMenuItem key="print-prev-temp" title="Vista previa impresión temporal" label="V.Tem." shortcutKeys="csT"/>
+                        <PerspectiveMenuItem key="load-obs" title="Cargar observaciones" label="Observ." shortcutKey="cO"/>
+                        <PerspectiveMenuItem key="stock-deposit" title="Depósitos de Stock" label="Depós." shortcutKey="cP"/>
+                        <PerspectiveMenuItem key="stock-query" title="Interconsulta de Stock" label="Interc." shortcutKey="cS"/>
+                        <PerspectiveMenuItem key="load-temp" title="Rescata temporal" label="R.Tem." shortcutKey="cT"/>
+                        <PerspectiveMenuItem key="save-op" title="Guarda operación en curso de forma pendiente" label="G.Pend." shortcutKey="aF10"/>
+                        <PerspectiveMenuItem key="print-prev" title="Vista previa impresión" label="V.Impr." shortcutKey="csP"/>
+                        <PerspectiveMenuItem key="print-prev-temp" title="Vista previa impresión temporal" label="V.Tem." shortcutKey="csT"/>
                     </MenuSection>,
                 ]}
             >
                 <ViewSetLayout layout={layout} onViewSelected={this.handleViewSelection}>
-                    <View key="items" viewId="items" label="Items" className="items" shortcutKeys="cI" actions={[]}>
+                    <View key="items" perspective={this} viewId="items" label="Items" className="items" shortcutKey={{key: 'I', ctrlKey: true}} actions={[]}>
                         Items
                     </View>
-                    <View key="file" viewId="file" label="Ficha" className="file" shortcutKeys="F5" actions={[]}>
+                    <View key="file" perspective={this} viewId="file" label="Ficha" className="file" shortcutKey={{key: 'F5'}} actions={[]}>
                         Ficha
                     </View>
-                    <View key="icons" viewId="icons" label="Íconos" className="icons" shortcutKeys="F6" actions={[]}>
+                    <View key="icons" perspective={this} viewId="icons" label="Íconos" className="icons" shortcutKey={{key: 'F6'}} actions={[]}>
                         Íconos
                     </View>
-                    <View key="clients" viewId="clients" label="Clientes" className="clients" shortcutKeys="F7" actions={[]}>
+                    <View key="clients" perspective={this} viewId="clients" label="Clientes" className="clients" shortcutKey={{key: 'F7'}} actions={[]}>
                         Clientes
                     </View>
-                    <View key="agreements" viewId="agreements" label="Convenios" className="agreements" shortcutKeys="F8" actions={[]}>
+                    <View key="agreements" perspective={this} viewId="agreements" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>
                         Convenios
                     </View>
-                    <View key="payments" viewId="payments" label="Pagos" className="payments" shortcutKeys="F9" actions={[]}>
+                    <View key="payments" perspective={this} viewId="payments" label="Pagos" className="payments" shortcutKey={{key: 'F9'}} actions={[]}>
                         Pagos
                     </View>
-                    <View key="news" viewId="news" label="Noticias" className="news" shortcutKeys="cN" actions={[]}>
+                    <View key="news" perspective={this} viewId="news" label="Noticias" className="news" shortcutKey={{key: 'N', ctrlKey: true}} actions={[]}>
                         Noticias
                     </View>
-                    <View key="assistant" viewId="assistant" label="Asistente" className="assistant" shortcutKeys="cA" actions={[]}>
+                    <View key="assistant" perspective={this} viewId="assistant" label="Asistente" className="assistant" shortcutKey={{key: 'A', ctrlKey: true}} actions={[]}>
                         Asistente
                     </View>
                 </ViewSetLayout>

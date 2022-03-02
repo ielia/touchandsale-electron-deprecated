@@ -29,7 +29,7 @@ export default class TabbedViewContainer extends PureComponent {
                                 actions={child.props.actions}
                                 label={child.props.label}
                                 selected={index === indexOfSelected}
-                                shortcutKeys={child.props.shortcutKeys}
+                                shortcutKey={child.props.shortcutKey}
                                 viewId={child.props.viewId}
                                 zIndex={index < indexOfSelected ? index : index === indexOfSelected ? childrenCount : childrenCount - index + indexOfSelected}
                                 onSelected={this.handleViewSelection}

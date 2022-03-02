@@ -4,11 +4,11 @@ import './PerspectiveMenuItem.scss';
 
 export default class PerspectiveMenuItem extends PureComponent {
     render() {
-        const {title, label, shortcutKeys} = this.props;
+        const {title, label, shortcutKey} = this.props;
         return (
             <button className="perspective-menu-item" title={title}>
                 <div className="label">{label}</div>
-                <div className="shortcut">{shortcutKeys}</div>
+                <div className="shortcut">{shortcutKey}</div>
             </button>
         );
     }
