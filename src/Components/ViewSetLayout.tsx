@@ -16,9 +16,9 @@ interface Props {
 }
 
 function calculateHorizontallyWeightedFlexes(start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData): {startRatio: number, endRatio: number} {
-    const localWidth = (start.current.offsetWidth + data.node.offsetWidth + end.current.offsetWidth);
-    const fullWidth = data.node.parentElement.offsetWidth;
-    const relativeLocation = parseInt(data.node.getAttribute('originalLeft')) + data.node.offsetWidth / 2 + data.x - start.current.offsetLeft;
+    const localWidth = start.current.outerWidth(true) + end.current.outerWidth(true);
+    const fullWidth = data.node.parentElement.outerWidth(true);
+    const relativeLocation = parseInt(data.node.getAttribute('originalLeft')) + data.x - start.current.offsetLeft;
     const {start: startFlex, startRatio, end: endFlex, endRatio} = calculateWeightedFlexes(localWidth, fullWidth, relativeLocation);
     start.current.style.flex = startFlex;
     end.current.style.flex = endFlex;
@@ -26,9 +26,9 @@ function calculateHorizontallyWeightedFlexes(start: RefObject<HTMLDivElement>, e
 }
 
 function calculateVerticallyWeightedFlexes(start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData): {startRatio: number, endRatio: number} {
-    const localHeight = (start.current.offsetHeight + data.node.offsetHeight + end.current.offsetHeight);
-    const fullHeight = data.node.parentElement.offsetHeight;
-    const relativeLocation = parseInt(data.node.getAttribute('originalTop')) + data.node.offsetHeight / 2 + data.y - start.current.offsetTop;
+    const localHeight = start.current.outerHeight(true) + end.current.outerHeight(true);
+    const fullHeight = data.node.parentElement.outerHeight(true);
+    const relativeLocation = parseInt(data.node.getAttribute('originalTop')) + data.y - start.current.offsetTop;
     const {start: startFlex, startRatio, end: endFlex, endRatio} = calculateWeightedFlexes(localHeight, fullHeight, relativeLocation);
     start.current.style.flex = startFlex;
     end.current.style.flex = endFlex;
