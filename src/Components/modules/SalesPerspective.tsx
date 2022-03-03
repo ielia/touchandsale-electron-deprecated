@@ -17,6 +17,7 @@ interface State {
 export default class SalesPerspective extends PureComponent<Props, State> {
     constructor(props: any) {
         super(props);
+        this.handleLayoutDivisionChange = this.handleLayoutDivisionChange.bind(this);
         this.handleViewSelection = this.handleViewSelection.bind(this);
 
         this.state = {
@@ -42,6 +43,10 @@ export default class SalesPerspective extends PureComponent<Props, State> {
         };
     }
 
+    handleLayoutDivisionChange(pathToStart: string, startRatio: number, endRatio: number) {
+        this.setState({layout: this.updateWeights(this.state.layout, pathToStart, startRatio, endRatio)});
+    }
+
     handleViewSelection(tabbedContainerId: string, viewId: string) {
         this.setState({layout: this.updateSelections(this.state.layout, tabbedContainerId, viewId)});
     }
@@ -56,6 +61,38 @@ export default class SalesPerspective extends PureComponent<Props, State> {
             result = {[orientation]: content.map((child: any) => this.updateSelections(child, tabbedContainerId, viewId)), ...other};
         }
         return result;
+    }
+
+    updateWeights(layout: any, pathToStart: string, startRatio: number, endRatio: number): any {
+        const {horizontal, vertical, weight, ...other} = layout;
+        const [orientation, subLayout] = pathToStart[0] === 'h' ? ['horizontal', horizontal] : ['vertical', vertical];
+        const indexStr = pathToStart.match('^[hv](\\d+)')[1];
+        const nextPathPointer = indexStr.length + 1;
+        const index = parseInt(indexStr);
+        const startLayout = subLayout[index];
+        if (pathToStart.length > nextPathPointer) {
+            return {
+                [orientation]: [
+                    ...subLayout.slice(0, index),
+                    this.updateWeights(startLayout, pathToStart.substring(nextPathPointer), startRatio, endRatio),
+                    ...subLayout.slice(index + 1),
+                ],
+                weight,
+                ...other,
+            };
+        } else {
+            const endLayout = subLayout[index + 1];
+            return {
+                [orientation]: [
+                    ...subLayout.slice(0, index),
+                    {...startLayout, weight: startRatio},
+                    {...endLayout, weight: endRatio},
+                    ...subLayout.slice(index + 2),
+                ],
+                weight,
+                ...other,
+            }
+        }
     }
 
     render() {
@@ -87,7 +124,7 @@ export default class SalesPerspective extends PureComponent<Props, State> {
                     </MenuSection>,
                 ]}
             >
-                <ViewSetLayout layout={layout} onViewSelected={this.handleViewSelection}>
+                <ViewSetLayout layout={layout} onLayoutDivisionChange={this.handleLayoutDivisionChange} onViewSelected={this.handleViewSelection}>
                     <View key="items" viewId="items" label="Items" className="items" shortcutKey={{key: 'I', ctrlKey: true}} actions={[]}>
                         Items
                     </View>
