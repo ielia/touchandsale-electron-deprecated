@@ -13,12 +13,15 @@
   & > .tabbed-top {
     display: flex;
     flex: 0 0 auto;
-    justify-items: flex-start;
 
     & > .tabs {
       display: flex;
+      flex: 1 1 auto;
+    }
+
+    & > .actions, & > .decorations {
+      display: flex;
       flex: 0 0 auto;
-      justify-items: flex-start;
     }
   }
 

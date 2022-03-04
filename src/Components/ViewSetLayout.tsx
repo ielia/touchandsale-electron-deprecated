@@ -99,6 +99,7 @@ export default class ViewSetLayout extends PureComponent<Props> {
         if (orientation) {
             const nextKey = `${currentKey}${orientation[0]}`;
             const containerRef = createRef<HTMLDivElement>();
+            const handleRef = createRef<HTMLDivElement>();
             return (
                 <div className={`layout ${orientation}`} key={nextKey} style={style} ref={containerRef}>
                     {addSeparatorElement(
@@ -107,12 +108,13 @@ export default class ViewSetLayout extends PureComponent<Props> {
                                 key={`separator-${i}`}
                                 axis={axis}
                                 handle=".layout-separator"
+                                nodeRef={handleRef}
                                 position={{x: 0, y: 0}}
                                 onStart={onStart}
                                 onDrag={onDrag.bind(null, list[i].ref, list[i + 1].ref)}
                                 onStop={onStop.bind(null, onLayoutDivisionChange, `${nextKey}${i}`, list[i].ref, list[i + 1].ref)}
                             >
-                                <div className="layout-separator"/>
+                                <div className="layout-separator" ref={handleRef}/>
                             </Draggable>
                         ),
                         subLayouts.map((subLayout, index) => this.buildTree(`${nextKey}${index}`, subLayout, keyedChildren))
