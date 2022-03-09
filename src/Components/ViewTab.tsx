@@ -1,7 +1,7 @@
 import React, {PureComponent, RefObject, createRef} from 'react';
 
 import './ViewTab.scss';
-import {shortcutKeyToString} from '../commons';
+import {shortcutKeyToShortString} from '../commons';
 
 interface Props {
     actions: any; // TODO: See what to do with this.
@@ -77,7 +77,7 @@ export default class ViewTab extends PureComponent<Props> {
                  onKeyDown={this.handleKeyDown} ref={this.selfRef}>
                 <div className="outline">
                     <div className="label">{label}</div>
-                    <div className="shortcut">{shortcutKeyToString(shortcutKey)}</div>
+                    <div className="shortcut">{shortcutKeyToShortString(shortcutKey)}</div>
                 </div>
                 <svg className="selection-tail" preserveAspectRatio="none" viewBox="0 0 100 100">
                     <path className="shape" d="M 0 0 C 40 0, 60 100, 100 100 H 100 0 Z"/>

@@ -17,9 +17,35 @@ function addSeparatorElement<T, S>(createSeparator: (index?: number, list?: T[])
 export {addSeparatorElement};
 
 /**
+ * Append shortcut key spec to the end of a string.
+ * @param str Main string.
+ * @param shortcutKey Shortcut key.
+ * @returns A string composed by the main string passed as parameter and the shortcut key representation in parentheses.
+ */
+function appendShortcutString(str: string, shortcutKey: ShortcutKey): string {
+    return shortcutKey ? `${str} (${shortcutKeyToString(shortcutKey)})` : str;
+}
+export {appendShortcutString};
+
+/**
  * Converts a shortcut key specification into a short string.
  * E.g.,
  *     {key: 'x', altKey: true, ctrlKey: true, metaKey: true, shiftKey: true} --> 'acmsX',
+ *     {key: 'y'} --> 'Y'
+ * @param shortcutKey Shortcut key representation.
+ * @returns The short string representation of the shortcut key passed as parameter.
+ */
+function shortcutKeyToShortString(shortcutKey?: ShortcutKey): string {
+    const {altKey, ctrlKey, key, metaKey, shiftKey} = shortcutKey ?? {key: ''};
+    // TODO: See what to do with the metaKey.
+    return `${metaKey ? 'm' : ''}${altKey ? 'a' : ''}${ctrlKey ? 'c' : ''}${shiftKey ? 's' : ''}${key.toUpperCase()}`;
+}
+export {shortcutKeyToShortString};
+
+/**
+ * Converts a shortcut key specification into a string.
+ * E.g.,
+ *     {key: 'x', altKey: true, ctrlKey: true, metaKey: true, shiftKey: true} --> 'Alt+Ctrl+Meta+Shift+X',
  *     {key: 'y'} --> 'Y'
  * @param shortcutKey Shortcut key representation.
  * @returns The string representation of the shortcut key passed as parameter.
@@ -27,6 +53,6 @@ export {addSeparatorElement};
 function shortcutKeyToString(shortcutKey?: ShortcutKey): string {
     const {altKey, ctrlKey, key, metaKey, shiftKey} = shortcutKey ?? {key: ''};
     // TODO: See what to do with the metaKey.
-    return `${metaKey ? 'm' : ''}${altKey ? 'a' : ''}${ctrlKey ? 'c' : ''}${shiftKey ? 's' : ''}${key.toUpperCase()}`;
+    return `${metaKey ? 'Meta+' : ''}${altKey ? 'Alt+' : ''}${ctrlKey ? 'Ctrl+' : ''}${shiftKey ? 'Shift+' : ''}${key.toUpperCase()}`;
 }
 export {shortcutKeyToString};

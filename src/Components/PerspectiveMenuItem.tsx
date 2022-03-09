@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 
 import './PerspectiveMenuItem.scss';
-import {shortcutKeyToString} from '../commons';
+import {appendShortcutString, shortcutKeyToShortString} from '../commons';
 
 interface Props {
     label: string;
@@ -12,10 +12,11 @@ interface Props {
 export default class PerspectiveMenuItem extends PureComponent<Props> {
     render() {
         const {label, shortcutKey, title} = this.props;
+        const fullTitle = appendShortcutString(title, shortcutKey);
         return (
-            <button className="perspective-menu-item" title={title}>
+            <button className="perspective-menu-item" title={fullTitle}>
                 <div className="label">{label}</div>
-                <div className="shortcut">{shortcutKeyToString(shortcutKey)}</div>
+                <div className="shortcut">{shortcutKeyToShortString(shortcutKey)}</div>
             </button>
         );
     }
