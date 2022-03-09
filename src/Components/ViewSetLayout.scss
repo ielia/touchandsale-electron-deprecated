@@ -3,6 +3,7 @@
 
 .layout {
   display: flex;
+  flex: 1 1 auto;
 
   &.horizontal {
     flex-direction: row;

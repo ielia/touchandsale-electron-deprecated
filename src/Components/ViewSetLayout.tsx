@@ -164,6 +164,6 @@ export default class ViewSetLayout extends PureComponent<Props> {
             acc[child.props.viewId] = child;
             return acc;
         }, {});
-        return this.buildTree('', layout, keyedChildren);
+        return this.buildTree('', layout, keyedChildren) ?? <div className="layout empty"/>;
     }
 };

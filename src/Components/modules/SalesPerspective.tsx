@@ -64,10 +64,8 @@ export default class SalesPerspective extends Component<Props, State> {
 
     buildMinimizedGroups(groupIds: string[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }) {
         const groups = this.findGroups(groupIds, layout);
-        console.log('GROUPS:', groups);
         return groups.reduce((acc, group) => {
             if (group.state === 'minimized') {
-                console.log('MINIMIZED:', group);
                 const {groupId, children} = group;
                 acc.push(
                     <MinimizedViewContainer key={groupId} containerId={groupId} onRestore={this.handleContainerRestoration}>
@@ -154,7 +152,6 @@ export default class SalesPerspective extends Component<Props, State> {
     }
 
     render() {
-        console.log('RENDERING SalesPerspective');
         const {layout, minimizedGroups} = this.state;
         const views: { [viewId: string]: ReactElement<View> & ReactNode } = {
             agreements: <View key="agreements" viewId="agreements" iconLabel="Cnv" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>
