@@ -9,6 +9,7 @@ import View from './View';
 type LayoutDivisionChangeListener = (pathToStart: string, startRatio: number, endRatio: number) => any;
 type MaximizeContainerListener = (containerId: string) => any;
 type MinimizeContainerListener = (containerId: string) => any;
+type NonMinimizedViewContainerState = Exclude<ViewContainerState, 'minimized'>;
 type OrientedDragListener = (start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData) => any;
 type OrientedDragStopListener = (onLayoutDivisionChange: LayoutDivisionChangeListener, pathToStart: string, start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData) => any;
 type RestoreContainerListener = (containerId: string) => any;
@@ -22,6 +23,7 @@ interface Props {
     onMinimizeContainer: MinimizeContainerListener;
     onRestoreContainer: RestoreContainerListener;
     onViewSelected: ViewSelectedListener;
+    shownState?: NonMinimizedViewContainerState;
 }
 
 export default class ViewSetLayout extends PureComponent<Props> {
@@ -42,7 +44,7 @@ export default class ViewSetLayout extends PureComponent<Props> {
         };
     }
 
-    buildTree(currentKey: string, layoutSpec: LayoutSpec, keyedChildren: {[viewId: string]: ReactElement<View> & ReactNode}): ReactHTMLElement<HTMLDivElement> {
+    buildTree(currentKey: string, shownState: NonMinimizedViewContainerState, layoutSpec: LayoutSpec, keyedChildren: {[viewId: string]: ReactElement<View> & ReactNode}): ReactHTMLElement<HTMLDivElement> {
         const {onLayoutDivisionChange, onMaximizeContainer, onMinimizeContainer, onRestoreContainer, onViewSelected} = this.props;
         const style = {flex: `1 1 ${100.0 * layoutSpec.weight}%`};
         let result: React.ReactHTMLElement<HTMLDivElement> = null;
@@ -53,7 +55,7 @@ export default class ViewSetLayout extends PureComponent<Props> {
             const containerRef = createRef<HTMLDivElement>();
             const handleRef = createRef<HTMLDivElement>();
             const subLayoutElements = subLayouts.reduce((acc, subLayout, index) => {
-                const subtree = this.buildTree(`${nextKey}${index}`, subLayout, keyedChildren);
+                const subtree = this.buildTree(`${nextKey}${index}`, shownState, subLayout, keyedChildren);
                 if (subtree) {
                     acc.push(subtree);
                 }
@@ -82,11 +84,12 @@ export default class ViewSetLayout extends PureComponent<Props> {
                     </div>
                 ) as React.ReactHTMLElement<HTMLDivElement>;
             }
-        } else if ('groupId' in layoutSpec && layoutSpec.state === 'normal') {
+        } else if ('groupId' in layoutSpec && layoutSpec.state === shownState) {
+            const {groupId, selected, state, children} = layoutSpec;
             result = (
-                <div className="layout-content" key={layoutSpec.groupId} style={style} ref={createRef()}>
-                    <TabbedViewContainer containerId={layoutSpec.groupId} selectedViewId={layoutSpec.selected} onMaximize={onMaximizeContainer} onMinimize={onMinimizeContainer} onRestore={onRestoreContainer} onViewSelected={onViewSelected}>
-                        {layoutSpec.children.map(child => keyedChildren[child])}
+                <div className="layout-content" key={groupId} style={style} ref={createRef()}>
+                    <TabbedViewContainer containerId={groupId} selectedViewId={selected} state={state} onMaximize={onMaximizeContainer} onMinimize={onMinimizeContainer} onRestore={onRestoreContainer} onViewSelected={onViewSelected}>
+                        {children.map(child => keyedChildren[child])}
                     </TabbedViewContainer>
                 </div>
             ) as React.ReactHTMLElement<HTMLDivElement>;
@@ -158,12 +161,12 @@ export default class ViewSetLayout extends PureComponent<Props> {
     }
 
     render() {
-        const {layout, children} = this.props;
+        const {layout, shownState = 'normal', children} = this.props;
         let childArray = Array.isArray(children) ? children : [children];
         const keyedChildren = childArray.reduce((acc: {[viewId: string]: ReactElement<View> & ReactNode}, child: ReactElement<View> & ReactNode) => {
             acc[child.props.viewId] = child;
             return acc;
         }, {});
-        return this.buildTree('', layout, keyedChildren) ?? <div className="layout empty"/>;
+        return this.buildTree('', shownState, layout, keyedChildren) ?? <div className="layout empty"/>;
     }
 };

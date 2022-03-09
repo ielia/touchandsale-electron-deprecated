@@ -9,7 +9,7 @@ import PerspectiveMenuItem from '../PerspectiveMenuItem';
 import View from '../View';
 import ViewSetLayout from '../ViewSetLayout';
 
-interface MinimizedGroups {
+interface MinimizedGroupLocations {
     left: string[],
     right: string[],
 }
@@ -19,7 +19,8 @@ interface Props {
 
 interface State {
     layout: LayoutSpec;
-    minimizedGroups: MinimizedGroups;
+    maximizedGroup: string;
+    minimizedGroupLocations: MinimizedGroupLocations;
 }
 
 export default class SalesPerspective extends Component<Props, State> {
@@ -55,17 +56,19 @@ export default class SalesPerspective extends Component<Props, State> {
                 ],
                 weight: 1,
             },
-            minimizedGroups: {
+            maximizedGroup: null,
+            minimizedGroupLocations: {
                 left: ['top-left', 'bottom-left'],
                 right: ['top-right', 'bottom-right'],
             },
         };
     }
 
-    buildMinimizedGroups(groupIds: string[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }) {
+    buildMinimizedGroups(maximizedContext: boolean, groupIds: string[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }) {
         const groups = this.findGroups(groupIds, layout);
         return groups.reduce((acc, group) => {
-            if (group.state === 'minimized') {
+            const state = group.state;
+            if (maximizedContext ? state !== 'maximized' : state === 'minimized') {
                 const {groupId, children} = group;
                 acc.push(
                     <MinimizedViewContainer key={groupId} containerId={groupId} onRestore={this.handleContainerRestoration}>
@@ -86,19 +89,25 @@ export default class SalesPerspective extends Component<Props, State> {
     }
 
     handleContainerMaximization(tabbedContainerId: string): void {
-        this.setState(({layout, ...others}) => ({layout: this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'maximized'), ...others}));
+        this.setState(({layout, maximizedGroup, ...others}) => ({layout: this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'maximized'), maximizedGroup: tabbedContainerId, ...others}));
     }
 
     handleContainerMinimization(tabbedContainerId: string): void {
-        this.setState(({layout, ...others}) => ({layout: this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'minimized'), ...others}));
+        this.setState(({layout, maximizedGroup, ...others}) => ({layout: this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'minimized'), maximizedGroup: maximizedGroup === tabbedContainerId ? null : maximizedGroup, ...others}));
     }
 
     handleContainerRestoration(tabbedContainerId: string): void {
-        this.setState(({layout, ...others}) => ({layout: this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'normal'), ...others}));
+        this.setState(({layout, maximizedGroup, ...others}) => {
+            let newLayout = this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'normal');
+            if (tabbedContainerId !== maximizedGroup) {
+                newLayout = this.updateGroupAttribute(newLayout, maximizedGroup, 'state', 'normal');
+            }
+            return {layout: newLayout, maximizedGroup: null, ...others};
+        });
     }
 
     handleLayoutDivisionChange(pathToStart: string, startRatio: number, endRatio: number) {
-        this.setState(({minimizedGroups}) => ({layout: this.updateWeights(this.state.layout, pathToStart, startRatio, endRatio), minimizedGroups}));
+        this.setState(({layout, ...others}) => ({layout: this.updateWeights(layout, pathToStart, startRatio, endRatio), ...others}));
     }
 
     handleViewSelection(tabbedContainerId: string, viewId: string) {
@@ -152,7 +161,7 @@ export default class SalesPerspective extends Component<Props, State> {
     }
 
     render() {
-        const {layout, minimizedGroups} = this.state;
+        const {layout, maximizedGroup, minimizedGroupLocations} = this.state;
         const views: { [viewId: string]: ReactElement<View> & ReactNode } = {
             agreements: <View key="agreements" viewId="agreements" iconLabel="Cnv" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>
                 Convenios
@@ -207,13 +216,13 @@ export default class SalesPerspective extends Component<Props, State> {
                 ]}
             >
                 <Menu orientation="vertical">
-                    {this.buildMinimizedGroups(minimizedGroups.left, layout, views)}
+                    {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroupLocations.left, layout, views)}
                 </Menu>
-                <ViewSetLayout layout={layout} onLayoutDivisionChange={this.handleLayoutDivisionChange} onMaximizeContainer={this.handleContainerMaximization} onMinimizeContainer={this.handleContainerMinimization} onRestoreContainer={this.handleContainerRestoration} onViewSelected={this.handleViewSelection}>
+                <ViewSetLayout layout={layout} shownState={maximizedGroup ? 'maximized' : 'normal'} onLayoutDivisionChange={this.handleLayoutDivisionChange} onMaximizeContainer={this.handleContainerMaximization} onMinimizeContainer={this.handleContainerMinimization} onRestoreContainer={this.handleContainerRestoration} onViewSelected={this.handleViewSelection}>
                     {Object.values(views)}
                 </ViewSetLayout>
                 <Menu orientation="vertical">
-                    {this.buildMinimizedGroups(minimizedGroups.right, layout, views)}
+                    {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroupLocations.right, layout, views)}
                 </Menu>
             </Perspective>
         );

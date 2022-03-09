@@ -16,6 +16,7 @@ interface Props {
     onRestore: (containerId: string) => any;
     onViewSelected: (containerId: string, viewId: string) => any;
     selectedViewId: string;
+    state: ViewContainerState;
 }
 
 export default class TabbedViewContainer extends PureComponent<Props> {
@@ -45,11 +46,11 @@ export default class TabbedViewContainer extends PureComponent<Props> {
     }
 
     render() {
-        const {children, selectedViewId} = this.props;
+        const {children, selectedViewId, state} = this.props;
         const childArray = Array.isArray(children) ? children : [children];
         const childrenCount = Children.count(childArray);
         const indexOfSelected = childArray.findIndex(child => child.props.viewId === selectedViewId);
-        const selectedChild = childArray[indexOfSelected] as ReactElement;
+        const selectedChild = childArray[indexOfSelected];
         return (
             <div className="tabbed-view-container">
                 <div className="tabbed-top">
@@ -70,7 +71,7 @@ export default class TabbedViewContainer extends PureComponent<Props> {
                     <div className="actions">&nbsp;</div>
                     <div className="decorations">
                         <MinimizeIcon onClick={this.handleMinimization}/>
-                        {selectedChild.props.maximized ? <WindowIcon onClick={this.handleRestore}/> : <MaximizeIcon onClick={this.handleMaximization}/>}
+                        {state === 'maximized' ? <WindowIcon onClick={this.handleRestore}/> : <MaximizeIcon onClick={this.handleMaximization}/>}
                     </div>
                 </div>
                 <div className="tabbed-view-content">

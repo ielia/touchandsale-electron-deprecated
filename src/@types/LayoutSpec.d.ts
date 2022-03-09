@@ -5,7 +5,7 @@ type LeafLayoutSpec = {
     children: string[],
     groupId: string,
     selected: string,
-    state: 'maximized' | 'minimized' | 'normal',
+    state: ViewContainerState,
     weight: number,
 }
 
