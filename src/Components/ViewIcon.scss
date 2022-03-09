@@ -1,0 +1,30 @@
+@import './colors';
+
+.view-icon {
+  cursor: pointer;
+  display: flex;
+  font-size: 8px;
+  line-height: 2em;
+  margin: 2px;
+  user-select: none;
+
+  .view-icon-label {
+    background-color: $button-label-bg-color;
+    color: $button-label-fg-color;
+    overflow: hidden;
+    transform: rotate(270deg);
+    width: 2em;
+  }
+
+  .view-icon-shortcut {
+    color: $button-label-fg-color;
+    overflow: hidden;
+    width: 10px;
+  }
+}
+
+@mixin colorize-view-icon($accentColor) {
+  .view-icon .view-icon-shortcut {
+    background-color: $accentColor;
+  }
+}

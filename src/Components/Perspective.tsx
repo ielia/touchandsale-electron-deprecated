@@ -1,4 +1,4 @@
-import React, {PureComponent} from 'react';
+import React, {PureComponent, ReactElement} from 'react';
 
 import '../commons';
 import './Perspective.scss';
@@ -9,7 +9,7 @@ import PerspectiveSelector from './PerspectiveSelector';
 interface Props {
     className: string;
     label: string;
-    menuSections: any;
+    menuSections: ReactElement<MenuSection>[];
     shortcutKey: string;
 }
 

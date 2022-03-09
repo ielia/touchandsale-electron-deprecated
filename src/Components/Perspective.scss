@@ -10,7 +10,7 @@
   height: 100%;
 
   .perspective-label, .perspective-menu-item {
-    color: #ffffff;
+    color: $button-label-fg-color;
   }
 
   & > .body {

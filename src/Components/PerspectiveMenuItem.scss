@@ -1,7 +1,7 @@
 @import './colors';
 
 .perspective-menu-item {
-  background-color: $main-background-color;
+  background-color: $main-bg-color;
   border: none;
   border-radius: 5px;
   display: flex;
@@ -13,11 +13,11 @@
   vertical-align: middle;
 
   .label {
-    background-color: $button-label-color;
+    background-color: $button-label-bg-color;
   }
 
   .label, .shortcut {
-    color: #ffffff;
+    color: $button-label-fg-color;
     padding: 2px;
   }
 }

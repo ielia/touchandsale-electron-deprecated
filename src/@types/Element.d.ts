@@ -1,4 +1,7 @@
+/**
+ * Adding outerHeight/Width to Element.
+ */
 interface Element {
-    outerWidth: (includingMargins?: boolean) => number;
     outerHeight: (includingMargins?: boolean) => number;
+    outerWidth: (includingMargins?: boolean) => number;
 }

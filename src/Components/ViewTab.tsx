@@ -1,13 +1,12 @@
 import React, {PureComponent, RefObject, createRef} from 'react';
 
 import './ViewTab.scss';
-import {ShortcutKey} from '../commons';
 import {shortcutKeyToString} from '../commons';
 
 interface Props {
-    actions: any;
+    actions: any; // TODO: See what to do with this.
     label: string;
-    onSelected?: (viewId: string) => void;
+    onSelected: (viewId: string) => void;
     selected?: boolean;
     shortcutKey?: ShortcutKey;
     viewId: string;

@@ -14,7 +14,7 @@
   }
 
   .outline {
-    background-color: $main-background-color;
+    background-color: $main-bg-color;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-left: 1px solid $main-border-color;
@@ -25,13 +25,12 @@
     padding: 2px 5px 2px 7px;
 
     .label {
-      background-color: $tab-label-color;
-      color: #ffffff;
+      background-color: $tab-label-bg-color;
       min-width: 100px;
     }
 
     .label, .shortcut {
-      color: #ffffff;
+      color: $tab-label-fg-color;
       padding-inline: 5px;
       text-align: start;
       user-select: none;
@@ -44,7 +43,7 @@
     }
 
     .shape {
-      fill: $main-background-color;
+      fill: $main-bg-color;
     }
   }
 

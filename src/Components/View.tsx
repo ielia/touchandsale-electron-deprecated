@@ -1,12 +1,10 @@
 import React, {PureComponent} from 'react';
 
-import {ShortcutKey} from '../commons';
-
 interface Props {
-    actions?: any;
+    actions?: any; // TODO: See what to do with this.
     className?: string;
     label: string;
-    maximized?: boolean;
+    iconLabel?: string;
     selected?: boolean;
     shortcutKey?: ShortcutKey;
     viewId?: string;

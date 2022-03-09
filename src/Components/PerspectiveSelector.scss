@@ -1,6 +1,8 @@
+@import './colors';
+
 .perspective-selector {
   border-radius: 5px;
-  color: #ffffff;
+  color: $button-label-fg-color;
   display: flex;
   margin: 2px;
   overflow: hidden;
@@ -8,7 +10,7 @@
   user-select: none;
 
   .label {
-    border-right: 2px solid #ffffff;
+    border-right: 2px solid $button-label-fg-color;
     text-transform: uppercase;
   }
 

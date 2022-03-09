@@ -1,17 +1,20 @@
-import React, {Children, PureComponent} from 'react';
+import React, {Children, PureComponent, ReactElement} from 'react';
 // TODO: Change these icons
 import MaximizeIcon from '@mui/icons-material/Maximize';
 import MinimizeIcon from '@mui/icons-material/Minimize';
 import WindowIcon from '@mui/icons-material/Window';
 
 import './TabbedViewContainer.scss';
-import {ShortcutKey} from '../commons';
+import View from './View';
 import ViewTab from './ViewTab';
 
 interface Props {
-    children: React.ReactNode[];
+    children: ReactElement<View> | ReactElement<View>[];
     containerId: string;
-    onViewSelected: Function;
+    onMaximize: (containerId: string) => any;
+    onMinimize: (containerId: string) => any;
+    onRestore: (containerId: string) => any;
+    onViewSelected: (containerId: string, viewId: string) => any;
     selectedViewId: string;
 }
 
@@ -25,15 +28,15 @@ export default class TabbedViewContainer extends PureComponent<Props> {
     }
 
     handleMaximization() {
-        console.log('maximize');
+        this.props.onMaximize(this.props.containerId);
     }
 
     handleMinimization() {
-        console.log('minimize')
+        this.props.onMinimize(this.props.containerId);
     }
 
     handleRestore() {
-        console.log('restore');
+        this.props.onRestore(this.props.containerId);
     }
 
     handleViewSelection(viewId: string) {
@@ -43,15 +46,15 @@ export default class TabbedViewContainer extends PureComponent<Props> {
 
     render() {
         const {children, selectedViewId} = this.props;
-        const childrenCount = Children.count(children);
-        // Horrid patch to find a child without using 'toArray' that contextualise keys:
-        const indexOfSelected = Children.map(children, (child: { props: { viewId: string } }, index) => child.props.viewId === selectedViewId ? index : null).find(i => i !== null);
-        const selectedChild = children[indexOfSelected] as React.ReactElement;
+        const childArray = Array.isArray(children) ? children : [children];
+        const childrenCount = Children.count(childArray);
+        const indexOfSelected = childArray.findIndex(child => child.props.viewId === selectedViewId);
+        const selectedChild = childArray[indexOfSelected] as ReactElement;
         return (
             <div className="tabbed-view-container">
                 <div className="tabbed-top">
                     <div className="tabs">
-                        {Children.map(children, (child: { props: { actions: any, label: string, shortcutKey: ShortcutKey, viewId: string } }, index) =>
+                        {childArray.map((child, index) =>
                             <ViewTab
                                 key={child.props.viewId}
                                 actions={child.props.actions}

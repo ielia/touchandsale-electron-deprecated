@@ -12,3 +12,11 @@
     user-select: none;
   }
 }
+
+.menu.vertical .menu-section {
+  flex-direction: column;
+
+  .handle {
+    transform: rotate(90deg);
+  }
+}

@@ -3,5 +3,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-items: flex-start;
-  /* vertical-align: middle; */
+
+  &.vertical {
+    flex-direction: column;
+  }
 }
