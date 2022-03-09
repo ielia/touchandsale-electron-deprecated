@@ -11,11 +11,13 @@
 
   .label {
     border-right: 2px solid $button-label-fg-color;
+    width: 100px;
+    text-align: start;
     text-transform: uppercase;
   }
 
   .label, .shortcut {
-    padding: 2px;
+    padding: 2px 5px;
   }
 }
 

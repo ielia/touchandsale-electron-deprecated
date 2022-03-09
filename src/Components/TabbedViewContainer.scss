@@ -3,7 +3,8 @@
 
 .tabbed-view-container {
   border: 1px solid $main-border-color;
-  border-radius: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -16,17 +17,24 @@
 
     & > .tabs {
       display: flex;
+      flex: 0 0 auto;
+    }
+
+    & > .actions {
       flex: 1 1 auto;
     }
 
     & > .actions, & > .decorations {
+      border-bottom: 1px solid $main-border-color;
       display: flex;
+    }
+
+    & > .decorations {
       flex: 0 0 auto;
     }
   }
 
   & > .tabbed-view-content {
-    border-top: 1px solid $main-border-color;
     display: flex;
     flex: 1 1 auto;
 

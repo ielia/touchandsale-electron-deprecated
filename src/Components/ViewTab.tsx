@@ -79,9 +79,9 @@ export default class ViewTab extends PureComponent<Props> {
                     <div className="label">{label}</div>
                     <div className="shortcut">{shortcutKeyToString(shortcutKey)}</div>
                 </div>
-                <svg className="selection-tail" viewBox="0 0 100 100">
-                    <path className="shape" d="M 0 0 C 25 0, 75 100, 100 100 H 100 0 Z"/>
-                    <path className="line" d="M 0 0 C 25 0, 75 100, 100 100" fill="transparent" strokeWidth="2"/>
+                <svg className="selection-tail" preserveAspectRatio="none" viewBox="0 0 100 100">
+                    <path className="shape" d="M 0 0 C 40 0, 60 100, 100 100 H 100 0 Z"/>
+                    <path className="line" d="M 0 0 C 40 0, 60 100, 100 100" fill="transparent" strokeWidth="2"/>
                 </svg>
             </div>
         );

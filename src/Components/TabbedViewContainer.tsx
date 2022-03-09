@@ -67,7 +67,7 @@ export default class TabbedViewContainer extends PureComponent<Props> {
                             />
                         )}
                     </div>
-                    <div className="actions"/>
+                    <div className="actions">&nbsp;</div>
                     <div className="decorations">
                         <MinimizeIcon onClick={this.handleMinimization}/>
                         {selectedChild.props.maximized ? <WindowIcon onClick={this.handleRestore}/> : <MaximizeIcon onClick={this.handleMaximization}/>}
