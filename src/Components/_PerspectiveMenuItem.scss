@@ -8,9 +8,14 @@
   flex: 0 0 auto;
   margin: 2px;
   overflow: hidden;
-  padding: 0;
+  padding: 2px;
   user-select: none;
   vertical-align: middle;
+
+  &:hover {
+    border: 2px outset;
+    margin: 0;
+  }
 
   .label {
     background-color: $button-label-bg-color;
@@ -19,11 +24,5 @@
   .label, .shortcut {
     color: $button-label-fg-color;
     padding: 2px 5px;
-  }
-}
-
-@mixin colorize-perspective-menu-item($accentColor) {
-  .perspective-menu-item .shortcut {
-    background-color: $accentColor;
   }
 }

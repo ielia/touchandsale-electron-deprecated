@@ -1,6 +1,3 @@
-@import './TabbedViewContainer';
-@import './ViewIcon';
-
 .layout {
   display: flex;
   flex: 1 1 auto;
@@ -32,9 +29,4 @@
     transform: none !important;
     z-index: 1;
   }
-}
-
-@mixin colorize-view-set-layout($accentColor) {
-  @include colorize-tabbed-view-container($accentColor);
-  @include colorize-view-icon($accentColor);
 }

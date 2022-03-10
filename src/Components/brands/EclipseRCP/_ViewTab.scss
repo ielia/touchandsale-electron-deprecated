@@ -1,4 +1,4 @@
-@import './colors';
+@import '../../colors';
 
 .view-tab {
   cursor: pointer;
@@ -47,7 +47,7 @@
   &.selected {
     &:not(:last-child) {
       .selection-tail {
-        border-top: 1px solid black;
+        border-top: 1px solid $main-border-color;
       }
     }
 
@@ -75,11 +75,6 @@
 
   &:not(.selected) {
     border-bottom: 1px solid $main-border-color;
-
-    .outline {
-      border-right: 1px solid black;
-      border-top-right-radius: 5px;
-    }
   }
 }
 
@@ -90,11 +85,5 @@
 
   .selection-tail .shape {
     fill: $main-focus-color;
-  }
-}
-
-@mixin colorize-view-tab($accentColor) {
-  .view-tab .shortcut {
-    background-color: $accentColor;
   }
 }

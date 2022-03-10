@@ -1,12 +1,14 @@
+import Color from 'color';
 import React, {PureComponent, ReactElement} from 'react';
 
 import '../commons';
-import './Perspective.scss';
+import './_Perspective.scss';
 import Menu from './Menu';
 import MenuSection from './MenuSection';
 import PerspectiveSelector from './PerspectiveSelector';
 
 interface Props {
+    accentColor: Color;
     className: string;
     label: string;
     menuSections: ReactElement<MenuSection>[];
@@ -15,12 +17,12 @@ interface Props {
 
 export default class Perspective extends PureComponent<Props> {
     render() {
-        const {children, className, label, menuSections} = this.props;
+        const {accentColor, children, className, label, menuSections} = this.props;
         return (
             <div className={`perspective ${className}`}>
                 <Menu>
                     <MenuSection>
-                        <PerspectiveSelector label={label}/>
+                        <PerspectiveSelector accentColor={accentColor} label={label}/>
                     </MenuSection>
                     {menuSections}
                     <MenuSection>

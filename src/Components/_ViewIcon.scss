@@ -22,9 +22,3 @@
     width: 25px;
   }
 }
-
-@mixin colorize-view-icon($accentColor) {
-  .view-icon .view-icon-shortcut {
-    background-color: $accentColor;
-  }
-}

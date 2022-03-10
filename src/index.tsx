@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import './polyfills';
+
 import './index.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import './polyfills';
 
 ReactDOM.render(
     <React.StrictMode>

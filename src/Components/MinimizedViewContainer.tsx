@@ -1,7 +1,8 @@
+import Color from 'color';
 import React, {PureComponent, ReactElement} from 'react';
 import WindowIcon from '@mui/icons-material/Window';
 
-import './MinimizedViewContainer.scss';
+import './_MinimizedViewContainer.scss';
 import MenuSection from './MenuSection';
 import View from './View';
 import ViewIcon from './ViewIcon';
@@ -23,13 +24,13 @@ export default class MinimizedViewContainer extends PureComponent<Props> {
     }
 
     render() {
-        const children = this.props.children;
+        const {children} = this.props;
         const childArray = Array.isArray(children) ? children : [children];
         return (
             <MenuSection className="minimized-view-container">
                 <WindowIcon className="restore-button" onClick={this.handleRestoreIconClick}/>
-                {childArray.map(({props: {iconLabel, label, shortcutKey, viewId}}) => (
-                    <ViewIcon key={viewId} label={iconLabel} title={label} shortcutKey={shortcutKey}/>
+                {childArray.map(({props: {color, iconLabel, label, shortcutKey, viewId}}) => (
+                    <ViewIcon key={viewId} color={color} label={iconLabel} title={label} shortcutKey={shortcutKey}/>
                 ))}
             </MenuSection>
         );

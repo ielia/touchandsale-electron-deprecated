@@ -20,9 +20,3 @@
     padding: 2px 5px;
   }
 }
-
-@mixin colorize-perspective-selector($accentColor) {
-  .perspective-selector {
-    background-color: $accentColor;
-  }
-}

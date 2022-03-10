@@ -1,0 +1,17 @@
+@import './colors';
+
+.perspective {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+
+  .perspective-label, .perspective-menu-item {
+    color: $button-label-fg-color;
+  }
+
+  & > .body {
+    display: flex;
+    flex: 1 1 auto;
+  }
+}

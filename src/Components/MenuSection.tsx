@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import DragIndicator from '@mui/icons-material/DragIndicator';
 
-import './MenuSection.scss';
+import './_MenuSection.scss';
 
 interface Props {
     className?: string;

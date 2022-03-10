@@ -1,8 +1,10 @@
+import Color from 'color';
 import React, {PureComponent} from 'react';
 
 interface Props {
     actions?: any; // TODO: See what to do with this.
     className?: string;
+    color: Color;
     label: string;
     iconLabel?: string;
     selected?: boolean;

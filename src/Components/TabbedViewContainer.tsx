@@ -4,9 +4,11 @@ import MaximizeIcon from '@mui/icons-material/Maximize';
 import MinimizeIcon from '@mui/icons-material/Minimize';
 import WindowIcon from '@mui/icons-material/Window';
 
-import './TabbedViewContainer.scss';
+import './_TabbedViewContainer.scss';
 import View from './View';
-import ViewTab from './ViewTab';
+import BaseViewTab from './ViewTab';
+import BrandedComponentFactory from './branding';
+const ViewTab = BrandedComponentFactory<BaseViewTab>('./brands/EclipseRCP', 'ViewTab');
 
 interface Props {
     children: ReactElement<View> | ReactElement<View>[];
@@ -59,6 +61,7 @@ export default class TabbedViewContainer extends PureComponent<Props> {
                             <ViewTab
                                 key={child.props.viewId}
                                 actions={child.props.actions}
+                                color={child.props.color}
                                 label={child.props.label}
                                 selected={index === indexOfSelected}
                                 shortcutKey={child.props.shortcutKey}

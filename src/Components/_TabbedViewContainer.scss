@@ -1,5 +1,4 @@
 @import './colors';
-@import './ViewTab';
 
 .tabbed-view-container {
   border: 1px solid $main-border-color;
@@ -48,8 +47,4 @@
   &:focus-within > .tabbed-view-content > .tab-content {
     border: 5px solid $main-focus-color;
   }
-}
-
-@mixin colorize-tabbed-view-container($accentColor) {
-  @include colorize-view-tab($accentColor);
 }

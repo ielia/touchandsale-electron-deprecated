@@ -1,0 +1,47 @@
+@import '../../colors';
+
+.view-tab {
+  border-bottom: 1px solid $main-border-color;
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 auto;
+  margin-right: -5px;
+  user-select: none;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  .outline {
+    background-color: $main-bg-color;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-left: 1px solid $main-border-color;
+    border-right: 1px solid $main-border-color;
+    border-top: 1px solid $main-border-color;
+    display: flex;
+    flex: 0 0 auto;
+    padding: 2px 5px;
+
+    .label {
+      background-color: $tab-label-bg-color;
+      min-width: 100px;
+    }
+
+    .label, .shortcut {
+      color: $tab-label-fg-color;
+      padding-inline: 5px;
+      text-align: start;
+    }
+  }
+}
+
+.tabbed-view-container:focus-within .view-tab.selected {
+  .outline {
+    background-color: $main-focus-color;
+  }
+
+  .shape {
+    fill: $main-focus-color;
+  }
+}

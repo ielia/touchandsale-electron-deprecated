@@ -1,6 +1,0 @@
-@import '../Perspective';
-@import './colors';
-
-.sales {
-  @include colorize-perspective($module-sales-accent-color);
-}

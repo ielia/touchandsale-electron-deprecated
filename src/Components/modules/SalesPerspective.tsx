@@ -1,6 +1,7 @@
+import Color from 'color';
 import React, {Component, ReactElement, ReactNode} from 'react';
 
-import './SalesPerspective.scss';
+import './_SalesPerspective.scss';
 import Menu from '../Menu';
 import MenuSection from '../MenuSection';
 import MinimizedViewContainer from '../MinimizedViewContainer';
@@ -24,6 +25,8 @@ interface State {
 }
 
 export default class SalesPerspective extends Component<Props, State> {
+    static accentColor = Color('#006bb5');
+
     constructor(props: Props) {
         super(props);
         this.buildMinimizedGroups = this.buildMinimizedGroups.bind(this);
@@ -163,28 +166,28 @@ export default class SalesPerspective extends Component<Props, State> {
     render() {
         const {layout, maximizedGroup, minimizedGroupLocations} = this.state;
         const views: { [viewId: string]: ReactElement<View> & ReactNode } = {
-            agreements: <View key="agreements" viewId="agreements" iconLabel="Cnv" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>
+            agreements: <View key="agreements" viewId="agreements" color={Color('#006bb5')} iconLabel="Cnv" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>
                 Convenios
             </View>,
-            assistant: <View key="assistant" viewId="assistant" iconLabel="Ast" label="Asistente" className="assistant" shortcutKey={{key: 'A', ctrlKey: true}} actions={[]}>
+            assistant: <View key="assistant" viewId="assistant" color={Color('#006bb5')} iconLabel="Ast" label="Asistente" className="assistant" shortcutKey={{key: 'A', ctrlKey: true}} actions={[]}>
                 Asistente
             </View>,
-            clients: <View key="clients" viewId="clients" iconLabel="Cli" label="Clientes" className="clients" shortcutKey={{key: 'F7'}} actions={[]}>
+            clients: <View key="clients" viewId="clients" color={Color('#1cbbee')} iconLabel="Cli" label="Clientes" className="clients" shortcutKey={{key: 'F7'}} actions={[]}>
                 Clientes
             </View>,
-            file: <View key="file" viewId="file" iconLabel="Fic" label="Ficha" className="file" shortcutKey={{key: 'F5'}} actions={[]}>
+            file: <View key="file" viewId="file" color={Color('#d7af00')} iconLabel="Fic" label="Ficha" className="file" shortcutKey={{key: 'F5'}} actions={[]}>
                 Ficha
             </View>,
-            icons: <View key="icons" viewId="icons" iconLabel="Ico" label="Íconos" className="icons" shortcutKey={{key: 'F6'}} actions={[]}>
+            icons: <View key="icons" viewId="icons" color={Color('#ef7f1a')} iconLabel="Ico" label="Íconos" className="icons" shortcutKey={{key: 'F6'}} actions={[]}>
                 Íconos
             </View>,
-            items: <View key="items" viewId="items" iconLabel="Its" label="Items" className="items" shortcutKey={{key: 'I', ctrlKey: true}} actions={[]}>
+            items: <View key="items" viewId="items" color={Color('#006bb5')} iconLabel="Its" label="Items" className="items" shortcutKey={{key: 'I', ctrlKey: true}} actions={[]}>
                 Items
             </View>,
-            news: <View key="news" viewId="news" iconLabel="Ntc" label="Noticias" className="news" shortcutKey={{key: 'N', ctrlKey: true}} actions={[]}>
+            news: <View key="news" viewId="news" color={Color('#006bb5')} iconLabel="Ntc" label="Noticias" className="news" shortcutKey={{key: 'N', ctrlKey: true}} actions={[]}>
                 Noticias
             </View>,
-            payments: <View key="payments" viewId="payments" iconLabel="Pgs" label="Pagos" className="payments" shortcutKey={{key: 'F9'}} actions={[]}>
+            payments: <View key="payments" color={Color('#006bb5')} viewId="payments" iconLabel="Pgs" label="Pagos" className="payments" shortcutKey={{key: 'F9'}} actions={[]}>
                 Pagos
             </View>,
         };
@@ -192,26 +195,27 @@ export default class SalesPerspective extends Component<Props, State> {
             <Perspective
                 label="Ventas"
                 className="sales"
+                accentColor={SalesPerspective.accentColor}
                 shortcutKey="aV"
                 menuSections={[
                     <MenuSection key="section0">
-                        <PerspectiveMenuItem key="op-type" title="Tipo de operación" label="Oper." shortcutKey={{key: 'F3'}}/>
-                        <PerspectiveMenuItem key="def-vals" title="Valores por defecto" label="V.Defe." shortcutKey={{key: 'F12'}}/>
-                        <PerspectiveMenuItem key="last-ops" title="Consulta de operaciones anteriores" label="Consul." shortcutKey={{key: 'F11'}}/>
-                        <PerspectiveMenuItem key="repeat" title="Repetir condiciones de la operación anterior" label="Repetir" shortcutKey={{key: 'F12', ctrlKey: true}}/>
-                        <PerspectiveMenuItem key="save-temp" title="Guarda operación en curso de forma temporal" label="G.Tem." shortcutKey={{key: 'F10', ctrlKey: true}}/>
-                        <PerspectiveMenuItem key="sum" title="Visualizar suma de operaciones previas" label="Suma" shortcutKey={{key: '+', altKey: true}}/>
-                        <PerspectiveMenuItem key="expiration" title="Cambiar fecha de vencimiento (Presupuesto)" label="Vto." shortcutKey={{key: 'F', ctrlKey: true}}/>
-                        <PerspectiveMenuItem key="client-log" title="Histórico Cliente" label="Histór." shortcutKey={{key: 'H', ctrlKey: true}}/>
+                        <PerspectiveMenuItem key="op-type" accentColor={SalesPerspective.accentColor} title="Tipo de operación" label="Oper." shortcutKey={{key: 'F3'}}/>
+                        <PerspectiveMenuItem key="def-vals" accentColor={SalesPerspective.accentColor} title="Valores por defecto" label="V.Defe." shortcutKey={{key: 'F12'}}/>
+                        <PerspectiveMenuItem key="last-ops" accentColor={SalesPerspective.accentColor} title="Consulta de operaciones anteriores" label="Consul." shortcutKey={{key: 'F11'}}/>
+                        <PerspectiveMenuItem key="repeat" accentColor={SalesPerspective.accentColor} title="Repetir condiciones de la operación anterior" label="Repetir" shortcutKey={{key: 'F12', ctrlKey: true}}/>
+                        <PerspectiveMenuItem key="save-temp" accentColor={SalesPerspective.accentColor} title="Guarda operación en curso de forma temporal" label="G.Tem." shortcutKey={{key: 'F10', ctrlKey: true}}/>
+                        <PerspectiveMenuItem key="sum" accentColor={SalesPerspective.accentColor} title="Visualizar suma de operaciones previas" label="Suma" shortcutKey={{key: '+', altKey: true}}/>
+                        <PerspectiveMenuItem key="expiration" accentColor={SalesPerspective.accentColor} title="Cambiar fecha de vencimiento (Presupuesto)" label="Vto." shortcutKey={{key: 'F', ctrlKey: true}}/>
+                        <PerspectiveMenuItem key="client-log" accentColor={SalesPerspective.accentColor} title="Histórico Cliente" label="Histór." shortcutKey={{key: 'H', ctrlKey: true}}/>
                     </MenuSection>,
                     <MenuSection key="section1">
-                        <PerspectiveMenuItem key="load-obs" title="Cargar observaciones" label="Observ." shortcutKey={{key: 'O', ctrlKey: true}}/>
-                        <PerspectiveMenuItem key="stock-deposit" title="Depósitos de Stock" label="Depós." shortcutKey={{key: 'P', ctrlKey: true}}/>
-                        <PerspectiveMenuItem key="stock-query" title="Interconsulta de Stock" label="Interc." shortcutKey={{key: 'S', ctrlKey: true}}/>
-                        <PerspectiveMenuItem key="load-temp" title="Rescata temporal" label="R.Tem." shortcutKey={{key: 'T', ctrlKey: true}}/>
-                        <PerspectiveMenuItem key="save-op" title="Guarda operación en curso de forma pendiente" label="G.Pend." shortcutKey={{key: 'F10', altKey: true}}/>
-                        <PerspectiveMenuItem key="print-prev" title="Vista previa impresión" label="V.Impr." shortcutKey={{key: 'P', ctrlKey: true, shiftKey: true}}/>
-                        <PerspectiveMenuItem key="print-prev-temp" title="Vista previa impresión temporal" label="V.Tem." shortcutKey={{key: 'T', ctrlKey: true, shiftKey: true}}/>
+                        <PerspectiveMenuItem key="load-obs" accentColor={SalesPerspective.accentColor} title="Cargar observaciones" label="Observ." shortcutKey={{key: 'O', ctrlKey: true}}/>
+                        <PerspectiveMenuItem key="stock-deposit" accentColor={SalesPerspective.accentColor} title="Depósitos de Stock" label="Depós." shortcutKey={{key: 'P', ctrlKey: true}}/>
+                        <PerspectiveMenuItem key="stock-query" accentColor={SalesPerspective.accentColor} title="Interconsulta de Stock" label="Interc." shortcutKey={{key: 'S', ctrlKey: true}}/>
+                        <PerspectiveMenuItem key="load-temp" accentColor={SalesPerspective.accentColor} title="Rescata temporal" label="R.Tem." shortcutKey={{key: 'T', ctrlKey: true}}/>
+                        <PerspectiveMenuItem key="save-op" accentColor={SalesPerspective.accentColor} title="Guarda operación en curso de forma pendiente" label="G.Pend." shortcutKey={{key: 'F10', altKey: true}}/>
+                        <PerspectiveMenuItem key="print-prev" accentColor={SalesPerspective.accentColor} title="Vista previa impresión" label="V.Impr." shortcutKey={{key: 'P', ctrlKey: true, shiftKey: true}}/>
+                        <PerspectiveMenuItem key="print-prev-temp" accentColor={SalesPerspective.accentColor} title="Vista previa impresión temporal" label="V.Tem." shortcutKey={{key: 'T', ctrlKey: true, shiftKey: true}}/>
                     </MenuSection>,
                 ]}
             >
