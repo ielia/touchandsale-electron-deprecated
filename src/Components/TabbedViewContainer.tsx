@@ -21,7 +21,7 @@ interface Props {
     onRestore: (containerId: string) => any;
     onViewSelected: (containerId: string, viewId: string) => any;
     selectedViewId: string;
-    state: ViewContainerState;
+    state: ViewContainerStateOrFloating;
 }
 
 export default class TabbedViewContainer extends PureComponent<Props> {
@@ -76,8 +76,8 @@ export default class TabbedViewContainer extends PureComponent<Props> {
                     </div>
                     <div className="actions">&nbsp;</div>
                     <div className="decorations">
-                        <MinimizeButton onClick={this.handleMinimization}/>
-                        {state === 'maximized' ? <RestoreButton onClick={this.handleRestore}/> : <MaximizeButton onClick={this.handleMaximization}/>}
+                        {state === 'normal' || state === 'maximized' ? <MinimizeButton onClick={this.handleMinimization}/> : null}
+                        {state === 'normal' ? <MaximizeButton onClick={this.handleMaximization}/> : <RestoreButton onClick={this.handleRestore}/>}
                     </div>
                 </div>
                 <div className="tabbed-view-content">

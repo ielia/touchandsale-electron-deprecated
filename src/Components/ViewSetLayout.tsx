@@ -9,7 +9,6 @@ import View from './View';
 type LayoutDivisionChangeListener = (pathToStart: string, startRatio: number, endRatio: number) => any;
 type MaximizeContainerListener = (containerId: string) => any;
 type MinimizeContainerListener = (containerId: string) => any;
-type NonMinimizedViewContainerState = Exclude<ViewContainerState, 'minimized'>;
 type OrientedDragListener = (start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData) => any;
 type OrientedDragStopListener = (onLayoutDivisionChange: LayoutDivisionChangeListener, pathToStart: string, start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData) => any;
 type RestoreContainerListener = (containerId: string) => any;
