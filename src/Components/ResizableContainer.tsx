@@ -105,21 +105,29 @@ export default class ResizableContainer extends Component<Props, State> {
                  style={{bottom: coord(bottom), height: coord(height), left: coord(left), right: coord(right), top: coord(top), width: coord(width)}}
                  ref={containerRef}>
                 <div className="horizontal-arrangement top">
-                    {edgesAndCorners['nw'] ? this.buildHandle('top-left', 'both', handleStartDrag, handleDrag.bind(this, -1, -1), handleStopDrag) : null}
+                    {edgesAndCorners['nw'] ? this.buildHandle('top-top-left', 'both', handleStartDrag, handleDrag.bind(this, -1, -1), handleStopDrag) : null}
                     {edgesAndCorners['n'] ? this.buildHandle('top', 'y', handleStartDrag, handleDrag.bind(this, 0, -1), handleStopDrag) : null}
-                    {edgesAndCorners['ne'] ? this.buildHandle('top-right', 'both', handleStartDrag, handleDrag.bind(this, 1, -1), handleStopDrag) : null}
+                    {edgesAndCorners['ne'] ? this.buildHandle('top-top-right', 'both', handleStartDrag, handleDrag.bind(this, 1, -1), handleStopDrag) : null}
                 </div>
                 <div className="horizontal-arrangement inline">
-                    {edgesAndCorners['w'] ? this.buildHandle('left', 'x', handleStartDrag, handleDrag.bind(this, -1, 0), handleStopDrag) : null}
+                    <div className="vertical-arrangement left">
+                        {edgesAndCorners['nw'] ? this.buildHandle('left-top-left', 'both', handleStartDrag, handleDrag.bind(this, -1, -1), handleStopDrag) : null}
+                        {edgesAndCorners['w'] ? this.buildHandle('left', 'x', handleStartDrag, handleDrag.bind(this, -1, 0), handleStopDrag) : null}
+                        {edgesAndCorners['sw'] ? this.buildHandle('left-bottom-left', 'both', handleStartDrag, handleDrag.bind(this, -1, -1), handleStopDrag) : null}
+                    </div>
                     <div className="resizable-container-content">
                         {children}
                     </div>
-                    {edgesAndCorners['e'] ? this.buildHandle('right', 'x', handleStartDrag, handleDrag.bind(this, 1, 0), handleStopDrag) : null}
+                    <div className="vertical-arrangement right">
+                        {edgesAndCorners['ne'] ? this.buildHandle('right-top-right', 'both', handleStartDrag, handleDrag.bind(this, 1, 1), handleStopDrag) : null}
+                        {edgesAndCorners['e'] ? this.buildHandle('right', 'x', handleStartDrag, handleDrag.bind(this, 1, 0), handleStopDrag) : null}
+                        {edgesAndCorners['se'] ? this.buildHandle('right-bottom-right', 'both', handleStartDrag, handleDrag.bind(this, 1, 1), handleStopDrag) : null}
+                    </div>
                 </div>
                 <div className="horizontal-arrangement bottom">
-                    {edgesAndCorners['sw'] ? this.buildHandle('bottom-left', 'both', handleStartDrag, handleDrag.bind(this, -1, 1), handleStopDrag) : null}
+                    {edgesAndCorners['sw'] ? this.buildHandle('bottom-bottom-left', 'both', handleStartDrag, handleDrag.bind(this, -1, 1), handleStopDrag) : null}
                     {edgesAndCorners['s'] ? this.buildHandle('bottom', 'y', handleStartDrag, handleDrag.bind(this, 0, 1), handleStopDrag) : null}
-                    {edgesAndCorners['se'] ? this.buildHandle('bottom-right', 'both', handleStartDrag, handleDrag.bind(this, 1, 1), handleStopDrag) : null}
+                    {edgesAndCorners['se'] ? this.buildHandle('bottom-bottom-right', 'both', handleStartDrag, handleDrag.bind(this, 1, 1), handleStopDrag) : null}
                 </div>
             </div>
         );
