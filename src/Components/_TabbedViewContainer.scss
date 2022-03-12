@@ -5,7 +5,7 @@
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   display: flex;
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
@@ -30,6 +30,13 @@
 
     & > .decorations {
       flex: 0 0 auto;
+      padding-inline: 5px;
+
+      & > * {
+        height: 25px;
+        margin-inline: 2px;
+        width: 25px;
+      }
     }
   }
 

@@ -9,10 +9,13 @@ import Perspective from '../Perspective';
 import PerspectiveMenuItem from '../PerspectiveMenuItem';
 import View from '../View';
 import ViewSetLayout from '../ViewSetLayout';
+import ResizableContainer from "../ResizableContainer";
+import TabbedViewContainer from "../TabbedViewContainer";
 
-interface MinimizedGroupLocations {
-    left: string[],
-    right: string[],
+type MinimizedGroupSpec = {containerId: string, height: number, open: boolean, width: number};
+interface MinimizedGroups {
+    left: MinimizedGroupSpec[],
+    right: MinimizedGroupSpec[],
 }
 
 interface Props {
@@ -21,7 +24,8 @@ interface Props {
 interface State {
     layout: LayoutSpec;
     maximizedGroup: string;
-    minimizedGroupLocations: MinimizedGroupLocations;
+    minimizedGroups: MinimizedGroups;
+    openMinimizedGroup: string;
 }
 
 export default class SalesPerspective extends Component<Props, State> {
@@ -30,10 +34,12 @@ export default class SalesPerspective extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.buildMinimizedGroups = this.buildMinimizedGroups.bind(this);
+        this.handleClosingOpenMinimizedGroup = this.handleClosingOpenMinimizedGroup.bind(this);
         this.handleContainerMaximization = this.handleContainerMaximization.bind(this);
         this.handleContainerMinimization = this.handleContainerMinimization.bind(this);
         this.handleContainerRestoration = this.handleContainerRestoration.bind(this);
         this.handleLayoutDivisionChange = this.handleLayoutDivisionChange.bind(this);
+        this.handleMinimizedViewSelection = this.handleMinimizedViewSelection.bind(this);
         this.handleViewSelection = this.handleViewSelection.bind(this);
 
         this.state = {
@@ -60,21 +66,28 @@ export default class SalesPerspective extends Component<Props, State> {
                 weight: 1,
             },
             maximizedGroup: null,
-            minimizedGroupLocations: {
-                left: ['top-left', 'bottom-left'],
-                right: ['top-right', 'bottom-right'],
+            minimizedGroups: {
+                left: [
+                    {containerId: 'top-left', height: 100, open: false, width: 100},
+                    {containerId: 'bottom-left', height: 100, open: false, width: 100},
+                ],
+                right: [
+                    {containerId: 'top-right', height: 100, open: false, width: 100},
+                    {containerId: 'bottom-right', height: 100, open: false, width: 100},
+                ],
             },
+            openMinimizedGroup: null,
         };
     }
 
-    buildMinimizedGroups(maximizedContext: boolean, groupIds: string[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }) {
-        const groups = this.findGroups(groupIds, layout);
+    buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }) {
+        const groups = this.findGroups(layout, ...minimizedGroupList.map(g => g.containerId));
         return groups.reduce((acc, group) => {
             const state = group.state;
             if (maximizedContext ? state !== 'maximized' : state === 'minimized') {
-                const {groupId, children} = group;
+                const {children, groupId, selected} = group;
                 acc.push(
-                    <MinimizedViewContainer key={groupId} containerId={groupId} onRestore={this.handleContainerRestoration}>
+                    <MinimizedViewContainer key={groupId} containerId={groupId} selectedView={selected} onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}>
                         {children.map(viewId => views[viewId])}
                     </MinimizedViewContainer>
                 );
@@ -83,38 +96,81 @@ export default class SalesPerspective extends Component<Props, State> {
         }, []);
     }
 
-    findGroups(groupIds: string[], layout: LayoutSpec): LeafLayoutSpec[] {
+    findGroups(layout: LayoutSpec, ...groupIds: string[]): LeafLayoutSpec[] {
         return 'orientation' in layout
-            ? layout.children.flatMap(subLayout => this.findGroups(groupIds, subLayout))
+            ? layout.children.flatMap(subLayout => this.findGroups(subLayout, ...groupIds))
             : groupIds.indexOf(layout.groupId) >= 0
                 ? [layout]
                 : [];
     }
 
-    handleContainerMaximization(tabbedContainerId: string): void {
-        this.setState(({layout, maximizedGroup, ...others}) => ({layout: this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'maximized'), maximizedGroup: tabbedContainerId, ...others}));
+    handleClosingOpenMinimizedGroup(containerId: string) {
+        this.setState(({minimizedGroups, openMinimizedGroup, ...others}) => {
+            let newMinimizedGroups = minimizedGroups;
+            // If they don't match, then it wasn't open... For some weird reason.
+            // Consider changing if we start allowing multiple open "floating" tabbed containers.
+            if (openMinimizedGroup === containerId) {
+                newMinimizedGroups = this.updateMinimizedGroupAttribute(newMinimizedGroups, containerId, 'open', false);
+            } else {
+                console.error("Closing a minimized group that was not the open one (", openMinimizedGroup, "):", containerId);
+            }
+            return {
+                minimizedGroups: newMinimizedGroups,
+                openMinimizedGroup: null,
+                ...others
+            };
+        });
     }
 
-    handleContainerMinimization(tabbedContainerId: string): void {
-        this.setState(({layout, maximizedGroup, ...others}) => ({layout: this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'minimized'), maximizedGroup: maximizedGroup === tabbedContainerId ? null : maximizedGroup, ...others}));
+    handleContainerMaximization(containerId: string): void {
+        this.setState(({layout, maximizedGroup, ...others}) => ({layout: this.updateGroupAttribute(layout, containerId, 'state', 'maximized'), maximizedGroup: containerId, ...others}));
     }
 
-    handleContainerRestoration(tabbedContainerId: string): void {
+    handleContainerMinimization(containerId: string): void {
+        this.setState(({layout, maximizedGroup, ...others}) => ({layout: this.updateGroupAttribute(layout, containerId, 'state', 'minimized'), maximizedGroup: maximizedGroup === containerId ? null : maximizedGroup, ...others}));
+    }
+
+    handleContainerRestoration(containerId: string): void {
         this.setState(({layout, maximizedGroup, ...others}) => {
-            let newLayout = this.updateGroupAttribute(layout, tabbedContainerId, 'state', 'normal');
-            if (tabbedContainerId !== maximizedGroup) {
+            let newLayout = this.updateGroupAttribute(layout, containerId, 'state', 'normal');
+            if (containerId !== maximizedGroup) {
                 newLayout = this.updateGroupAttribute(newLayout, maximizedGroup, 'state', 'normal');
             }
             return {layout: newLayout, maximizedGroup: null, ...others};
         });
     }
 
-    handleLayoutDivisionChange(pathToStart: string, startRatio: number, endRatio: number) {
+    handleLayoutDivisionChange(pathToStart: string, startRatio: number, endRatio: number): void {
         this.setState(({layout, ...others}) => ({layout: this.updateWeights(layout, pathToStart, startRatio, endRatio), ...others}));
     }
 
-    handleViewSelection(tabbedContainerId: string, viewId: string) {
-        this.setState(({layout, ...others}) => ({layout: this.updateGroupAttribute(layout, tabbedContainerId, 'selected', viewId), ...others}));
+    handleMinimizedViewSelection(containerId: string, viewId: string): void {
+        this.setState(({layout, minimizedGroups, openMinimizedGroup, ...others}) => {
+            let newMinimizedGroups = minimizedGroups;
+            if (openMinimizedGroup !== containerId) {
+                if (openMinimizedGroup) {
+                    newMinimizedGroups = this.updateMinimizedGroupAttribute(newMinimizedGroups, openMinimizedGroup, 'open', false);
+                }
+                newMinimizedGroups = this.updateMinimizedGroupAttribute(newMinimizedGroups, containerId, 'open', true);
+            }
+            return {
+                layout: this.updateGroupAttribute(layout, containerId, 'selected', viewId),
+                minimizedGroups: newMinimizedGroups,
+                openMinimizedGroup: containerId,
+                ...others
+            };
+        });
+    }
+
+    handleViewSelection(containerId: string, viewId: string): void {
+        this.setState(({layout, ...others}) => ({layout: this.updateGroupAttribute(layout, containerId, 'selected', viewId), ...others}));
+    }
+
+    updateAttributeOnAllMinimizedGroups<T>(minimizedGroups: MinimizedGroups, attribute: keyof MinimizedGroupSpec, value: T) {
+        return Object.entries(minimizedGroups).reduce((acc, [menuId, groups]: [keyof MinimizedGroups, MinimizedGroupSpec[]]) => {
+            acc[menuId] = groups.map(group => ({...group, [attribute]: value}));
+            return acc;
+        }, {left: [], right: []});
     }
 
     updateGroupAttribute<T>(layout: LayoutSpec, tabbedContainerId: string, attribute: keyof LeafLayoutSpec, value: T): LayoutSpec {
@@ -128,6 +184,13 @@ export default class SalesPerspective extends Component<Props, State> {
             result = {children: children.map(child => this.updateGroupAttribute(child, tabbedContainerId, attribute, value)), ...other};
         }
         return result;
+    }
+
+    updateMinimizedGroupAttribute<T>(minimizedGroups: MinimizedGroups, containerId: string, attribute: keyof MinimizedGroupSpec, value: T): MinimizedGroups {
+        return Object.entries(minimizedGroups).reduce((acc, [menuId, groups]: [keyof MinimizedGroups, MinimizedGroupSpec[]]) => {
+            acc[menuId] = groups.map(group => containerId === group.containerId ? {...group, [attribute]: value} : group);
+            return acc;
+        }, {left: [], right: []});
     }
 
     updateWeights(layout: LayoutSpec, pathToStart: string, startRatio: number, endRatio: number): LayoutSpec {
@@ -164,7 +227,7 @@ export default class SalesPerspective extends Component<Props, State> {
     }
 
     render() {
-        const {layout, maximizedGroup, minimizedGroupLocations} = this.state;
+        const {layout, maximizedGroup, minimizedGroups, openMinimizedGroup} = this.state;
         const views: { [viewId: string]: ReactElement<View> & ReactNode } = {
             agreements: <View key="agreements" viewId="agreements" color={Color('#006bb5')} iconLabel="Cnv" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>
                 Convenios
@@ -220,13 +283,26 @@ export default class SalesPerspective extends Component<Props, State> {
                 ]}
             >
                 <Menu orientation="vertical">
-                    {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroupLocations.left, layout, views)}
+                    {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.left, layout, views)}
                 </Menu>
-                <ViewSetLayout layout={layout} shownState={maximizedGroup ? 'maximized' : 'normal'} onLayoutDivisionChange={this.handleLayoutDivisionChange} onMaximizeContainer={this.handleContainerMaximization} onMinimizeContainer={this.handleContainerMinimization} onRestoreContainer={this.handleContainerRestoration} onViewSelected={this.handleViewSelection}>
-                    {Object.values(views)}
-                </ViewSetLayout>
+                <div className="perspective-layout-container">
+                    <ViewSetLayout layout={layout} shownState={maximizedGroup ? 'maximized' : 'normal'} onLayoutDivisionChange={this.handleLayoutDivisionChange} onMaximizeContainer={this.handleContainerMaximization} onMinimizeContainer={this.handleContainerMinimization} onRestoreContainer={this.handleContainerRestoration} onViewSelected={this.handleViewSelection}>
+                        {Object.values(views)}
+                    </ViewSetLayout>
+                    {
+                        openMinimizedGroup
+                            ? <ResizableContainer resizableEdges={['e', 's']} left={0} top={0}>
+                                  {this.findGroups(layout, openMinimizedGroup).map(group => (
+                                      <TabbedViewContainer key={group.groupId} containerId={group.groupId} onMaximize={this.handleContainerMaximization} onMinimize={this.handleContainerMinimization} onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection} selectedViewId={group.selected} state={group.state}>
+                                          {group.children.map(viewId => views[viewId])}
+                                      </TabbedViewContainer>
+                                  ))}
+                              </ResizableContainer>
+                            : null
+                    }
+                </div>
                 <Menu orientation="vertical">
-                    {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroupLocations.right, layout, views)}
+                    {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.right, layout, views)}
                 </Menu>
             </Perspective>
         );

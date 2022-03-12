@@ -27,6 +27,67 @@ function appendShortcutString(str: string, shortcutKey: ShortcutKey): string {
 }
 export {appendShortcutString};
 
+const COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS: {[key in CompassOctoHeading]: string} = {
+    n: 'top', ne: 'top-right', e: 'right', se: 'bottom-right', s: 'bottom', sw: 'bottom-left', w: 'left', nw: 'top-left',
+};
+/**
+ * Gets the compass heading class name string representation.
+ * E.g., 'n' -> 's'.
+ * @param heading Heading.
+ * @returns The class name string representation of the heading.
+ */
+function getCompassOctoHeadingClassNameString(heading: CompassOctoHeading): string {
+    return COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS[heading];
+}
+export {getCompassOctoHeadingClassNameString};
+
+/**
+ * Gets the "dot product" (actually, just the combined heading) of the two headings passed as parameters.
+ * E.g., 'n' -> 's'.
+ * @param a Heading A.
+ * @param b Heading B.
+ * @returns The dot product of the two compass headings passed as parameters.
+ *          If headings are the same, will return a matching one.
+ *          If opposite, will return null.
+ *          If one or both either null or undefined, will also return null.
+ */
+function getCompassHeadingDotProduct(a: CompassHeading, b: CompassHeading): CompassHeading | CompassCornerHeading {
+    let result: CompassHeading | CompassCornerHeading = null;
+    if (b !== getOppositeCompassHeading(a)) {
+        if (a === b) {
+            result = a ? a : null;
+        } else if (a && b) {
+            result = (a === 'n' || a === 's' ? a + b : b + a) as CompassCornerHeading;
+        }
+    }
+    return result;
+}
+export {getCompassHeadingDotProduct};
+
+const OPPOSITE_COMPASS_HEADINGS: {[key in CompassHeading]: CompassHeading} = { e: 'w', n: 's', s: 'n', w: 'e' };
+/**
+ * Gets the opposite compass heading.
+ * E.g., 'n' -> 's'.
+ * @param heading Heading.
+ * @returns The opposite heading to the one passed as parameter. Or undefined, if the parameter was of the same kind.
+ */
+function getOppositeCompassHeading(heading: CompassHeading): CompassHeading {
+    return OPPOSITE_COMPASS_HEADINGS[heading];
+}
+export {getOppositeCompassHeading};
+
+const ORTHOGONAL_COMPASS_HEADINGS: {[key in CompassHeading]: CompassHeading[]} = { e: ['n', 's'], n: ['e', 'w'], s: ['e', 'w'], w: ['n', 's'] };
+/**
+ * Gets the orthogonal compass headings.
+ * E.g., 'n' -> ['e', 'w'].
+ * @param heading Heading.
+ * @returns The orthogonal headings to the one passed as parameter. Or undefined, if the parameter was of the same kind.
+ */
+function getOrthogonalCompassHeadings(heading: CompassHeading): CompassHeading[] {
+    return ORTHOGONAL_COMPASS_HEADINGS[heading];
+}
+export {getOrthogonalCompassHeadings};
+
 /**
  * Converts a shortcut key specification into a short string.
  * E.g.,

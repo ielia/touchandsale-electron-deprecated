@@ -1,0 +1,68 @@
+@import './colors';
+
+.resizable-container {
+  background-color: $main-bg-color;
+  border: 1px solid $main-border-color;
+  display: flex;
+  flex-direction: column;
+  justify-items: stretch;
+  min-height: 100px;
+  min-width: 100px;
+  position: absolute;
+
+  & > .horizontal-arrangement {
+    display: flex;
+    justify-items: stretch;
+
+    &.inline {
+      flex: 1 1 auto;
+
+      & > .resize-edge {
+        &.left, &.right {
+          cursor: ew-resize;
+          height: 100%;
+          width: 5px;
+        }
+      }
+
+      & > .resizable-container-content {
+        display: flex;
+        flex: 1 1 auto;
+        overflow: auto;
+
+        & > * {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+
+    &.top, &.bottom {
+      flex: 0 0 auto;
+    }
+
+    & > .resize-edge {
+      transform: none !important;
+      flex: 0 0 auto;
+
+      &.top, &.bottom {
+        cursor: ns-resize;
+        height: 5px;
+        width: 100%;
+      }
+
+      &.top-left, &.bottom-right {
+        cursor: nwse-resize;
+      }
+
+      &.top-right, &.bottom-left {
+        cursor: nesw-resize;
+      }
+
+      &.top-left, &.top-right, &.bottom-left, &.bottom-right {
+        height: 5px;
+        width: 5px;
+      }
+    }
+  }
+}

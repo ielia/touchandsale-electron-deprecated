@@ -1,14 +1,17 @@
-import React, {Children, PureComponent, ReactElement} from 'react';
-// TODO: Change these icons
-import MaximizeIcon from '@mui/icons-material/Maximize';
-import MinimizeIcon from '@mui/icons-material/Minimize';
-import WindowIcon from '@mui/icons-material/Window';
+import React, {PureComponent, ReactElement} from 'react';
 
 import './_TabbedViewContainer.scss';
+import BaseMaximizeButton from './MaximizeButton';
+import BaseMinimizeButton from './MinimizeButton';
+import BaseRestoreButton from './RestoreButton';
 import View from './View';
 import BaseViewTab from './ViewTab';
 import BrandedComponentFactory from './branding';
-const ViewTab = BrandedComponentFactory<BaseViewTab>('./brands/EclipseRCP', 'ViewTab');
+const EclipseRCPComponentFactory = BrandedComponentFactory('./brands/EclipseRCP');
+const MaximizeButton = EclipseRCPComponentFactory<BaseMaximizeButton>('MaximizeButton');
+const MinimizeButton = EclipseRCPComponentFactory<BaseMinimizeButton>('MinimizeButton');
+const RestoreButton = EclipseRCPComponentFactory<BaseRestoreButton>('RestoreButton');
+const ViewTab = EclipseRCPComponentFactory<BaseViewTab>('ViewTab');
 
 interface Props {
     children: ReactElement<View> | ReactElement<View>[];
@@ -50,7 +53,7 @@ export default class TabbedViewContainer extends PureComponent<Props> {
     render() {
         const {children, selectedViewId, state} = this.props;
         const childArray = Array.isArray(children) ? children : [children];
-        const childrenCount = Children.count(childArray);
+        const childrenCount = childArray.length;
         const indexOfSelected = childArray.findIndex(child => child.props.viewId === selectedViewId);
         const selectedChild = childArray[indexOfSelected];
         return (
@@ -73,8 +76,8 @@ export default class TabbedViewContainer extends PureComponent<Props> {
                     </div>
                     <div className="actions">&nbsp;</div>
                     <div className="decorations">
-                        <MinimizeIcon onClick={this.handleMinimization}/>
-                        {state === 'maximized' ? <WindowIcon onClick={this.handleRestore}/> : <MaximizeIcon onClick={this.handleMaximization}/>}
+                        <MinimizeButton onClick={this.handleMinimization}/>
+                        {state === 'maximized' ? <RestoreButton onClick={this.handleRestore}/> : <MaximizeButton onClick={this.handleMaximization}/>}
                     </div>
                 </div>
                 <div className="tabbed-view-content">

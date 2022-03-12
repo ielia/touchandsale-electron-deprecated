@@ -4,6 +4,19 @@ import './App.scss';
 import SalesPerspective from './Components/modules/SalesPerspective';
 
 export default function App() {
+    // ====
+    // Items [cI] => "0/0    Venta con factura B (ELE)" => Inser. ["+" insert] Insertar línea | Supr. ["<-" backspace] Suprimir línea | (lupa) [F4] Buscar por filtro | (???) [cl?] Activar prototipos | (???) [cM] Activar prototipos comprobante
+    // ----
+    // Ficha [F5]
+    // Íconos [F6]
+    // Clientes [F7]
+    // Convenios [F8] => Rec.B. [F4] Recetas Beneficiario | V.Rec. [cF4] Consulta Receta
+    // ====
+    // Pagos [F9] => (flechas abajo+derecha?) [cU] ??? | (???) [cM] ??? | (prohibido) [cR] ???
+    // ----
+    // Noticias [cN]
+    // Asistente [cA] => filters
+    // ===
     return (
         <div className="app">
             <SalesPerspective/>

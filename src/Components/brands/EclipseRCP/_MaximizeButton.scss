@@ -1,0 +1,15 @@
+@import './_colors';
+
+.maximize-button {
+  cursor: pointer;
+  fill: $window-decoration-fill-color;
+  padding: 2px;
+  stroke: $window-decoration-border-color;
+  stroke-width: 4px;
+
+  &:hover {
+    border: 2px outset;
+    border-radius: 5px;
+    padding: 0;
+  }
+}

@@ -11,7 +11,7 @@ export default class MenuSection extends PureComponent<Props> {
     render() {
         const {className, children} = this.props;
         return (
-            <div className={`menu-section ${className}`}>
+            <div className={`menu-section ${className ?? ''}`}>
                 <DragIndicator className="handle"/>
                 {children}
             </div>

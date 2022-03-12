@@ -13,8 +13,14 @@
   }
 }
 
+.menu.horizontal .menu-section {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
 .menu.vertical .menu-section {
   flex-direction: column;
+  padding-inline: 2px;
 
   .handle {
     transform: rotate(90deg);
