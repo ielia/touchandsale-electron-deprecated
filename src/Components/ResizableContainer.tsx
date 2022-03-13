@@ -2,7 +2,9 @@ import React, {Component, RefObject, createRef} from 'react';
 import Draggable, {DraggableData, DraggableEvent} from 'react-draggable';
 
 import './_ResizableContainer.scss';
-import {getCompassHeadingDotProduct, getCompassOctoHeadingClassNameString, getOrthogonalCompassHeadings} from '../commons';
+import {getCompassHeadingDotProduct, getCompassOctoHeadingClassName, getOrthogonalCompassHeadings} from '../commons';
+
+type OrientedHandleDragFunctionsObject = {[orientation in CompassOctoHeading]?: (event: DraggableEvent, data: DraggableData) => void};
 
 interface Props {
     bottom?: number | string;
@@ -20,12 +22,28 @@ interface State {
     width?: number;
 }
 
-function coord(value: number | string) {
+function magnitude(value: number | string) {
     return typeof value === 'number'? `${value}px` : value ? value : 'unset';
 }
 
 export default class ResizableContainer extends Component<Props, State> {
+    static cornerResizingPreferenceOrder: CompassOctoHeading[] = ['sw', 'se', 'nw', 'ne'];
+    static horizontalResizingPreferenceOrder: CompassOctoHeading[] = ['w', 'e'];
+    static verticalResizingPreferenceOrder: CompassOctoHeading[] = ['s', 'n'];
+    static orientationData: {[orientation in CompassOctoHeading]: {xMult: number, yMult: number, axis: 'x' | 'y' | 'both'}} = {
+        'n': {xMult: 0, yMult: -1, axis: 'y'},
+        'ne': {xMult: 1, yMult: -1, axis: 'both'},
+        'e': {xMult: 1, yMult: 0, axis: 'x'},
+        'se': {xMult: 1, yMult: 1, axis: 'both'},
+        's': {xMult: 0, yMult: 1, axis: 'y'},
+        'sw': {xMult: -1, yMult: 1, axis: 'both'},
+        'w': {xMult: -1, yMult: 0, axis: 'x'},
+        'nw': {xMult: -1, yMult: -1, axis: 'both'},
+    };
+
     containerRef: RefObject<HTMLDivElement>;
+    edgesAndCorners: {[orientation in CompassOctoHeading]?: boolean};
+    handleOrientedDrag: OrientedHandleDragFunctionsObject;
     parentResizeObserver: ResizeObserver;
 
     constructor(props: Props) {
@@ -34,19 +52,36 @@ export default class ResizableContainer extends Component<Props, State> {
             height: this.props.height ?? 100,
             width: this.props.width ?? 100,
         };
+
         this.containerRef = createRef<HTMLDivElement>();
         this.handleDrag = this.handleDrag.bind(this);
         this.handleStartDrag = this.handleStartDrag.bind(this);
         this.handleStopDrag = this.handleStopDrag.bind(this);
+
+        this.handleOrientedDrag = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].reduce((acc: OrientedHandleDragFunctionsObject, heading: CompassOctoHeading) => {
+            const {xMult, yMult} = ResizableContainer.orientationData[heading];
+            acc[heading] = this.handleDrag.bind(this, xMult, yMult);
+            return acc;
+        }, {});
+
+        this.edgesAndCorners = this.props.resizableEdges.reduce(
+            (acc: {[heading in CompassOctoHeading]?: boolean}, edge) => {
+                acc[edge] = true;
+                getOrthogonalCompassHeadings(edge).forEach(side => {
+                    if (acc[side]) {
+                        acc[getCompassHeadingDotProduct(edge, side)] = true;
+                    }
+                });
+                return acc;
+            },
+            {}
+        );
     }
 
-    buildHandle(
-        key: string,
-        axis: 'x' | 'y' | 'both',
-        onStart: (event: DraggableEvent, data: DraggableData) => void,
-        onDrag: (event: DraggableEvent, data: DraggableData) => void,
-        onStop: (event: DraggableEvent, data: DraggableData) => void
-    ) {
+    buildHandle(orientation: CompassOctoHeading, keyPrefix: string = '') {
+        const key = keyPrefix + getCompassOctoHeadingClassName(orientation);
+        const axis = ResizableContainer.orientationData[orientation].axis
+        const handleDrag = this.handleOrientedDrag[orientation];
         const handleRef = createRef<HTMLDivElement>();
         return (
             <Draggable
@@ -55,9 +90,9 @@ export default class ResizableContainer extends Component<Props, State> {
                 handle={`.resize-edge.${key}`}
                 nodeRef={handleRef}
                 position={{x: 0, y: 0}}
-                onStart={onStart}
-                onDrag={onDrag}
-                onStop={onStop}
+                onStart={this.handleStartDrag}
+                onDrag={handleDrag}
+                onStop={this.handleStopDrag}
             >
                 <div className={`resize-edge ${key}`} ref={handleRef}/>
             </Draggable>
@@ -78,14 +113,14 @@ export default class ResizableContainer extends Component<Props, State> {
         currentContainer.style.width = `${width}px`;
     }
 
-    handleStartDrag(event: DraggableEvent, data: DraggableData) {
+    handleStartDrag() {
         const currentContainer = this.containerRef.current;
         const computedStyle = getComputedStyle(currentContainer);
         currentContainer.setAttribute('originalHeight', computedStyle.height);
         currentContainer.setAttribute('originalWidth', computedStyle.width);
     }
 
-    handleStopDrag(event: DraggableEvent, data: DraggableData) {
+    handleStopDrag() {
         const currentContainer = this.containerRef.current;
         currentContainer.removeAttribute('originalHeight');
         currentContainer.removeAttribute('originalWidth');
@@ -115,72 +150,67 @@ export default class ResizableContainer extends Component<Props, State> {
     }
 
     componentDidMount() {
-        // TODO: Figure out edges
         const parentElement = this.containerRef.current.parentElement;
-        this.parentResizeObserver = new ResizeObserver(entries => {
-            const edges = this.props.resizableEdges;
-            const currentContainer = this.containerRef.current;
-            const containerRect = currentContainer.getBoundingClientRect();
-            const {height, width} = this.restrictSize(currentContainer, containerRect.height, containerRect.width, 1, 1);
-            if (height !== containerRect.height) {
-                currentContainer.style.height = `${height}px`;
-            }
-            if (width !== containerRect.width) {
-                currentContainer.style.width = `${width}px`;
-            }
-        });
-        this.parentResizeObserver.observe(parentElement);
+        if (parentElement) {
+            this.parentResizeObserver = new ResizeObserver(entries => {
+                const edges = this.edgesAndCorners;
+                let edge = ResizableContainer.cornerResizingPreferenceOrder.find(o => edges[o]) ??
+                    ResizableContainer.horizontalResizingPreferenceOrder.find(o => edges[o]) ??
+                    ResizableContainer.verticalResizingPreferenceOrder.find(o => edges[o]);
+                const currentContainer = this.containerRef.current;
+                const containerRect = currentContainer.getBoundingClientRect();
+                const {xMult, yMult} = ResizableContainer.orientationData[edge];
+                const {height, width} = this.restrictSize(currentContainer, containerRect.height, containerRect.width, xMult, yMult);
+                if (height !== containerRect.height) {
+                    currentContainer.style.height = `${height}px`;
+                }
+                if (width !== containerRect.width) {
+                    currentContainer.style.width = `${width}px`;
+                }
+            });
+            this.parentResizeObserver.observe(parentElement);
+        }
     }
 
     componentWillUnmount() {
-        this.parentResizeObserver.disconnect();
-        this.parentResizeObserver = null;
+        if (this.parentResizeObserver) {
+            this.parentResizeObserver.disconnect();
+            this.parentResizeObserver = null;
+        }
     }
 
     render() {
         const {bottom, children, className, left, resizableEdges, right, top} = this.props;
         const {height, width} = this.state;
-        const edgesAndCorners = resizableEdges.reduce(
-            (acc: {[heading in CompassOctoHeading]?: boolean}, edge) => {
-                acc[edge] = true;
-                getOrthogonalCompassHeadings(edge).forEach(side => {
-                    if (acc[side]) {
-                        acc[getCompassHeadingDotProduct(edge, side)] = true;
-                    }
-                });
-                return acc;
-            },
-            {}
-        );
 
         return (
-            <div className={`resizable-container ${className ?? ''} ${resizableEdges.map(edge => getCompassOctoHeadingClassNameString(edge)).join(' ')}`}
-                 style={{bottom: coord(bottom), height: coord(height), left: coord(left), right: coord(right), top: coord(top), width: coord(width)}}
+            <div className={`resizable-container ${className ?? ''} ${resizableEdges.map(edge => getCompassOctoHeadingClassName(edge)).join(' ')}`}
+                 style={{bottom: magnitude(bottom), height: magnitude(height), left: magnitude(left), right: magnitude(right), top: magnitude(top), width: magnitude(width)}}
                  ref={this.containerRef}>
                 <div className="horizontal-arrangement top">
-                    {edgesAndCorners['nw'] ? this.buildHandle('top-top-left', 'both', this.handleStartDrag, this.handleDrag.bind(this, -1, -1), this.handleStopDrag) : null}
-                    {edgesAndCorners['n'] ? this.buildHandle('top', 'y', this.handleStartDrag, this.handleDrag.bind(this, 0, -1), this.handleStopDrag) : null}
-                    {edgesAndCorners['ne'] ? this.buildHandle('top-top-right', 'both', this.handleStartDrag, this.handleDrag.bind(this, 1, -1), this.handleStopDrag) : null}
+                    {this.edgesAndCorners['nw'] ? this.buildHandle('nw', 'top-') : null}
+                    {this.edgesAndCorners['n'] ? this.buildHandle('n') : null}
+                    {this.edgesAndCorners['ne'] ? this.buildHandle('ne', 'top-') : null}
                 </div>
                 <div className="horizontal-arrangement inline">
                     <div className="vertical-arrangement left">
-                        {edgesAndCorners['nw'] ? this.buildHandle('left-top-left', 'both', this.handleStartDrag, this.handleDrag.bind(this, -1, -1), this.handleStopDrag) : null}
-                        {edgesAndCorners['w'] ? this.buildHandle('left', 'x', this.handleStartDrag, this.handleDrag.bind(this, -1, 0), this.handleStopDrag) : null}
-                        {edgesAndCorners['sw'] ? this.buildHandle('left-bottom-left', 'both', this.handleStartDrag, this.handleDrag.bind(this, -1, -1), this.handleStopDrag) : null}
+                        {this.edgesAndCorners['nw'] ? this.buildHandle('nw', 'left-') : null}
+                        {this.edgesAndCorners['w'] ? this.buildHandle('w') : null}
+                        {this.edgesAndCorners['sw'] ? this.buildHandle('sw', 'left-') : null}
                     </div>
                     <div className="resizable-container-content">
                         {children}
                     </div>
                     <div className="vertical-arrangement right">
-                        {edgesAndCorners['ne'] ? this.buildHandle('right-top-right', 'both', this.handleStartDrag, this.handleDrag.bind(this, 1, 1), this.handleStopDrag) : null}
-                        {edgesAndCorners['e'] ? this.buildHandle('right', 'x', this.handleStartDrag, this.handleDrag.bind(this, 1, 0), this.handleStopDrag) : null}
-                        {edgesAndCorners['se'] ? this.buildHandle('right-bottom-right', 'both', this.handleStartDrag, this.handleDrag.bind(this, 1, 1), this.handleStopDrag) : null}
+                        {this.edgesAndCorners['ne'] ? this.buildHandle('ne', 'right-') : null}
+                        {this.edgesAndCorners['e'] ? this.buildHandle('e') : null}
+                        {this.edgesAndCorners['se'] ? this.buildHandle('se', 'right-') : null}
                     </div>
                 </div>
                 <div className="horizontal-arrangement bottom">
-                    {edgesAndCorners['sw'] ? this.buildHandle('bottom-bottom-left', 'both', this.handleStartDrag, this.handleDrag.bind(this, -1, 1), this.handleStopDrag) : null}
-                    {edgesAndCorners['s'] ? this.buildHandle('bottom', 'y', this.handleStartDrag, this.handleDrag.bind(this, 0, 1), this.handleStopDrag) : null}
-                    {edgesAndCorners['se'] ? this.buildHandle('bottom-bottom-right', 'both', this.handleStartDrag, this.handleDrag.bind(this, 1, 1), this.handleStopDrag) : null}
+                    {this.edgesAndCorners['sw'] ? this.buildHandle('sw', 'bottom-') : null}
+                    {this.edgesAndCorners['s'] ? this.buildHandle('s') : null}
+                    {this.edgesAndCorners['se'] ? this.buildHandle('se', 'bottom-') : null}
                 </div>
             </div>
         );

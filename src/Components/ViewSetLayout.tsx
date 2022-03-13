@@ -44,7 +44,7 @@ export default class ViewSetLayout extends PureComponent<Props> {
     }
 
     buildTree(currentKey: string, shownState: NonMinimizedViewContainerState, layoutSpec: LayoutSpec, keyedChildren: {[viewId: string]: ReactElement<View> & ReactNode}): ReactHTMLElement<HTMLDivElement> {
-        const {onLayoutDivisionChange, onMaximizeContainer, onMinimizeContainer, onRestoreContainer, onViewSelected} = this.props;
+        const {onMaximizeContainer, onMinimizeContainer, onRestoreContainer, onViewSelected} = this.props;
         const style = {flex: `1 1 ${100.0 * layoutSpec.weight}%`};
         let result: React.ReactHTMLElement<HTMLDivElement> = null;
         if ('orientation' in layoutSpec) {
@@ -72,8 +72,8 @@ export default class ViewSetLayout extends PureComponent<Props> {
                                     nodeRef={handleRef}
                                     position={{x: 0, y: 0}}
                                     onStart={this.onStart}
-                                    onDrag={this.onDrag[orientation].bind(null, list[i].ref, list[i + 1].ref)}
-                                    onStop={this.onStop[orientation].bind(null, onLayoutDivisionChange, `${nextKey}${i}`, list[i].ref, list[i + 1].ref)}
+                                    onDrag={this.onDrag[orientation].bind(this, list[i].ref, list[i + 1].ref)}
+                                    onStop={this.onStop[orientation].bind(this, `${nextKey}${i}`, list[i].ref, list[i + 1].ref)}
                                 >
                                     <div className="layout-separator" ref={handleRef}/>
                                 </Draggable>
@@ -140,23 +140,23 @@ export default class ViewSetLayout extends PureComponent<Props> {
         data.node.setAttribute('originalTop', `${data.node.offsetTop}`);
     }
 
-    protected onStopCommon(onLayoutDivisionChange: LayoutDivisionChangeListener, pathToStart: string, data: DraggableData, startRatio: number, endRatio: number): void {
+    protected onStopCommon(pathToStart: string, data: DraggableData, startRatio: number, endRatio: number): void {
         data.node.removeAttribute('originalLeft');
         data.node.removeAttribute('originalTop');
         data.node.removeAttribute('style');
-        onLayoutDivisionChange(pathToStart, startRatio, endRatio);
+        this.props.onLayoutDivisionChange(pathToStart, startRatio, endRatio);
     }
 
-    protected onStopHorizontally(onLayoutDivisionChange: LayoutDivisionChangeListener, pathToStart: string, start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData): void {
+    protected onStopHorizontally(pathToStart: string, start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData): void {
         data.node.setAttribute('originalLeft', `${data.node.offsetLeft - data.x}`);
         const {startRatio, endRatio} = this.calculateHorizontallyWeightedFlexes(start, end, event, data);
-        this.onStopCommon(onLayoutDivisionChange, pathToStart, data, startRatio, endRatio);
+        this.onStopCommon(pathToStart, data, startRatio, endRatio);
     }
 
-    protected onStopVertically(onLayoutDivisionChange: LayoutDivisionChangeListener, pathToStart: string, start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData): void {
+    protected onStopVertically(pathToStart: string, start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData): void {
         data.node.setAttribute('originalTop', `${data.node.offsetTop - data.y}`);
         const {startRatio, endRatio} = this.calculateVerticallyWeightedFlexes(start, end, event, data);
-        this.onStopCommon(onLayoutDivisionChange, pathToStart, data, startRatio, endRatio);
+        this.onStopCommon(pathToStart, data, startRatio, endRatio);
     }
 
     render() {

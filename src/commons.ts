@@ -36,10 +36,10 @@ const COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS: {[key in CompassOctoHeading]: str
  * @param heading Heading.
  * @returns The class name string representation of the heading.
  */
-function getCompassOctoHeadingClassNameString(heading: CompassOctoHeading): string {
+function getCompassOctoHeadingClassName(heading: CompassOctoHeading): string {
     return COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS[heading];
 }
-export {getCompassOctoHeadingClassNameString};
+export {getCompassOctoHeadingClassName};
 
 /**
  * Gets the "dot product" (actually, just the combined heading) of the two headings passed as parameters.
