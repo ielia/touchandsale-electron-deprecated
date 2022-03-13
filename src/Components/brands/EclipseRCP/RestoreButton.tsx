@@ -1,9 +1,9 @@
 import React from 'react';
 
 import './_RestoreButton.scss';
-import BaseRestoreButton from '../../RestoreButton';
+import RestoreButton from '../../RestoreButton';
 
-export default class RestoreButton extends BaseRestoreButton {
+export default class EclipseRCPRestoreButton extends RestoreButton {
     render() {
         const {onClick} = this.props;
         return (

@@ -1,9 +1,9 @@
 import React from 'react';
 
 import './_MinimizeButton.scss';
-import BaseMinimizeButton from '../../MinimizeButton';
+import MinimizeButton from '../../MinimizeButton';
 
-export default class MinimizeButton extends BaseMinimizeButton {
+export default class EclipseRCPMinimizeButton extends MinimizeButton {
     render() {
         const {onClick} = this.props;
         return (

@@ -5,7 +5,7 @@ interface Props {
     onClick: (event: MouseEvent | TouchEvent) => any;
 }
 
-export default class WindowButton extends PureComponent<Props> {
+export default class RestoreButton extends PureComponent<Props> {
     render() {
         const {onClick} = this.props;
         return (

@@ -1,9 +1,9 @@
 import React from 'react';
 
 import './_MaximizeButton.scss';
-import BaseMaximizeButton from '../../MaximizeButton';
+import MaximizeButton from '../../MaximizeButton';
 
-export default class MaximizeButton extends BaseMaximizeButton {
+export default class EclipseRCPMaximizeButton extends MaximizeButton {
     render() {
         const {onClick} = this.props;
         return (
