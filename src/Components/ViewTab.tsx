@@ -4,7 +4,7 @@ import React, {PureComponent, RefObject, createRef} from 'react';
 import {appendShortcutString, shortcutKeyToShortString} from '../commons';
 
 interface Props {
-    actions: any; // TODO: See what to do with this.
+    actions: any; // TODO: See what to do with these actions.
     color: Color;
     label: string;
     onSelected: (viewId: string) => void;
@@ -48,8 +48,8 @@ export default abstract class ViewTab extends PureComponent<Props> {
         if (key === ' ' || key === 'Enter') {
             onSelected(viewId);
         } else if (['ArrowLeft', 'ArrowRight', 'Left', 'Right'].indexOf(key) >= 0) {
-            const current = this.selfRef.current;
-            const sibling = (key === 'ArrowLeft' || key === 'Left') ? current.previousElementSibling : current.nextElementSibling;
+            const selfElement = this.selfRef.current;
+            const sibling = (key === 'ArrowLeft' || key === 'Left') ? selfElement.previousElementSibling : selfElement.nextElementSibling;
             if (sibling) {
                 (sibling as HTMLElement).focus();
             }

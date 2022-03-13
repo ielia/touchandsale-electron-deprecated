@@ -15,6 +15,7 @@ interface Props {
     right?: number | string;
     width?: number;
     top?: number | string;
+    onBlur?: (event: FocusEvent) => any;
 }
 
 interface State {
@@ -41,10 +42,10 @@ export default class ResizableContainer extends Component<Props, State> {
         'nw': {xMult: -1, yMult: -1, axis: 'both'},
     };
 
-    containerRef: RefObject<HTMLDivElement>;
     edgesAndCorners: {[orientation in CompassOctoHeading]?: boolean};
     handleOrientedDrag: OrientedHandleDragFunctionsObject;
     parentResizeObserver: ResizeObserver;
+    selfRef: RefObject<HTMLDivElement>;
 
     constructor(props: Props) {
         super(props);
@@ -53,10 +54,11 @@ export default class ResizableContainer extends Component<Props, State> {
             width: this.props.width ?? 100,
         };
 
-        this.containerRef = createRef<HTMLDivElement>();
+        this.selfRef = createRef<HTMLDivElement>();
         this.handleDrag = this.handleDrag.bind(this);
-        this.handleStartDrag = this.handleStartDrag.bind(this);
-        this.handleStopDrag = this.handleStopDrag.bind(this);
+        this.handleDragStart = this.handleDragStart.bind(this);
+        this.handleDragStop = this.handleDragStop.bind(this);
+        this.handleFocusOut = this.handleFocusOut.bind(this);
 
         this.handleOrientedDrag = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].reduce((acc: OrientedHandleDragFunctionsObject, heading: CompassOctoHeading) => {
             const {xMult, yMult} = ResizableContainer.orientationData[heading];
@@ -90,9 +92,9 @@ export default class ResizableContainer extends Component<Props, State> {
                 handle={`.resize-edge.${key}`}
                 nodeRef={handleRef}
                 position={{x: 0, y: 0}}
-                onStart={this.handleStartDrag}
+                onStart={this.handleDragStart}
                 onDrag={handleDrag}
-                onStop={this.handleStopDrag}
+                onStop={this.handleDragStop}
             >
                 <div className={`resize-edge ${key}`} ref={handleRef}/>
             </Draggable>
@@ -100,38 +102,47 @@ export default class ResizableContainer extends Component<Props, State> {
     }
 
     handleDrag(xMultiplier: number, yMultiplier: number, event: DraggableEvent, data: DraggableData) {
-        const currentContainer = this.containerRef.current;
-        const originalHeight = parseInt(currentContainer.getAttribute('originalHeight'));
-        const originalWidth = parseInt(currentContainer.getAttribute('originalWidth'));
+        const selfElement = this.selfRef.current;
+        const originalHeight = parseInt(selfElement.getAttribute('originalHeight'));
+        const originalWidth = parseInt(selfElement.getAttribute('originalWidth'));
         const {height, width} = this.restrictSize(
-            currentContainer,
+            selfElement,
             originalHeight + data.y * yMultiplier,
             originalWidth + data.x * xMultiplier,
             xMultiplier,
             yMultiplier);
-        currentContainer.style.height = `${height}px`;
-        currentContainer.style.width = `${width}px`;
+        selfElement.style.height = `${height}px`;
+        selfElement.style.width = `${width}px`;
     }
 
-    handleStartDrag() {
-        const currentContainer = this.containerRef.current;
-        const computedStyle = getComputedStyle(currentContainer);
-        currentContainer.setAttribute('originalHeight', computedStyle.height);
-        currentContainer.setAttribute('originalWidth', computedStyle.width);
+    handleDragStart() {
+        const selfElement = this.selfRef.current;
+        const computedStyle = getComputedStyle(selfElement);
+        selfElement.setAttribute('originalHeight', computedStyle.height);
+        selfElement.setAttribute('originalWidth', computedStyle.width);
     }
 
-    handleStopDrag() {
-        const currentContainer = this.containerRef.current;
-        currentContainer.removeAttribute('originalHeight');
-        currentContainer.removeAttribute('originalWidth');
-        const computedStyle = getComputedStyle(currentContainer);
+    handleDragStop() {
+        const selfElement = this.selfRef.current;
+        selfElement.removeAttribute('originalHeight');
+        selfElement.removeAttribute('originalWidth');
+        const computedStyle = getComputedStyle(selfElement);
         this.setState(({height, width, ...other}) => ({height: parseInt(computedStyle.height), width: parseInt(computedStyle.width), ...other}));
     }
 
+    handleFocusOut(event: FocusEvent) {
+        const onBlur = this.props.onBlur;
+        const selfElement = this.selfRef.current;
+        if (onBlur && (!event.relatedTarget || !selfElement.contains(event.relatedTarget as Node))) {
+            onBlur(event);
+        }
+    }
+
     restrictSize(currentContainer: HTMLElement, proposedHeight: number, proposedWidth: number, xMultiplier: number, yMultiplier: number): {height: number, width: number} {
+        // TODO: See how to avoid scrollbars from reducing the size of this container any further.
         let height: number = proposedHeight;
         let width: number = proposedWidth;
-        const containerParent = currentContainer.parentElement;
+        const containerParent = currentContainer.parentElement; // Using parentElement instead of having to pass a ref... Is it a bad practice?
         if (containerParent) {
             const containerRect = currentContainer.getBoundingClientRect();
             const parentRect = containerParent.getBoundingClientRect();
@@ -150,26 +161,28 @@ export default class ResizableContainer extends Component<Props, State> {
     }
 
     componentDidMount() {
-        const parentElement = this.containerRef.current.parentElement;
+        const selfElement = this.selfRef.current;
+        const parentElement = selfElement.parentElement; // Using parentElement instead of having to pass a ref... Is it a bad practice?
         if (parentElement) {
             this.parentResizeObserver = new ResizeObserver(entries => {
                 const edges = this.edgesAndCorners;
                 let edge = ResizableContainer.cornerResizingPreferenceOrder.find(o => edges[o]) ??
                     ResizableContainer.horizontalResizingPreferenceOrder.find(o => edges[o]) ??
                     ResizableContainer.verticalResizingPreferenceOrder.find(o => edges[o]);
-                const currentContainer = this.containerRef.current;
-                const containerRect = currentContainer.getBoundingClientRect();
+                const selfElement = this.selfRef.current;
+                const containerRect = selfElement.getBoundingClientRect();
                 const {xMult, yMult} = ResizableContainer.orientationData[edge];
-                const {height, width} = this.restrictSize(currentContainer, containerRect.height, containerRect.width, xMult, yMult);
+                const {height, width} = this.restrictSize(selfElement, containerRect.height, containerRect.width, xMult, yMult);
                 if (height !== containerRect.height) {
-                    currentContainer.style.height = `${height}px`;
+                    selfElement.style.height = `${height}px`;
                 }
                 if (width !== containerRect.width) {
-                    currentContainer.style.width = `${width}px`;
+                    selfElement.style.width = `${width}px`;
                 }
             });
             this.parentResizeObserver.observe(parentElement);
         }
+        selfElement.addEventListener('focusout', this.handleFocusOut);
     }
 
     componentWillUnmount() {
@@ -177,6 +190,7 @@ export default class ResizableContainer extends Component<Props, State> {
             this.parentResizeObserver.disconnect();
             this.parentResizeObserver = null;
         }
+        this.selfRef.current.removeEventListener('focusout', this.handleFocusOut);
     }
 
     render() {
@@ -186,7 +200,8 @@ export default class ResizableContainer extends Component<Props, State> {
         return (
             <div className={`resizable-container ${className ?? ''} ${resizableEdges.map(edge => getCompassOctoHeadingClassName(edge)).join(' ')}`}
                  style={{bottom: magnitude(bottom), height: magnitude(height), left: magnitude(left), right: magnitude(right), top: magnitude(top), width: magnitude(width)}}
-                 ref={this.containerRef}>
+                 tabIndex={0}
+                 ref={this.selfRef}>
                 <div className="horizontal-arrangement top">
                     {this.edgesAndCorners['nw'] ? this.buildHandle('nw', 'top-') : null}
                     {this.edgesAndCorners['n'] ? this.buildHandle('n') : null}
