@@ -176,7 +176,7 @@ export default class ResizableContainer extends Component<Props, State> {
         const selfElement = this.selfRef.current;
         const parentElement = selfElement.parentElement; // Using parentElement instead of having to pass a ref... Is it a bad practice?
         if (parentElement) {
-            this.parentResizeObserver = new ResizeObserver(entries => {
+            this.parentResizeObserver = new ResizeObserver(() => {
                 const edges = this.edgesAndCorners;
                 let edge = ResizableContainer.cornerResizingPreferenceOrder.find(o => edges[o]) ??
                     ResizableContainer.horizontalResizingPreferenceOrder.find(o => edges[o]) ??
