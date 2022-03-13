@@ -135,6 +135,8 @@ export default class ResizableContainer extends Component<Props, State> {
         const selfElement = this.selfRef.current;
         if (onBlur && (!event.relatedTarget || !selfElement.contains(event.relatedTarget as Node))) {
             onBlur(event);
+        } else if (event.target !== selfElement && event.relatedTarget === selfElement) {
+            (event.target as HTMLElement).focus();
         }
     }
 
