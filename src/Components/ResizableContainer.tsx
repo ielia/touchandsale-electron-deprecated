@@ -23,6 +23,7 @@ interface State {
     width?: number;
 }
 
+// TODO: Look for a better name other than "magnitude".
 function magnitude(value: number | string) {
     return typeof value === 'number'? `${value}px` : value ? value : 'unset';
 }
@@ -31,15 +32,15 @@ export default class ResizableContainer extends Component<Props, State> {
     static cornerResizingPreferenceOrder: CompassOctoHeading[] = ['sw', 'se', 'nw', 'ne'];
     static horizontalResizingPreferenceOrder: CompassOctoHeading[] = ['w', 'e'];
     static verticalResizingPreferenceOrder: CompassOctoHeading[] = ['s', 'n'];
-    static orientationData: {[orientation in CompassOctoHeading]: {xMult: number, yMult: number, axis: 'x' | 'y' | 'both'}} = {
-        'n': {xMult: 0, yMult: -1, axis: 'y'},
-        'ne': {xMult: 1, yMult: -1, axis: 'both'},
-        'e': {xMult: 1, yMult: 0, axis: 'x'},
-        'se': {xMult: 1, yMult: 1, axis: 'both'},
-        's': {xMult: 0, yMult: 1, axis: 'y'},
-        'sw': {xMult: -1, yMult: 1, axis: 'both'},
-        'w': {xMult: -1, yMult: 0, axis: 'x'},
-        'nw': {xMult: -1, yMult: -1, axis: 'both'},
+    static orientationData: {[orientation in CompassOctoHeading]: {xMultiplier: number, yMultiplier: number, axis: 'x' | 'y' | 'both'}} = {
+        'n': {xMultiplier: 0, yMultiplier: -1, axis: 'y'},
+        'ne': {xMultiplier: 1, yMultiplier: -1, axis: 'both'},
+        'e': {xMultiplier: 1, yMultiplier: 0, axis: 'x'},
+        'se': {xMultiplier: 1, yMultiplier: 1, axis: 'both'},
+        's': {xMultiplier: 0, yMultiplier: 1, axis: 'y'},
+        'sw': {xMultiplier: -1, yMultiplier: 1, axis: 'both'},
+        'w': {xMultiplier: -1, yMultiplier: 0, axis: 'x'},
+        'nw': {xMultiplier: -1, yMultiplier: -1, axis: 'both'},
     };
 
     edgesAndCorners: {[orientation in CompassOctoHeading]?: boolean};
@@ -61,8 +62,8 @@ export default class ResizableContainer extends Component<Props, State> {
         this.handleFocusOut = this.handleFocusOut.bind(this);
 
         this.handleOrientedDrag = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].reduce((acc: OrientedHandleDragFunctionsObject, heading: CompassOctoHeading) => {
-            const {xMult, yMult} = ResizableContainer.orientationData[heading];
-            acc[heading] = this.handleDrag.bind(this, xMult, yMult);
+            const {xMultiplier, yMultiplier} = ResizableContainer.orientationData[heading];
+            acc[heading] = this.handleDrag.bind(this, xMultiplier, yMultiplier);
             return acc;
         }, {});
 
@@ -103,12 +104,17 @@ export default class ResizableContainer extends Component<Props, State> {
 
     handleDrag(xMultiplier: number, yMultiplier: number, event: DraggableEvent, data: DraggableData) {
         const selfElement = this.selfRef.current;
+        const {left: currentLeft, top: currentTop} = selfElement.getBoundingClientRect();
         const originalHeight = parseInt(selfElement.getAttribute('originalHeight'));
+        const originalLeft = parseInt(selfElement.getAttribute('originalLeft'));
+        const originalTop = parseInt(selfElement.getAttribute('originalTop'));
         const originalWidth = parseInt(selfElement.getAttribute('originalWidth'));
+        let deltaX = (xMultiplier < 0 ? data.x + currentLeft - originalLeft : data.x) * xMultiplier;
+        let deltaY = (yMultiplier < 0 ? data.y + currentTop - originalTop : data.y) * yMultiplier;
         const {height, width} = this.restrictSize(
             selfElement,
-            originalHeight + data.y * yMultiplier,
-            originalWidth + data.x * xMultiplier,
+            originalHeight + deltaY,
+            originalWidth + deltaX,
             xMultiplier,
             yMultiplier);
         selfElement.style.height = `${height}px`;
@@ -117,14 +123,18 @@ export default class ResizableContainer extends Component<Props, State> {
 
     handleDragStart() {
         const selfElement = this.selfRef.current;
-        const computedStyle = getComputedStyle(selfElement);
-        selfElement.setAttribute('originalHeight', computedStyle.height);
-        selfElement.setAttribute('originalWidth', computedStyle.width);
+        const {height, left, top, width} = selfElement.getBoundingClientRect();
+        selfElement.setAttribute('originalHeight', magnitude(height));
+        selfElement.setAttribute('originalLeft', magnitude(left));
+        selfElement.setAttribute('originalTop', magnitude(top));
+        selfElement.setAttribute('originalWidth', magnitude(width));
     }
 
     handleDragStop() {
         const selfElement = this.selfRef.current;
         selfElement.removeAttribute('originalHeight');
+        selfElement.removeAttribute('originalLeft');
+        selfElement.removeAttribute('originalTop');
         selfElement.removeAttribute('originalWidth');
         const computedStyle = getComputedStyle(selfElement);
         this.setState(({height, width, ...other}) => ({height: parseInt(computedStyle.height), width: parseInt(computedStyle.width), ...other}));
@@ -173,8 +183,8 @@ export default class ResizableContainer extends Component<Props, State> {
                     ResizableContainer.verticalResizingPreferenceOrder.find(o => edges[o]);
                 const selfElement = this.selfRef.current;
                 const containerRect = selfElement.getBoundingClientRect();
-                const {xMult, yMult} = ResizableContainer.orientationData[edge];
-                const {height, width} = this.restrictSize(selfElement, containerRect.height, containerRect.width, xMult, yMult);
+                const {xMultiplier, yMultiplier} = ResizableContainer.orientationData[edge];
+                const {height, width} = this.restrictSize(selfElement, containerRect.height, containerRect.width, xMultiplier, yMultiplier);
                 if (height !== containerRect.height) {
                     selfElement.style.height = `${height}px`;
                 }

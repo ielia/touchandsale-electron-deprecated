@@ -385,7 +385,8 @@ export default class SalesPerspective extends Component<Props, State> {
                     </ViewSetLayout>
                     {
                         floatingGroup
-                            ? <ResizableContainer resizableEdges={['e', 's']} left={0} top={0} onBlur={this.handleContainerMinimization.bind(this, floatingGroup)}>
+                            ? <ResizableContainer resizableEdges={['e', 's']} left={0} top={0}
+                                                  onBlur={this.handleContainerMinimization.bind(this, floatingGroup)}>
                                   {this.findGroups(layout, floatingGroup).map(group => (
                                       <TabbedViewContainer key={group.groupId} containerId={group.groupId} onMaximize={this.handleContainerMaximization} onMinimize={this.handleContainerMinimization} onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection} selectedViewId={group.selected} state="floating">
                                           {group.children.map(viewId => views[viewId])}
