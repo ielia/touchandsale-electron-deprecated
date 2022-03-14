@@ -60,7 +60,9 @@ export default class Perspective extends PureComponent<Props, State> {
         };
     }
 
-    protected buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }): MinimizedViewContainer[] {
+    protected buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec,
+                                   views: { [viewId: string]: ReactElement<View> & ReactNode }
+    ): MinimizedViewContainer[] {
         const minimizedGroupsById = minimizedGroupList.reduce((acc: { [key: string]: MinimizedGroupSpec }, group) => {
             acc[group.containerId] = group;
             return acc;
@@ -92,7 +94,7 @@ export default class Perspective extends PureComponent<Props, State> {
 
     protected findMinimizedGroups(minimizedGroups: MinimizedGroups, ...groupIds: string[]): MinimizedGroupSpec[] {
         return Object.values(minimizedGroups).reduce((acc, minimizedGroupSpecs) =>
-            acc.concat(minimizedGroupSpecs.filter(spec => groupIds.indexOf(spec.containerId) >= 0)),
+                acc.concat(minimizedGroupSpecs.filter(spec => groupIds.indexOf(spec.containerId) >= 0)),
             []);
     }
 
@@ -106,7 +108,7 @@ export default class Perspective extends PureComponent<Props, State> {
     protected handleClosingFloatingGroup(containerId: string, event: FocusEvent): void {
         // This method will always result in a new state, since having floatingGroup with any other value than the non-null containerId would be a bug,
         // and the resulting state will have floatingGroup set to null.
-        if (!event.relatedTarget || !this.minimizedFloaterRef || !this.minimizedFloaterRef.current.contains(event.relatedTarget as Node)) {
+        if (!event.relatedTarget || !this.minimizedFloaterRef.current || !this.minimizedFloaterRef.current.contains(event.relatedTarget as Node)) {
             this.setState(({floatingGroup, minimizedGroups, ...others}) => {
                 let newMinimizedGroups = minimizedGroups;
                 // If they don't match, then it wasn't open... For some weird reason.
@@ -122,7 +124,6 @@ export default class Perspective extends PureComponent<Props, State> {
                     ...others,
                 };
             });
-            this.minimizedFloaterRef = null;
         }
     }
 
@@ -251,7 +252,8 @@ export default class Perspective extends PureComponent<Props, State> {
         });
     }
 
-    protected updateAttributeOnAllMinimizedGroups<A extends keyof MinimizedGroupSpec, T extends MinimizedGroupSpec[A]>(minimizedGroups: MinimizedGroups, attribute: A, value: T): MinimizedGroups {
+    protected updateAttributeOnAllMinimizedGroups<A extends keyof MinimizedGroupSpec, T extends MinimizedGroupSpec[A]>(minimizedGroups: MinimizedGroups, attribute: A, value: T
+    ): MinimizedGroups {
         let changed = false;
         const newMinimizedGroups: MinimizedGroups = {};
         for (const menuId in minimizedGroups) {
@@ -292,7 +294,9 @@ export default class Perspective extends PureComponent<Props, State> {
         return result;
     }
 
-    protected updateMinimizedGroupAttribute<A extends keyof MinimizedGroupSpec, T extends MinimizedGroupSpec[A]>(minimizedGroups: MinimizedGroups, containerId: string, attribute: A, value: T): MinimizedGroups {
+    protected updateMinimizedGroupAttribute<A extends keyof MinimizedGroupSpec, T extends MinimizedGroupSpec[A]>(minimizedGroups: MinimizedGroups,
+                                                                                                                 containerId: string, attribute: A, value: T
+    ): MinimizedGroups {
         let changed = false;
         const newMinimizedGroups: MinimizedGroups = {};
         for (const menuId in minimizedGroups) {
@@ -384,9 +388,10 @@ export default class Perspective extends PureComponent<Props, State> {
                                                       onResizeEnd={this.handleFloatingGroupResize.bind(this, floatingGroup)}
                                 >
                                     {this.findGroups(layout, floatingGroup).map(group => (
-                                        <TabbedViewContainer key={group.groupId} containerId={group.groupId} onMaximize={this.handleContainerMaximization}
-                                                             onMinimize={this.handleContainerMinimization} onRestore={this.handleContainerRestoration}
-                                                             onViewSelected={this.handleMinimizedViewSelection} selectedViewId={group.selected} state="floating">
+                                        <TabbedViewContainer key={group.groupId} containerId={group.groupId} focused={true} selectedViewId={group.selected} state="floating"
+                                                             onMaximize={this.handleContainerMaximization} onMinimize={this.handleContainerMinimization}
+                                                             onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}
+                                        >
                                             {group.children.map(viewId => views[viewId])}
                                         </TabbedViewContainer>
                                     ))}

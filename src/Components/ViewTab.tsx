@@ -6,6 +6,7 @@ import {appendShortcutString, isShortcutKeyPressed, shortcutKeyToShortString} fr
 interface Props {
     actions: any; // TODO: See what to do with these actions.
     color: Color;
+    focused?: boolean;
     label: string;
     onSelected: (viewId: string) => void;
     selected?: boolean;
@@ -57,9 +58,18 @@ export default abstract class ViewTab extends PureComponent<Props> {
     }
 
     componentDidMount() {
-        const {shortcutKey, viewId} = this.props;
+        const {focused, shortcutKey, viewId} = this.props;
         if (shortcutKey && viewId) {
             document.addEventListener('keydown', this.handleShortcutKey);
+        }
+        if (focused) {
+            this.selfRef.current.focus();
+        }
+    }
+
+    componentDidUpdate() {
+        if (this.props.focused) {
+            this.selfRef.current.focus();
         }
     }
 

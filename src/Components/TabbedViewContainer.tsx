@@ -1,4 +1,4 @@
-import React, {PureComponent, ReactElement} from 'react';
+import React, {createRef, LegacyRef, PureComponent, ReactElement} from 'react';
 
 import './_TabbedViewContainer.scss';
 
@@ -17,6 +17,7 @@ const ViewTab = EclipseRCPComponentFactory<BaseViewTab>('ViewTab');
 interface Props {
     children: ReactElement<View> | ReactElement<View>[];
     containerId: string;
+    focused?: boolean;
     onMaximize: (containerId: string) => any;
     onMinimize: (containerId: string) => any;
     onRestore: (containerId: string) => any;
@@ -26,6 +27,8 @@ interface Props {
 }
 
 export default class TabbedViewContainer extends PureComponent<Props> {
+    selectedTabRef: LegacyRef<typeof ViewTab>;
+
     constructor(props: Props) {
         super(props);
 
@@ -33,6 +36,7 @@ export default class TabbedViewContainer extends PureComponent<Props> {
         this.handleMinimization = this.handleMinimization.bind(this);
         this.handleRestore = this.handleRestore.bind(this);
         this.handleViewSelection = this.handleViewSelection.bind(this);
+        this.selectedTabRef = createRef();
     }
 
     handleMaximization() {
@@ -53,7 +57,7 @@ export default class TabbedViewContainer extends PureComponent<Props> {
     }
 
     render() {
-        const {children, selectedViewId, state} = this.props;
+        const {children, focused, selectedViewId, state} = this.props;
         const childArray = Array.isArray(children) ? children : [children];
         const childrenCount = childArray.length;
         const indexOfSelected = childArray.findIndex(child => child.props.viewId === selectedViewId);
@@ -67,6 +71,7 @@ export default class TabbedViewContainer extends PureComponent<Props> {
                                 key={child.props.viewId}
                                 actions={child.props.actions}
                                 color={child.props.color}
+                                focused={focused && index === indexOfSelected}
                                 label={child.props.label}
                                 selected={index === indexOfSelected}
                                 shortcutKey={child.props.shortcutKey}
