@@ -90,6 +90,12 @@ export default class Perspective extends PureComponent<Props, State> {
                 : [];
     }
 
+    protected findMinimizedGroups(minimizedGroups: MinimizedGroups, ...groupIds: string[]): MinimizedGroupSpec[] {
+        return Object.values(minimizedGroups).reduce((acc, minimizedGroupSpecs) =>
+            acc.concat(minimizedGroupSpecs.filter(spec => groupIds.indexOf(spec.containerId) >= 0)),
+            []);
+    }
+
     protected getClosestCornerSpec(x: number, y: number, container: Element): { bottom?: 0, left?: 0, right?: 0, top?: 0, resizableEdges: CompassHeading[] } {
         const {bottom, left, right, top} = container.getBoundingClientRect();
         const horizontalSpec: ['left' | 'right', CompassHeading] = Math.abs(x - right) < Math.abs(x - left) ? ['right', 'w'] : ['left', 'e'];
@@ -183,6 +189,29 @@ export default class Perspective extends PureComponent<Props, State> {
                     layout: newLayout,
                     maximizedGroup: null,
                     ...others
+                };
+        });
+    }
+
+    protected handleFloatingGroupResize(containerId: string, height: number, width: number): void {
+        this.setState(currentState => {
+            const {floatingGroup, minimizedGroups, ...others} = currentState;
+            let newMinimizedGroups = minimizedGroups;
+            // If they don't match, then I don't know what we are resizing...
+            // Consider changing if we start allowing multiple floating tabbed containers.
+            if (floatingGroup === containerId) {
+                // TODO: Create a method to change multiple attributes in one go.
+                newMinimizedGroups = this.updateMinimizedGroupAttribute(newMinimizedGroups, containerId, 'height', height);
+                newMinimizedGroups = this.updateMinimizedGroupAttribute(newMinimizedGroups, containerId, 'width', width);
+            } else {
+                console.error('Resizing a non-floating group:', containerId);
+            }
+            return minimizedGroups === newMinimizedGroups
+                ? currentState
+                : {
+                    floatingGroup,
+                    minimizedGroups: newMinimizedGroups,
+                    ...others,
                 };
         });
     }
@@ -324,6 +353,7 @@ export default class Perspective extends PureComponent<Props, State> {
             acc[view.props.viewId] = view;
             return acc;
         }, {});
+        const floatingGroupSpec = floatingGroup ? this.findMinimizedGroups(minimizedGroups, floatingGroup)[0] : null;
         return (
             <div className={`perspective ${className}`}>
                 <Menu>
@@ -348,8 +378,11 @@ export default class Perspective extends PureComponent<Props, State> {
                         </ViewSetLayout>
                         {
                             floatingGroup
-                                ? <ResizableContainer left={0} top={0} resizableEdges={['e', 's']} initiallyTryResizeToFit={true}
-                                                      onFocusOut={this.handleClosingFloatingGroup.bind(this, floatingGroup)}>
+                                ? <ResizableContainer key={floatingGroup} left={0} top={0} height={floatingGroupSpec.height} width={floatingGroupSpec.width}
+                                                      resizableEdges={['e', 's']} initiallyTryResizeToFit={true}
+                                                      onFocusOut={this.handleClosingFloatingGroup.bind(this, floatingGroup)}
+                                                      onResizeEnd={this.handleFloatingGroupResize.bind(this, floatingGroup)}
+                                >
                                     {this.findGroups(layout, floatingGroup).map(group => (
                                         <TabbedViewContainer key={group.groupId} containerId={group.groupId} onMaximize={this.handleContainerMaximization}
                                                              onMinimize={this.handleContainerMinimization} onRestore={this.handleContainerRestoration}

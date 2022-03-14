@@ -18,6 +18,7 @@ interface Props {
     width?: number;
     top?: number | string;
     onFocusOut?: (event: FocusEvent) => any;
+    onResizeEnd?: (height: number, width: number) => any;
 }
 
 interface State {
@@ -123,7 +124,11 @@ export default class ResizableContainer extends Component<Props, State> {
         selfElement.removeAttribute('originalTop');
         selfElement.removeAttribute('originalWidth');
         const computedStyle = getComputedStyle(selfElement);
-        this.setState(({height, width, ...other}) => ({height: parseInt(computedStyle.height), width: parseInt(computedStyle.width), ...other}));
+        const [height, width] = [parseInt(computedStyle.height), parseInt(computedStyle.width)];
+        this.setState(({height: oldHeight, width: oldWidth, ...other}) => ({height, width, ...other}));
+        if (this.props.onResizeEnd) {
+            this.props.onResizeEnd(height, width);
+        }
     }
 
     handleFocusOut(event: FocusEvent) {
@@ -160,6 +165,7 @@ export default class ResizableContainer extends Component<Props, State> {
     }
 
     componentDidMount() {
+        const {initiallyTryResizeToFit, onResizeEnd} = this.props;
         const selfElement = this.selfRef.current;
         const parentElement = selfElement.parentElement; // Using parentElement instead of having to pass a ref... Is it a bad practice?
         const edges = this.edgesAndCorners;
@@ -175,11 +181,15 @@ export default class ResizableContainer extends Component<Props, State> {
             });
             this.parentResizeObserver.observe(parentElement);
         }
-        if (this.props.initiallyTryResizeToFit) {
+        if (initiallyTryResizeToFit) {
             const contentElement = this.contentRef.current;
             const selfRect = selfElement.getBoundingClientRect();
             const contentRect = contentElement.getBoundingClientRect();
-            this.restrictSize(selfElement, contentElement.scrollHeight + selfRect.height - contentRect.height, contentElement.scrollWidth + selfRect.width - contentRect.width, xMultiplier, yMultiplier);
+            this.restrictSize(selfElement, selfRect.height + contentElement.scrollHeight - contentRect.height, selfRect.width + contentElement.scrollWidth - contentRect.width, xMultiplier, yMultiplier);
+        }
+        if (onResizeEnd) {
+            const {height, width} = selfElement.getBoundingClientRect();
+            onResizeEnd(height, width);
         }
         selfElement.addEventListener('focusout', this.handleFocusOut);
     }
