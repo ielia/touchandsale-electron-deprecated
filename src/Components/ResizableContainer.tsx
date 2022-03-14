@@ -10,6 +10,7 @@ interface Props {
     bottom?: number | string;
     className?: string;
     height?: number;
+    initiallyTryResizeToFit?: boolean;
     left?: number | string;
     resizableEdges: CompassHeading[];
     right?: number | string;
@@ -43,6 +44,7 @@ export default class ResizableContainer extends Component<Props, State> {
         'nw': {xMultiplier: -1, yMultiplier: -1, axis: 'both'},
     };
 
+    contentRef: RefObject<HTMLDivElement>;
     edgesAndCorners: {[orientation in CompassOctoHeading]?: boolean};
     handleOrientedDrag: OrientedHandleDragFunctionsObject;
     parentResizeObserver: ResizeObserver;
@@ -56,6 +58,7 @@ export default class ResizableContainer extends Component<Props, State> {
         };
 
         this.selfRef = createRef<HTMLDivElement>();
+        this.contentRef = createRef<HTMLDivElement>();
         this.handleDrag = this.handleDrag.bind(this);
         this.handleDragStart = this.handleDragStart.bind(this);
         this.handleDragStop = this.handleDragStop.bind(this);
@@ -111,14 +114,7 @@ export default class ResizableContainer extends Component<Props, State> {
         const originalWidth = parseInt(selfElement.getAttribute('originalWidth'));
         let deltaX = (xMultiplier < 0 ? data.x + currentLeft - originalLeft : data.x) * xMultiplier;
         let deltaY = (yMultiplier < 0 ? data.y + currentTop - originalTop : data.y) * yMultiplier;
-        const {height, width} = this.restrictSize(
-            selfElement,
-            originalHeight + deltaY,
-            originalWidth + deltaX,
-            xMultiplier,
-            yMultiplier);
-        selfElement.style.height = `${height}px`;
-        selfElement.style.width = `${width}px`;
+        this.restrictSize(selfElement, originalHeight + deltaY, originalWidth + deltaX, xMultiplier, yMultiplier);
     }
 
     handleDragStart() {
@@ -150,49 +146,50 @@ export default class ResizableContainer extends Component<Props, State> {
         }
     }
 
-    restrictSize(currentContainer: HTMLElement, proposedHeight: number, proposedWidth: number, xMultiplier: number, yMultiplier: number): {height: number, width: number} {
+    restrictSize(element: HTMLElement, proposedHeight: number, proposedWidth: number, xMultiplier: number, yMultiplier: number): void {
         // TODO: See how to avoid scrollbars from reducing the size of this container any further.
         let height: number = proposedHeight;
         let width: number = proposedWidth;
-        const containerParent = currentContainer.parentElement; // Using parentElement instead of having to pass a ref... Is it a bad practice?
-        if (containerParent) {
-            const containerRect = currentContainer.getBoundingClientRect();
-            const parentRect = containerParent.getBoundingClientRect();
-            if (xMultiplier < 0 && containerRect.right - width < parentRect.left) {
-                width = containerRect.right - parentRect.left;
-            } else if (xMultiplier > 0 && containerRect.left + width > parentRect.right) {
-                width = parentRect.right - containerRect.left;
+        const elementParent = element.parentElement; // Using parentElement instead of having to pass a ref... Is it a bad practice?
+        if (elementParent) {
+            const elementRect = element.getBoundingClientRect();
+            const parentRect = elementParent.getBoundingClientRect();
+            if (xMultiplier < 0 && elementRect.right - width < parentRect.left) {
+                width = elementRect.right - parentRect.left;
+            } else if (xMultiplier > 0 && elementRect.left + width > parentRect.right) {
+                width = parentRect.right - elementRect.left;
             }
-            if (yMultiplier < 0 && containerRect.bottom - height < parentRect.top) {
-                height = containerRect.bottom - parentRect.top;
-            } else if (yMultiplier > 0 && containerRect.top + height > parentRect.bottom) {
-                height = parentRect.bottom - containerRect.top;
+            if (yMultiplier < 0 && elementRect.bottom - height < parentRect.top) {
+                height = elementRect.bottom - parentRect.top;
+            } else if (yMultiplier > 0 && elementRect.top + height > parentRect.bottom) {
+                height = parentRect.bottom - elementRect.top;
             }
         }
-        return {height, width};
+        element.style.height = `${height}px`;
+        element.style.width = `${width}px`;
     }
 
     componentDidMount() {
         const selfElement = this.selfRef.current;
         const parentElement = selfElement.parentElement; // Using parentElement instead of having to pass a ref... Is it a bad practice?
+        const edges = this.edgesAndCorners;
+        const preferredResizeEdge = ResizableContainer.cornerResizingPreferenceOrder.find(o => edges[o]) ??
+            ResizableContainer.horizontalResizingPreferenceOrder.find(o => edges[o]) ??
+            ResizableContainer.verticalResizingPreferenceOrder.find(o => edges[o]);
+        const {xMultiplier, yMultiplier} = ResizableContainer.orientationData[preferredResizeEdge];
         if (parentElement) {
             this.parentResizeObserver = new ResizeObserver(() => {
-                const edges = this.edgesAndCorners;
-                let edge = ResizableContainer.cornerResizingPreferenceOrder.find(o => edges[o]) ??
-                    ResizableContainer.horizontalResizingPreferenceOrder.find(o => edges[o]) ??
-                    ResizableContainer.verticalResizingPreferenceOrder.find(o => edges[o]);
                 const selfElement = this.selfRef.current;
-                const containerRect = selfElement.getBoundingClientRect();
-                const {xMultiplier, yMultiplier} = ResizableContainer.orientationData[edge];
-                const {height, width} = this.restrictSize(selfElement, containerRect.height, containerRect.width, xMultiplier, yMultiplier);
-                if (height !== containerRect.height) {
-                    selfElement.style.height = `${height}px`;
-                }
-                if (width !== containerRect.width) {
-                    selfElement.style.width = `${width}px`;
-                }
+                const selfRect = selfElement.getBoundingClientRect();
+                this.restrictSize(selfElement, selfRect.height, selfRect.width, xMultiplier, yMultiplier);
             });
             this.parentResizeObserver.observe(parentElement);
+        }
+        if (this.props.initiallyTryResizeToFit) {
+            const contentElement = this.contentRef.current;
+            const selfRect = selfElement.getBoundingClientRect();
+            const contentRect = contentElement.getBoundingClientRect();
+            this.restrictSize(selfElement, contentElement.scrollHeight + selfRect.height - contentRect.height, contentElement.scrollWidth + selfRect.width - contentRect.width, xMultiplier, yMultiplier);
         }
         selfElement.addEventListener('focusout', this.handleFocusOut);
     }
@@ -225,7 +222,7 @@ export default class ResizableContainer extends Component<Props, State> {
                         {this.edgesAndCorners['w'] ? this.buildHandle('w') : null}
                         {this.edgesAndCorners['sw'] ? this.buildHandle('sw', 'left-') : null}
                     </div>
-                    <div className="resizable-container-content">
+                    <div className="resizable-container-content" ref={this.contentRef}>
                         {children}
                     </div>
                     <div className="vertical-arrangement right">
