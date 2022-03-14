@@ -1,5 +1,5 @@
 import Color from 'color';
-import React, {createRef, PureComponent, ReactElement, ReactNode, RefObject} from 'react';
+import React, {PureComponent, ReactElement, ReactNode, RefObject, createRef} from 'react';
 
 import './_Perspective.scss';
 
@@ -60,7 +60,10 @@ export default class Perspective extends PureComponent<Props, State> {
     }
 
     protected buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }): MinimizedViewContainer[] {
-        const minimizedGroupsById = minimizedGroupList.reduce((acc: {[key: string]: MinimizedGroupSpec}, group) => { acc[group.containerId] = group; return acc; }, {});
+        const minimizedGroupsById = minimizedGroupList.reduce((acc: { [key: string]: MinimizedGroupSpec }, group) => {
+            acc[group.containerId] = group;
+            return acc;
+        }, {});
         const groups = this.findGroups(layout, ...Object.keys(minimizedGroupsById));
         return groups.reduce((acc, group) => {
             const state = group.state;
@@ -68,7 +71,8 @@ export default class Perspective extends PureComponent<Props, State> {
                 const {children, groupId, selected} = group;
                 const wrapperRefAttr = minimizedGroupsById[groupId].floating ? {wrapperRef: this.minimizedFloaterRef} : {};
                 acc.push(
-                    <MinimizedViewContainer key={groupId} containerId={groupId} selectedView={selected} onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection} {...wrapperRefAttr}>
+                    <MinimizedViewContainer key={groupId} containerId={groupId} selectedView={selected} onRestore={this.handleContainerRestoration}
+                                            onViewSelected={this.handleMinimizedViewSelection} {...wrapperRefAttr}>
                         {children.map(viewId => views[viewId])}
                     </MinimizedViewContainer>
                 );
@@ -85,7 +89,7 @@ export default class Perspective extends PureComponent<Props, State> {
                 : [];
     }
 
-    protected getClosestCornerSpec(x: number, y: number, container: Element): {bottom?: 0, left?: 0, right?: 0, top?: 0, resizableEdges: CompassHeading[]} {
+    protected getClosestCornerSpec(x: number, y: number, container: Element): { bottom?: 0, left?: 0, right?: 0, top?: 0, resizableEdges: CompassHeading[] } {
         const {bottom, left, right, top} = container.getBoundingClientRect();
         const horizontalSpec: ['left' | 'right', CompassHeading] = Math.abs(x - right) < Math.abs(x - left) ? ['right', 'w'] : ['left', 'e'];
         const verticalSpec: ['bottom' | 'top', CompassHeading] = Math.abs(y - bottom) < Math.abs(y - top) ? ['bottom', 's'] : ['top', 'n'];
@@ -336,7 +340,9 @@ export default class Perspective extends PureComponent<Props, State> {
                         {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.left, layout, views)}
                     </Menu>
                     <div className="perspective-layout-container" ref={this.layoutContainerRef}>
-                        <ViewSetLayout layout={layout} shownState={maximizedGroup ? 'maximized' : 'normal'} onLayoutDivisionChange={this.handleLayoutDivisionChange} onMaximizeContainer={this.handleContainerMaximization} onMinimizeContainer={this.handleContainerMinimization} onRestoreContainer={this.handleContainerRestoration} onViewSelected={this.handleViewSelection}>
+                        <ViewSetLayout layout={layout} shownState={maximizedGroup ? 'maximized' : 'normal'} onLayoutDivisionChange={this.handleLayoutDivisionChange}
+                                       onMaximizeContainer={this.handleContainerMaximization} onMinimizeContainer={this.handleContainerMinimization}
+                                       onRestoreContainer={this.handleContainerRestoration} onViewSelected={this.handleViewSelection}>
                             {childArray}
                         </ViewSetLayout>
                         {
@@ -344,7 +350,9 @@ export default class Perspective extends PureComponent<Props, State> {
                                 ? <ResizableContainer left={0} top={0} resizableEdges={['e', 's']} initiallyTryResizeToFit={true}
                                                       onFocusOut={this.handleClosingFloatingGroup.bind(this, floatingGroup)}>
                                     {this.findGroups(layout, floatingGroup).map(group => (
-                                        <TabbedViewContainer key={group.groupId} containerId={group.groupId} onMaximize={this.handleContainerMaximization} onMinimize={this.handleContainerMinimization} onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection} selectedViewId={group.selected} state="floating">
+                                        <TabbedViewContainer key={group.groupId} containerId={group.groupId} onMaximize={this.handleContainerMaximization}
+                                                             onMinimize={this.handleContainerMinimization} onRestore={this.handleContainerRestoration}
+                                                             onViewSelected={this.handleMinimizedViewSelection} selectedViewId={group.selected} state="floating">
                                             {group.children.map(viewId => views[viewId])}
                                         </TabbedViewContainer>
                                     ))}

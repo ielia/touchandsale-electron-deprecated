@@ -70,19 +70,6 @@ export default class ResizableContainer extends Component<Props, State> {
             acc[heading] = this.handleDrag.bind(this, xMultiplier, yMultiplier);
             return acc;
         }, {});
-
-        this.edgesAndCorners = this.props.resizableEdges.reduce(
-            (acc: {[heading in CompassOctoHeading]?: boolean}, edge) => {
-                acc[edge] = true;
-                getOrthogonalCompassHeadings(edge).forEach(side => {
-                    if (acc[side]) {
-                        acc[getCompassHeadingDotProduct(edge, side)] = true;
-                    }
-                });
-                return acc;
-            },
-            {}
-        );
     }
 
     buildHandle(orientation: CompassOctoHeading, keyPrefix: string = '') {
@@ -206,6 +193,19 @@ export default class ResizableContainer extends Component<Props, State> {
     render() {
         const {bottom, children, className, left, resizableEdges, right, top} = this.props;
         const {height, width} = this.state;
+
+        this.edgesAndCorners = resizableEdges.reduce(
+            (acc: {[heading in CompassOctoHeading]?: boolean}, edge) => {
+                acc[edge] = true;
+                getOrthogonalCompassHeadings(edge).forEach(side => {
+                    if (acc[side]) {
+                        acc[getCompassHeadingDotProduct(edge, side)] = true;
+                    }
+                });
+                return acc;
+            },
+            {}
+        );
 
         return (
             <div className={`resizable-container ${className ?? ''} ${resizableEdges.map(edge => getCompassOctoHeadingClassName(edge)).join(' ')}`}
