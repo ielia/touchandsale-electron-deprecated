@@ -2,6 +2,7 @@ import React, {PureComponent, ReactElement, ReactHTMLElement, ReactNode, RefObje
 import Draggable, {DraggableData, DraggableEvent} from 'react-draggable';
 
 import './_ViewSetLayout.scss';
+
 import {addSeparatorElement} from '../commons';
 import TabbedViewContainer from './TabbedViewContainer';
 import View from './View';

@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import './polyfills';
 
 import './index.scss';
+
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

@@ -2,6 +2,7 @@ import React, {Component, RefObject, createRef} from 'react';
 import Draggable, {DraggableData, DraggableEvent} from 'react-draggable';
 
 import './_ResizableContainer.scss';
+
 import {getCompassHeadingDotProduct, getCompassOctoHeadingClassName, getOrthogonalCompassHeadings} from '../commons';
 
 type OrientedHandleDragFunctionsObject = {[orientation in CompassOctoHeading]?: (event: DraggableEvent, data: DraggableData) => void};

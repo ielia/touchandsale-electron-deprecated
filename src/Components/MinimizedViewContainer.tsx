@@ -1,6 +1,7 @@
 import React, {PureComponent, ReactElement} from 'react';
 
 import './_MinimizedViewContainer.scss';
+
 import BaseRestoreButton from './RestoreButton';
 import MenuSection from './MenuSection';
 import View from './View';

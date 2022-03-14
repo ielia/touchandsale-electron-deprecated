@@ -1,6 +1,7 @@
 import React from 'react';
 
 import './_RestoreButton.scss';
+
 import RestoreButton from '../../RestoreButton';
 
 export default class EclipseRCPRestoreButton extends RestoreButton {

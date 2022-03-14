@@ -1,6 +1,7 @@
 import React from 'react';
 
 import './_MinimizeButton.scss';
+
 import MinimizeButton from '../../MinimizeButton';
 
 export default class EclipseRCPMinimizeButton extends MinimizeButton {

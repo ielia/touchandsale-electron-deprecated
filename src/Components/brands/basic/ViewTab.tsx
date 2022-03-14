@@ -1,6 +1,7 @@
 import React from 'react';
 
 import './_ViewTab.scss';
+
 import {appendShortcutString, shortcutKeyToShortString} from '../../../commons';
 import ViewTab from '../../ViewTab';
 

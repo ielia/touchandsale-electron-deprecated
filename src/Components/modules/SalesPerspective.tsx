@@ -2,15 +2,16 @@ import Color from 'color';
 import React, {Component, ReactElement, ReactNode} from 'react';
 
 import './_SalesPerspective.scss';
+
 import Menu from '../Menu';
 import MenuSection from '../MenuSection';
 import MinimizedViewContainer from '../MinimizedViewContainer';
 import Perspective from '../Perspective';
 import PerspectiveMenuItem from '../PerspectiveMenuItem';
+import ResizableContainer from '../ResizableContainer';
+import TabbedViewContainer from '../TabbedViewContainer';
 import View from '../View';
 import ViewSetLayout from '../ViewSetLayout';
-import ResizableContainer from "../ResizableContainer";
-import TabbedViewContainer from "../TabbedViewContainer";
 
 type MinimizedGroupSpec = {containerId: string, floating: boolean, height: number, width: number};
 interface MinimizedGroups {

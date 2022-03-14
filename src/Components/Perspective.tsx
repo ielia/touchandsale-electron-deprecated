@@ -1,8 +1,9 @@
 import Color from 'color';
 import React, {PureComponent, ReactElement} from 'react';
 
-import '../commons';
 import './_Perspective.scss';
+
+import '../commons';
 import Menu from './Menu';
 import MenuSection from './MenuSection';
 import PerspectiveSelector from './PerspectiveSelector';

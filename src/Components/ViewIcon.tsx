@@ -2,6 +2,7 @@ import Color from 'color';
 import React, {PureComponent} from 'react';
 
 import './_ViewIcon.scss';
+
 import {appendShortcutString, shortcutKeyToShortString} from '../commons';
 
 interface Props {

@@ -1,6 +1,7 @@
 import React, {PureComponent, ReactElement} from 'react';
 
 import './_TabbedViewContainer.scss';
+
 import BaseMaximizeButton from './MaximizeButton';
 import BaseMinimizeButton from './MinimizeButton';
 import BaseRestoreButton from './RestoreButton';
