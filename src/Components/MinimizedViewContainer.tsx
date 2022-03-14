@@ -23,6 +23,7 @@ interface Props {
 export default class MinimizedViewContainer extends PureComponent<Props> {
     constructor(props: Props) {
         super(props);
+
         this.handleRestoreButtonClick = this.handleRestoreButtonClick.bind(this);
         this.handleViewSelection = this.handleViewSelection.bind(this);
     }

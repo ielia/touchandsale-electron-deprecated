@@ -32,6 +32,7 @@ export default class ViewSetLayout extends PureComponent<Props> {
 
     constructor(props: Props) {
         super(props);
+
         this.buildTree = this.buildTree.bind(this);
         this.onDrag = {
             horizontal: this.onDragHorizontally.bind(this),

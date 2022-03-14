@@ -19,6 +19,7 @@ interface Props {
 export default class ViewIcon extends PureComponent<Props> {
     constructor(props: Props) {
         super(props);
+
         this.handleClick = this.handleClick.bind(this);
         this.handleShortcutKey = this.handleShortcutKey.bind(this);
     }

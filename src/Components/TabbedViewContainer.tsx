@@ -28,6 +28,7 @@ interface Props {
 export default class TabbedViewContainer extends PureComponent<Props> {
     constructor(props: Props) {
         super(props);
+
         this.handleMaximization = this.handleMaximization.bind(this);
         this.handleMinimization = this.handleMinimization.bind(this);
         this.handleRestore = this.handleRestore.bind(this);

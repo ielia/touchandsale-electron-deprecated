@@ -39,6 +39,7 @@ export default class Perspective extends PureComponent<Props, State> {
 
     constructor(props: Props) {
         super(props);
+
         this.buildMinimizedGroups = this.buildMinimizedGroups.bind(this);
         this.handleClosingFloatingGroup = this.handleClosingFloatingGroup.bind(this);
         this.handleContainerMaximization = this.handleContainerMaximization.bind(this);

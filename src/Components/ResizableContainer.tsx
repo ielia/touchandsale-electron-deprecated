@@ -53,10 +53,6 @@ export default class ResizableContainer extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = {
-            height: this.props.height ?? 100,
-            width: this.props.width ?? 100,
-        };
 
         this.selfRef = createRef<HTMLDivElement>();
         this.contentRef = createRef<HTMLDivElement>();
@@ -70,6 +66,12 @@ export default class ResizableContainer extends Component<Props, State> {
             acc[heading] = this.handleDrag.bind(this, xMultiplier, yMultiplier);
             return acc;
         }, {});
+
+        const {height, width} = this.props;
+        this.state = {
+            height: !height || height < 100 ? 100 : height,
+            width: !width || width < 100 ? 100 : width,
+        };
     }
 
     buildHandle(orientation: CompassOctoHeading, keyPrefix: string = '') {

@@ -20,6 +20,7 @@ export default abstract class ViewTab extends PureComponent<Props> {
 
     constructor(props: Props) {
         super(props);
+
         this.handleClick = this.handleClick.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleShortcutKey = this.handleShortcutKey.bind(this);
