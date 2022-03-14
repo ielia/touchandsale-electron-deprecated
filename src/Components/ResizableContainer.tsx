@@ -17,7 +17,7 @@ interface Props {
     right?: number | string;
     width?: number;
     top?: number | string;
-    onBlur?: (event: FocusEvent) => any;
+    onFocusOut?: (event: FocusEvent) => any;
 }
 
 interface State {
@@ -138,10 +138,10 @@ export default class ResizableContainer extends Component<Props, State> {
     }
 
     handleFocusOut(event: FocusEvent) {
-        const onBlur = this.props.onBlur;
+        const onFocusOut = this.props.onFocusOut;
         const selfElement = this.selfRef.current;
-        if (onBlur && (!event.relatedTarget || !selfElement.contains(event.relatedTarget as Node))) {
-            onBlur(event);
+        if (onFocusOut && (!event.relatedTarget || !selfElement.contains(event.relatedTarget as Node))) {
+            onFocusOut(event);
         } else if (event.target !== selfElement && event.relatedTarget === selfElement) {
             (event.target as HTMLElement).focus();
         }

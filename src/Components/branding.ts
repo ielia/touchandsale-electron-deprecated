@@ -1,16 +1,22 @@
 import {Component} from 'react';
 
-export default function BrandedComponentFactory(brandPackage: string): <T extends Component>(componentName: string) => { new(): T } {
+export class ComponentNotFoundException extends Error {
+}
+
+export default function BrandedComponentFactory(...brandPackages: string[]): <T extends Component>(componentName: string) => { new(): T } {
     return <T extends Component>(componentName: string) => {
         let component: { new(): T };
-        try {
-            component = require(`${brandPackage}/${componentName}`).default;
-        } catch (exception) {
+        const brandPackagesSearchedFor = brandPackages.concat(['./brands/basic/', './']);
+        let i = 0;
+        while (!component && i < brandPackagesSearchedFor.length) {
+            const brandPackage = brandPackagesSearchedFor[i];
             try {
-                component = require(`./brands/basic/${componentName}`).default;
+                component = require(`${brandPackage}/${componentName}`).default;
             } catch (exception) {
-                component = require(`./${componentName}`).default;
             }
+        }
+        if (!component) {
+            throw new ComponentNotFoundException(`Couldn't find ${componentName} under packages ${brandPackages}, nor in the internal ones.`);
         }
         return component;
     }

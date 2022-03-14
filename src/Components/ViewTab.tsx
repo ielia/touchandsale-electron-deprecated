@@ -1,7 +1,7 @@
 import Color from 'color';
 import React, {PureComponent, RefObject, createRef} from 'react';
 
-import {appendShortcutString, shortcutKeyToShortString} from '../commons';
+import {appendShortcutString, isShortcutKeyPressed, shortcutKeyToShortString} from '../commons';
 
 interface Props {
     actions: any; // TODO: See what to do with these actions.
@@ -26,17 +26,6 @@ export default abstract class ViewTab extends PureComponent<Props> {
         this.selfRef = createRef();
     }
 
-    componentDidMount() {
-        const {shortcutKey, viewId} = this.props;
-        if (shortcutKey && viewId) {
-            document.addEventListener('keydown', this.handleShortcutKey);
-        }
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleShortcutKey);
-    }
-
     handleClick() {
         const {onSelected, viewId} = this.props;
         onSelected(viewId);
@@ -58,18 +47,23 @@ export default abstract class ViewTab extends PureComponent<Props> {
 
     handleShortcutKey(event: KeyboardEvent) {
         const {onSelected, shortcutKey, viewId} = this.props;
-        // TODO: See what to do with the metaKey.
-        if (event.key.toUpperCase() === shortcutKey.key.toUpperCase()
-            && !!event.altKey === !!shortcutKey.altKey
-            && !!event.ctrlKey === !!shortcutKey.ctrlKey
-            && !!event.metaKey === !!shortcutKey.metaKey
-            && !!event.shiftKey === !!shortcutKey.shiftKey
-        ) {
+        if (isShortcutKeyPressed(event, shortcutKey)) {
             this.selfRef.current.focus();
             onSelected(viewId);
             event.preventDefault();
             event.stopPropagation();
         }
+    }
+
+    componentDidMount() {
+        const {shortcutKey, viewId} = this.props;
+        if (shortcutKey && viewId) {
+            document.addEventListener('keydown', this.handleShortcutKey);
+        }
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleShortcutKey);
     }
 
     render() {

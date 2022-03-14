@@ -1,5 +1,5 @@
 import Color from 'color';
-import React, {Component, ReactElement, ReactNode} from 'react';
+import React, {Component, ReactElement, ReactNode, RefObject, createRef} from 'react';
 
 import './_SalesPerspective.scss';
 
@@ -31,6 +31,9 @@ interface State {
 export default class SalesPerspective extends Component<Props, State> {
     static accentColor = Color('#006bb5');
 
+    layoutContainerRef: RefObject<HTMLDivElement>;
+    minimizedFloaterRef: RefObject<HTMLElement>;
+
     // FIXME: Move all non-configuration code from SalesPerspective into Perspective.
     constructor(props: Props) {
         super(props);
@@ -42,6 +45,8 @@ export default class SalesPerspective extends Component<Props, State> {
         this.handleLayoutDivisionChange = this.handleLayoutDivisionChange.bind(this);
         this.handleMinimizedViewSelection = this.handleMinimizedViewSelection.bind(this);
         this.handleViewSelection = this.handleViewSelection.bind(this);
+        this.layoutContainerRef = createRef();
+        this.minimizedFloaterRef = createRef();
 
         this.state = {
             floatingGroup: null,
@@ -81,14 +86,16 @@ export default class SalesPerspective extends Component<Props, State> {
         };
     }
 
-    buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }): MinimizedViewContainer[] {
-        const groups = this.findGroups(layout, ...minimizedGroupList.map(g => g.containerId));
+    protected buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec, views: { [viewId: string]: ReactElement<View> & ReactNode }): MinimizedViewContainer[] {
+        const minimizedGroupsById = minimizedGroupList.reduce((acc: {[key: string]: MinimizedGroupSpec}, group) => { acc[group.containerId] = group; return acc; }, {});
+        const groups = this.findGroups(layout, ...Object.keys(minimizedGroupsById));
         return groups.reduce((acc, group) => {
             const state = group.state;
             if (maximizedContext ? state !== 'maximized' : state === 'minimized') {
                 const {children, groupId, selected} = group;
+                const wrapperRefAttr = minimizedGroupsById[groupId].floating ? {wrapperRef: this.minimizedFloaterRef} : {};
                 acc.push(
-                    <MinimizedViewContainer key={groupId} containerId={groupId} selectedView={selected} onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}>
+                    <MinimizedViewContainer key={groupId} containerId={groupId} selectedView={selected} onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection} {...wrapperRefAttr}>
                         {children.map(viewId => views[viewId])}
                     </MinimizedViewContainer>
                 );
@@ -97,7 +104,7 @@ export default class SalesPerspective extends Component<Props, State> {
         }, []);
     }
 
-    findGroups(layout: LayoutSpec, ...groupIds: string[]): LeafLayoutSpec[] {
+    protected findGroups(layout: LayoutSpec, ...groupIds: string[]): LeafLayoutSpec[] {
         return 'orientation' in layout
             ? layout.children.flatMap(subLayout => this.findGroups(subLayout, ...groupIds))
             : groupIds.indexOf(layout.groupId) >= 0
@@ -105,27 +112,37 @@ export default class SalesPerspective extends Component<Props, State> {
                 : [];
     }
 
-    handleClosingFloatingGroup(containerId: string): void {
-        // This method will always result in a new state, since having floatingGroup with any other value than the non-null containerId would be a bug,
-        // and the resulting state will have floatingGroup set to null.
-        this.setState(({floatingGroup, minimizedGroups, ...others}) => {
-            let newMinimizedGroups = minimizedGroups;
-            // If they don't match, then it wasn't open... For some weird reason.
-            // Consider changing if we start allowing multiple floating tabbed containers.
-            if (floatingGroup === containerId) {
-                newMinimizedGroups = this.updateMinimizedGroupAttribute(newMinimizedGroups, containerId, 'floating', false);
-            } else {
-                console.error('Closing a minimized group that was not the floating one (', floatingGroup, '):', containerId);
-            }
-            return {
-                floatingGroup: null,
-                minimizedGroups: newMinimizedGroups,
-                ...others,
-            };
-        });
+    protected getClosestCornerSpec(x: number, y: number, container: Element): {bottom?: 0, left?: 0, right?: 0, top?: 0, resizableEdges: CompassHeading[]} {
+        const {bottom, left, right, top} = container.getBoundingClientRect();
+        const horizontalSpec: ['left' | 'right', CompassHeading] = Math.abs(x - right) < Math.abs(x - left) ? ['right', 'w'] : ['left', 'e'];
+        const verticalSpec: ['bottom' | 'top', CompassHeading] = Math.abs(y - bottom) < Math.abs(y - top) ? ['bottom', 's'] : ['top', 'n'];
+        return {[horizontalSpec[0]]: 0, [verticalSpec[0]]: 0, resizableEdges: [horizontalSpec[1], verticalSpec[1]]};
     }
 
-    handleContainerMaximization(containerId: string): void {
+    protected handleClosingFloatingGroup(containerId: string, event: FocusEvent): void {
+        // This method will always result in a new state, since having floatingGroup with any other value than the non-null containerId would be a bug,
+        // and the resulting state will have floatingGroup set to null.
+        if (!event.relatedTarget || !this.minimizedFloaterRef || !this.minimizedFloaterRef.current.contains(event.relatedTarget as Node)) {
+            this.setState(({floatingGroup, minimizedGroups, ...others}) => {
+                let newMinimizedGroups = minimizedGroups;
+                // If they don't match, then it wasn't open... For some weird reason.
+                // Consider changing if we start allowing multiple floating tabbed containers.
+                if (floatingGroup === containerId) {
+                    newMinimizedGroups = this.updateMinimizedGroupAttribute(newMinimizedGroups, containerId, 'floating', false);
+                } else {
+                    console.error('Closing a minimized group that was not the floating one (', floatingGroup, '):', containerId);
+                }
+                return {
+                    floatingGroup: null,
+                    minimizedGroups: newMinimizedGroups,
+                    ...others,
+                };
+            });
+            this.minimizedFloaterRef = null;
+        }
+    }
+
+    protected handleContainerMaximization(containerId: string): void {
         this.setState(currentState => {
             const {floatingGroup, layout, maximizedGroup, minimizedGroups, ...others} = currentState;
             let newLayout = layout;
@@ -150,7 +167,7 @@ export default class SalesPerspective extends Component<Props, State> {
         });
     }
 
-    handleContainerMinimization(containerId: string): void {
+    protected handleContainerMinimization(containerId: string): void {
         this.setState(currentState => {
             const {floatingGroup, layout, maximizedGroup, minimizedGroups, ...others} = currentState;
             const newFloatingGroup = floatingGroup === containerId ? null : floatingGroup;
@@ -171,7 +188,7 @@ export default class SalesPerspective extends Component<Props, State> {
         });
     }
 
-    handleContainerRestoration(containerId: string): void {
+    protected handleContainerRestoration(containerId: string): void {
         this.setState(currentState => {
             const {floatingGroup, layout, maximizedGroup, ...others} = currentState;
             let newLayout = this.updateGroupAttribute(layout, containerId, 'state', 'normal');
@@ -192,12 +209,12 @@ export default class SalesPerspective extends Component<Props, State> {
         });
     }
 
-    handleLayoutDivisionChange(pathToStart: string, startRatio: number, endRatio: number): void {
+    protected handleLayoutDivisionChange(pathToStart: string, startRatio: number, endRatio: number): void {
         // Will not compare for weights equality to prevent a re-render, for it should seldomly be the same.
         this.setState(({layout, ...others}) => ({layout: this.updateWeights(layout, pathToStart, startRatio, endRatio), ...others}));
     }
 
-    handleMinimizedViewSelection(containerId: string, viewId: string): void {
+    protected handleMinimizedViewSelection(containerId: string, viewId: string): void {
         this.setState(currentState => {
             const {floatingGroup, layout, minimizedGroups, ...others} = currentState;
             const newLayout = this.updateGroupAttribute(layout, containerId, 'selected', viewId);
@@ -219,7 +236,7 @@ export default class SalesPerspective extends Component<Props, State> {
         });
     }
 
-    handleViewSelection(containerId: string, viewId: string): void {
+    protected handleViewSelection(containerId: string, viewId: string): void {
         this.setState(currentState => {
             const {layout, ...others} = currentState;
             const newLayout = this.updateGroupAttribute(layout, containerId, 'selected', viewId);
@@ -227,7 +244,7 @@ export default class SalesPerspective extends Component<Props, State> {
         });
     }
 
-    updateAttributeOnAllMinimizedGroups<A extends keyof MinimizedGroupSpec, T extends MinimizedGroupSpec[A]>(minimizedGroups: MinimizedGroups, attribute: A, value: T): MinimizedGroups {
+    protected updateAttributeOnAllMinimizedGroups<A extends keyof MinimizedGroupSpec, T extends MinimizedGroupSpec[A]>(minimizedGroups: MinimizedGroups, attribute: A, value: T): MinimizedGroups {
         let changed = false;
         const newMinimizedGroups: MinimizedGroups = {};
         for (const menuId in minimizedGroups) {
@@ -246,7 +263,7 @@ export default class SalesPerspective extends Component<Props, State> {
         return changed ? newMinimizedGroups : minimizedGroups;
     }
 
-    updateGroupAttribute<A extends keyof LeafLayoutSpec, T extends LeafLayoutSpec[A]>(layout: LayoutSpec, containerId: string, attribute: A, value: T): LayoutSpec {
+    protected updateGroupAttribute<A extends keyof LeafLayoutSpec, T extends LeafLayoutSpec[A]>(layout: LayoutSpec, containerId: string, attribute: A, value: T): LayoutSpec {
         let result;
         if ('groupId' in layout) {
             const {groupId, ...other} = layout;
@@ -268,7 +285,7 @@ export default class SalesPerspective extends Component<Props, State> {
         return result;
     }
 
-    updateMinimizedGroupAttribute<A extends keyof MinimizedGroupSpec, T extends MinimizedGroupSpec[A]>(minimizedGroups: MinimizedGroups, containerId: string, attribute: A, value: T): MinimizedGroups {
+    protected updateMinimizedGroupAttribute<A extends keyof MinimizedGroupSpec, T extends MinimizedGroupSpec[A]>(minimizedGroups: MinimizedGroups, containerId: string, attribute: A, value: T): MinimizedGroups {
         let changed = false;
         const newMinimizedGroups: MinimizedGroups = {};
         for (const menuId in minimizedGroups) {
@@ -287,7 +304,7 @@ export default class SalesPerspective extends Component<Props, State> {
         return changed ? newMinimizedGroups : minimizedGroups;
     }
 
-    updateWeights(layout: LayoutSpec, pathToStart: string, startRatio: number, endRatio: number): LayoutSpec {
+    protected updateWeights(layout: LayoutSpec, pathToStart: string, startRatio: number, endRatio: number): LayoutSpec {
         // Not trying to return the same object if ratios were already the same.
         let result;
         if ('orientation' in layout) {
@@ -380,14 +397,14 @@ export default class SalesPerspective extends Component<Props, State> {
                 <Menu orientation="vertical">
                     {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.left, layout, views)}
                 </Menu>
-                <div className="perspective-layout-container">
+                <div className="perspective-layout-container" ref={this.layoutContainerRef}>
                     <ViewSetLayout layout={layout} shownState={maximizedGroup ? 'maximized' : 'normal'} onLayoutDivisionChange={this.handleLayoutDivisionChange} onMaximizeContainer={this.handleContainerMaximization} onMinimizeContainer={this.handleContainerMinimization} onRestoreContainer={this.handleContainerRestoration} onViewSelected={this.handleViewSelection}>
                         {Object.values(views)}
                     </ViewSetLayout>
                     {
                         floatingGroup
                             ? <ResizableContainer left={0} top={0} resizableEdges={['e', 's']} initiallyTryResizeToFit={true}
-                                                  onBlur={this.handleContainerMinimization.bind(this, floatingGroup)}>
+                                                  onFocusOut={this.handleClosingFloatingGroup.bind(this, floatingGroup)}>
                                   {this.findGroups(layout, floatingGroup).map(group => (
                                       <TabbedViewContainer key={group.groupId} containerId={group.groupId} onMaximize={this.handleContainerMaximization} onMinimize={this.handleContainerMinimization} onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection} selectedViewId={group.selected} state="floating">
                                           {group.children.map(viewId => views[viewId])}

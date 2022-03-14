@@ -5,7 +5,7 @@
  * @param list List of elements to separate.
  * @returns The new list of elements.
  */
-function addSeparatorElement<T, S>(createSeparator: (index?: number, list?: T[]) => S, list: T[]): (T | S)[] {
+export function addSeparatorElement<T, S>(createSeparator: (index?: number, list?: T[]) => S, list: T[]): (T | S)[] {
     return list
         ? list.reduce((acc, e, i) => {
             if (i) acc.push(createSeparator(i - 1, list));
@@ -14,7 +14,6 @@ function addSeparatorElement<T, S>(createSeparator: (index?: number, list?: T[])
         }, [])
         : list;
 }
-export {addSeparatorElement};
 
 /**
  * Append shortcut key spec to the end of a string.
@@ -22,10 +21,9 @@ export {addSeparatorElement};
  * @param shortcutKey Shortcut key.
  * @returns A string composed by the main string passed as parameter and the shortcut key representation in parentheses.
  */
-function appendShortcutString(str: string, shortcutKey: ShortcutKey): string {
+export function appendShortcutString(str: string, shortcutKey: ShortcutKey): string {
     return shortcutKey ? `${str} (${shortcutKeyToString(shortcutKey)})` : str;
 }
-export {appendShortcutString};
 
 const COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS: {[key in CompassOctoHeading]: string} = {
     n: 'top', ne: 'top-right', e: 'right', se: 'bottom-right', s: 'bottom', sw: 'bottom-left', w: 'left', nw: 'top-left',
@@ -36,10 +34,9 @@ const COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS: {[key in CompassOctoHeading]: str
  * @param heading Heading.
  * @returns The class name string representation of the heading.
  */
-function getCompassOctoHeadingClassName(heading: CompassOctoHeading): string {
+export function getCompassOctoHeadingClassName(heading: CompassOctoHeading): string {
     return COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS[heading];
 }
-export {getCompassOctoHeadingClassName};
 
 /**
  * Gets the "dot product" (actually, just the combined heading) of the two headings passed as parameters.
@@ -51,7 +48,7 @@ export {getCompassOctoHeadingClassName};
  *          If opposite, will return null.
  *          If one or both either null or undefined, will also return null.
  */
-function getCompassHeadingDotProduct(a: CompassHeading, b: CompassHeading): CompassHeading | CompassCornerHeading {
+export function getCompassHeadingDotProduct(a: CompassHeading, b: CompassHeading): CompassHeading | CompassCornerHeading {
     let result: CompassHeading | CompassCornerHeading = null;
     if (b !== getOppositeCompassHeading(a)) {
         if (a === b) {
@@ -62,7 +59,6 @@ function getCompassHeadingDotProduct(a: CompassHeading, b: CompassHeading): Comp
     }
     return result;
 }
-export {getCompassHeadingDotProduct};
 
 const OPPOSITE_COMPASS_HEADINGS: {[key in CompassHeading]: CompassHeading} = { e: 'w', n: 's', s: 'n', w: 'e' };
 /**
@@ -71,10 +67,9 @@ const OPPOSITE_COMPASS_HEADINGS: {[key in CompassHeading]: CompassHeading} = { e
  * @param heading Heading.
  * @returns The opposite heading to the one passed as parameter. Or undefined, if the parameter was of the same kind.
  */
-function getOppositeCompassHeading(heading: CompassHeading): CompassHeading {
+export function getOppositeCompassHeading(heading: CompassHeading): CompassHeading {
     return OPPOSITE_COMPASS_HEADINGS[heading];
 }
-export {getOppositeCompassHeading};
 
 const ORTHOGONAL_COMPASS_HEADINGS: {[key in CompassHeading]: CompassHeading[]} = { e: ['n', 's'], n: ['e', 'w'], s: ['e', 'w'], w: ['n', 's'] };
 /**
@@ -83,10 +78,24 @@ const ORTHOGONAL_COMPASS_HEADINGS: {[key in CompassHeading]: CompassHeading[]} =
  * @param heading Heading.
  * @returns The orthogonal headings to the one passed as parameter. Or undefined, if the parameter was of the same kind.
  */
-function getOrthogonalCompassHeadings(heading: CompassHeading): CompassHeading[] {
+export function getOrthogonalCompassHeadings(heading: CompassHeading): CompassHeading[] {
     return ORTHOGONAL_COMPASS_HEADINGS[heading];
 }
-export {getOrthogonalCompassHeadings};
+
+/**
+ * Checks in a KeyboardEvent for a shortcut key.
+ * @param event Context keyboard event.
+ * @param shortcutKey Shortcut key looked for.
+ * @returns true if the key was pressed in the context of the event, false otherwise.
+ */
+export function isShortcutKeyPressed(event: KeyboardEvent, shortcutKey: ShortcutKey): boolean {
+    // TODO: See what to do with the metaKey.
+    return event.key.toUpperCase() === shortcutKey.key.toUpperCase()
+        && !!event.altKey === !!shortcutKey.altKey
+        && !!event.ctrlKey === !!shortcutKey.ctrlKey
+        && !!event.metaKey === !!shortcutKey.metaKey
+        && !!event.shiftKey === !!shortcutKey.shiftKey;
+}
 
 /**
  * Converts a shortcut key specification into a short string.
@@ -96,12 +105,11 @@ export {getOrthogonalCompassHeadings};
  * @param shortcutKey Shortcut key representation.
  * @returns The short string representation of the shortcut key passed as parameter.
  */
-function shortcutKeyToShortString(shortcutKey?: ShortcutKey): string {
+export function shortcutKeyToShortString(shortcutKey?: ShortcutKey): string {
     const {altKey, ctrlKey, key, metaKey, shiftKey} = shortcutKey ?? {key: ''};
     // TODO: See what to do with the metaKey.
     return `${metaKey ? 'm' : ''}${altKey ? 'a' : ''}${ctrlKey ? 'c' : ''}${shiftKey ? 's' : ''}${key.toUpperCase()}`;
 }
-export {shortcutKeyToShortString};
 
 /**
  * Converts a shortcut key specification into a string.
@@ -111,9 +119,8 @@ export {shortcutKeyToShortString};
  * @param shortcutKey Shortcut key representation.
  * @returns The string representation of the shortcut key passed as parameter.
  */
-function shortcutKeyToString(shortcutKey?: ShortcutKey): string {
+export function shortcutKeyToString(shortcutKey?: ShortcutKey): string {
     const {altKey, ctrlKey, key, metaKey, shiftKey} = shortcutKey ?? {key: ''};
     // TODO: See what to do with the metaKey.
     return `${metaKey ? 'Meta+' : ''}${altKey ? 'Alt+' : ''}${ctrlKey ? 'Ctrl+' : ''}${shiftKey ? 'Shift+' : ''}${key.toUpperCase()}`;
 }
-export {shortcutKeyToString};

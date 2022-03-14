@@ -1,4 +1,4 @@
-import React, {PureComponent, ReactElement} from 'react';
+import React, {PureComponent, ReactElement, RefObject} from 'react';
 
 import './_MinimizedViewContainer.scss';
 
@@ -13,6 +13,7 @@ const RestoreButton = EclipseRCPComponentFactory<BaseRestoreButton>('RestoreButt
 interface Props {
     children: ReactElement<View> | ReactElement<View>[];
     containerId: string;
+    wrapperRef?: RefObject<HTMLElement>;
     onRestore: (containerId: string) => any;
     onViewSelected: (containerId: string, viewId: string) => any;
     open?: boolean;
@@ -36,10 +37,11 @@ export default class MinimizedViewContainer extends PureComponent<Props> {
     }
 
     render() {
-        const {children, open, selectedView} = this.props;
+        const {children, open, selectedView, wrapperRef} = this.props;
         const childArray = Array.isArray(children) ? children : [children];
+        const wrapperRefAttr = wrapperRef ? {wrapperRef} : {};
         return (
-            <MenuSection className={`minimized-view-container ${open ? 'open' : ''}`}>
+            <MenuSection className={`minimized-view-container ${open ? 'open' : ''}`} {...wrapperRefAttr}>
                 <RestoreButton onClick={this.handleRestoreButtonClick}/>
                 {childArray.map(({props: {color, iconLabel, label, shortcutKey, viewId}}) => (
                     <ViewIcon key={viewId} viewId={viewId} color={color} label={iconLabel} selected={viewId === selectedView} shortcutKey={shortcutKey} title={label} onClick={this.handleViewSelection}/>
