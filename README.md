@@ -9,6 +9,7 @@
 ## Known issues:
 
 * Double-clicking on a ViewIcon does not re-focus the corresponding tab.
+* There seems to be a slight miscalculation on the initial fit (size) of the floating containers.
 
 
 
