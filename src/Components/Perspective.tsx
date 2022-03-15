@@ -176,6 +176,7 @@ export default class Perspective extends PureComponent<Props, State> {
     protected handleContainerRestoration(containerId: string): void {
         this.setState(currentState => {
             const {floatingGroup, layout, maximizedGroup, ...others} = currentState;
+            const newFloatingGroup = containerId === floatingGroup ? null : floatingGroup;
             let newLayout = this.updateGroupAttribute(layout, containerId, 'state', 'normal');
             if (containerId !== maximizedGroup) {
                 newLayout = this.updateGroupAttribute(newLayout, maximizedGroup, 'state', 'normal');
@@ -183,10 +184,10 @@ export default class Perspective extends PureComponent<Props, State> {
             if (newLayout === layout) {
                 console.error('Restored a container that was in normal state:', containerId);
             }
-            return !floatingGroup && newLayout === layout && !maximizedGroup
+            return newFloatingGroup === floatingGroup && newLayout === layout && !maximizedGroup
                 ? currentState
                 : {
-                    floatingGroup: null,
+                    floatingGroup: newFloatingGroup,
                     layout: newLayout,
                     maximizedGroup: null,
                     ...others

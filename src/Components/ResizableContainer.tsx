@@ -134,9 +134,9 @@ export default class ResizableContainer extends Component<Props, State> {
     handleFocusOut(event: FocusEvent) {
         const onFocusOut = this.props.onFocusOut;
         const selfElement = this.selfRef.current;
-        if (onFocusOut && (!event.relatedTarget || !selfElement.contains(event.relatedTarget as Node))) {
+        if (onFocusOut && event.relatedTarget && !selfElement.contains(event.relatedTarget as Node)) {
             onFocusOut(event);
-        } else if (event.target !== selfElement && event.relatedTarget === selfElement) {
+        } else if (event.target !== selfElement && (!event.relatedTarget || event.relatedTarget === selfElement)) {
             (event.target as HTMLElement).focus();
         }
     }
