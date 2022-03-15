@@ -1,5 +1,5 @@
 /**
- * @type ShortcutKey Shortcut key specification.
+ * @typedef ShortcutKey Shortcut key specification.
  * @member key Simple key representation as contained in `KeyboardEvent`s.
  * @member altKey Flag indicating the shortcut is composed with an Alt key.
  * @member ctrlKey Flag indicating the shortcut is composed with a Control key.

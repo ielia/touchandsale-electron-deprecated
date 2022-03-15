@@ -3,7 +3,7 @@ import React, {PureComponent, ReactElement, ReactNode, RefObject, createRef} fro
 
 import './_Perspective.scss';
 
-import '../commons';
+import {getCompassOctoHeadingClassName, getCompassOctoHeadingComponents, getOppositeCompassHeading} from '../commons';
 import Menu from './Menu';
 import MenuSection from './MenuSection';
 import MinimizedViewContainer from './MinimizedViewContainer';
@@ -357,7 +357,22 @@ export default class Perspective extends PureComponent<Props, State> {
             acc[view.props.viewId] = view;
             return acc;
         }, {});
-        const floatingGroupSpec = floatingGroup ? this.findMinimizedGroups(minimizedGroups, floatingGroup)[0] : null;
+        let floatingGroupSpatialAttrs: { bottom?: number, height: number, left?: number, resizableEdges: CompassHeading[], right?: number, top?: number, width: number } = null;
+        if (floatingGroup) {
+            const floatingGroupSpec = this.findMinimizedGroups(minimizedGroups, floatingGroup)[0];
+            floatingGroupSpatialAttrs = getCompassOctoHeadingComponents(floatingGroupSpec.corner).reduce(
+                (acc: { bottom?: number, height: number, left?: number, resizableEdges: CompassHeading[], right?: number, top?: number, width: number }, side) => {
+                    acc[getCompassOctoHeadingClassName(side) as 'bottom' | 'left' | 'right' | 'top'] = 0;
+                    acc.resizableEdges.push(getOppositeCompassHeading(side));
+                    return acc;
+                },
+                {
+                    height: floatingGroupSpec.height,
+                    width: floatingGroupSpec.width,
+                    resizableEdges: [],
+                }
+            );
+        }
         return (
             <div className={`perspective ${className}`}>
                 <Menu>
@@ -365,10 +380,6 @@ export default class Perspective extends PureComponent<Props, State> {
                         <PerspectiveSelector accentColor={accentColor} label={label}/>
                     </MenuSection>
                     {menuSections}
-                    <MenuSection>
-                        <div className="TnS-about"/>
-                        <div className="zWeb-link"/>
-                    </MenuSection>
                 </Menu>
                 <div className="body">
                     <Menu orientation="vertical">
@@ -382,8 +393,7 @@ export default class Perspective extends PureComponent<Props, State> {
                         </ViewSetLayout>
                         {
                             floatingGroup
-                                ? <ResizableContainer key={floatingGroup} left={0} top={0} height={floatingGroupSpec.height} width={floatingGroupSpec.width}
-                                                      resizableEdges={['e', 's']} initiallyTryResizeToFit={true}
+                                ? <ResizableContainer key={floatingGroup} {...floatingGroupSpatialAttrs} initiallyTryResizeToFit={true}
                                                       onFocusOut={this.handleClosingFloatingGroup.bind(this, floatingGroup)}
                                                       onResizeEnd={this.handleFloatingGroupResize.bind(this, floatingGroup)}
                                 >

@@ -37,12 +37,12 @@ export default class SalesPerspective extends PureComponent {
             },
             minimizedGroups: {
                 left: [
-                    {containerId: 'top-left', height: 100, floating: false, width: 100},
-                    {containerId: 'bottom-left', height: 100, floating: false, width: 100},
+                    {containerId: 'top-left', corner: 'nw', height: 100, floating: false, width: 100},
+                    {containerId: 'bottom-left', corner: 'nw', height: 100, floating: false, width: 100},
                 ],
                 right: [
-                    {containerId: 'top-right', height: 100, floating: false, width: 100},
-                    {containerId: 'bottom-right', height: 100, floating: false, width: 100},
+                    {containerId: 'top-right', corner: 'ne', height: 100, floating: false, width: 100},
+                    {containerId: 'bottom-right', corner: 'ne', height: 100, floating: false, width: 100},
                 ],
             },
         };
@@ -74,6 +74,10 @@ export default class SalesPerspective extends PureComponent {
                         <PerspectiveMenuItem key="print-prev" accentColor={SalesPerspective.accentColor} title="Vista previa impresión" label="V.Impr." shortcutKey={{key: 'P', ctrlKey: true, shiftKey: true}}/>
                         <PerspectiveMenuItem key="print-prev-temp" accentColor={SalesPerspective.accentColor} title="Vista previa impresión temporal" label="V.Tem." shortcutKey={{key: 'T', ctrlKey: true, shiftKey: true}}/>
                     </MenuSection>,
+                    <MenuSection key="section2">
+                        <div className="TnS-about"/>
+                        <div className="zWeb-link"/>
+                    </MenuSection>
                 ]}
             >
                 <View key="agreements" viewId="agreements" color={Color('#006bb5')} iconLabel="Cnv" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>

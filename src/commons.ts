@@ -25,22 +25,9 @@ export function appendShortcutString(str: string, shortcutKey: ShortcutKey): str
     return shortcutKey ? `${str} (${shortcutKeyToString(shortcutKey)})` : str;
 }
 
-const COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS: {[key in CompassOctoHeading]: string} = {
-    n: 'top', ne: 'top-right', e: 'right', se: 'bottom-right', s: 'bottom', sw: 'bottom-left', w: 'left', nw: 'top-left',
-};
-/**
- * Gets the compass heading class name string representation.
- * E.g., 'n' -> 's'.
- * @param heading Heading.
- * @returns The class name string representation of the heading.
- */
-export function getCompassOctoHeadingClassName(heading: CompassOctoHeading): string {
-    return COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS[heading];
-}
-
 /**
  * Gets the "dot product" (actually, just the combined heading) of the two headings passed as parameters.
- * E.g., 'n' -> 's'.
+ * E.g., 'n', 'e' -> 'ne'.
  * @param a Heading A.
  * @param b Heading B.
  * @returns The dot product of the two compass headings passed as parameters.
@@ -58,6 +45,32 @@ export function getCompassHeadingDotProduct(a: CompassHeading, b: CompassHeading
         }
     }
     return result;
+}
+
+const COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS: {[key in CompassOctoHeading]: string} = {
+    n: 'top', ne: 'top-right', e: 'right', se: 'bottom-right', s: 'bottom', sw: 'bottom-left', w: 'left', nw: 'top-left',
+};
+/**
+ * Gets the compass heading class name string representation.
+ * E.g., 'ne' -> 'top-right'.
+ * @param heading Heading.
+ * @returns The class name string representation of the heading.
+ */
+export function getCompassOctoHeadingClassName(heading: CompassOctoHeading): string {
+    return COMPASS_OCTO_HEADING_CLASS_NAME_STRINGS[heading];
+}
+
+const COMPASS_OCTO_HEADING_COMPONENTS: {[key in CompassOctoHeading]: CompassHeading[]} = {
+    n: ['n'], ne: ['n', 'e'], e: ['e'], se: ['s', 'e'], s: ['s'], sw: ['s', 'w'], w: ['w'], nw: ['n', 'w'],
+};
+/**
+ * Gets the compass octo-heading components.
+ * E.g., 'ne' -> ['n', 'e'].
+ * @param heading Heading.
+ * @returns The compass heading (n/s/e/w) components.
+ */
+export function getCompassOctoHeadingComponents(heading: CompassOctoHeading): CompassHeading[] {
+    return COMPASS_OCTO_HEADING_COMPONENTS[heading];
 }
 
 const OPPOSITE_COMPASS_HEADINGS: {[key in CompassHeading]: CompassHeading} = { e: 'w', n: 's', s: 'n', w: 'e' };

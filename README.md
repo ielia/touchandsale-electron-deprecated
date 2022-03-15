@@ -1,9 +1,16 @@
 # Real README:
 
-Application Structure:
+## Application Structure:
+
 - Perspective
   - View
     - Component: Grid, Table, etc.
+
+## Known issues:
+
+* Double-clicking on a ViewIcon does not re-focus the corresponding tab.
+
+
 
 # Getting Started with Create React App
 
