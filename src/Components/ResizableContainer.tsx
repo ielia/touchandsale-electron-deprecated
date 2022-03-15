@@ -225,29 +225,29 @@ export default class ResizableContainer extends Component<Props, State> {
                  tabIndex={0}
                  ref={this.selfRef}>
                 <div className="horizontal-arrangement top">
-                    {this.edgesAndCorners['nw'] ? this.buildHandle('nw', 'top-') : null}
-                    {this.edgesAndCorners['n'] ? this.buildHandle('n') : null}
-                    {this.edgesAndCorners['ne'] ? this.buildHandle('ne', 'top-') : null}
+                    {this.edgesAndCorners['nw'] && this.buildHandle('nw', 'top-')}
+                    {this.edgesAndCorners['n'] && this.buildHandle('n')}
+                    {this.edgesAndCorners['ne'] && this.buildHandle('ne', 'top-')}
                 </div>
                 <div className="horizontal-arrangement inline">
                     <div className="vertical-arrangement left">
-                        {this.edgesAndCorners['nw'] ? this.buildHandle('nw', 'left-') : null}
-                        {this.edgesAndCorners['w'] ? this.buildHandle('w') : null}
-                        {this.edgesAndCorners['sw'] ? this.buildHandle('sw', 'left-') : null}
+                        {this.edgesAndCorners['nw'] && this.buildHandle('nw', 'left-')}
+                        {this.edgesAndCorners['w'] && this.buildHandle('w')}
+                        {this.edgesAndCorners['sw'] && this.buildHandle('sw', 'left-')}
                     </div>
                     <div className="resizable-container-content" ref={this.contentRef}>
                         {children}
                     </div>
                     <div className="vertical-arrangement right">
-                        {this.edgesAndCorners['ne'] ? this.buildHandle('ne', 'right-') : null}
-                        {this.edgesAndCorners['e'] ? this.buildHandle('e') : null}
-                        {this.edgesAndCorners['se'] ? this.buildHandle('se', 'right-') : null}
+                        {this.edgesAndCorners['ne'] && this.buildHandle('ne', 'right-')}
+                        {this.edgesAndCorners['e'] && this.buildHandle('e')}
+                        {this.edgesAndCorners['se'] && this.buildHandle('se', 'right-')}
                     </div>
                 </div>
                 <div className="horizontal-arrangement bottom">
-                    {this.edgesAndCorners['sw'] ? this.buildHandle('sw', 'bottom-') : null}
-                    {this.edgesAndCorners['s'] ? this.buildHandle('s') : null}
-                    {this.edgesAndCorners['se'] ? this.buildHandle('se', 'bottom-') : null}
+                    {this.edgesAndCorners['sw'] && this.buildHandle('sw', 'bottom-')}
+                    {this.edgesAndCorners['s'] && this.buildHandle('s')}
+                    {this.edgesAndCorners['se'] && this.buildHandle('se', 'bottom-')}
                 </div>
             </div>
         );

@@ -391,22 +391,20 @@ export default class Perspective extends PureComponent<Props, State> {
                                        onRestoreContainer={this.handleContainerRestoration} onViewSelected={this.handleViewSelection}>
                             {childArray}
                         </ViewSetLayout>
-                        {
-                            floatingGroup
-                                ? <ResizableContainer key={floatingGroup} {...floatingGroupSpatialAttrs} initiallyTryResizeToFit={true}
-                                                      onFocusOut={this.handleClosingFloatingGroup.bind(this, floatingGroup)}
-                                                      onResizeEnd={this.handleFloatingGroupResize.bind(this, floatingGroup)}
-                                >
-                                    {this.findGroups(layout, floatingGroup).map(group => (
-                                        <TabbedViewContainer key={group.groupId} containerId={group.groupId} focused={true} selectedViewId={group.selected} state="floating"
-                                                             onMaximize={this.handleContainerMaximization} onMinimize={this.handleContainerMinimization}
-                                                             onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}
-                                        >
-                                            {group.children.map(viewId => views[viewId])}
-                                        </TabbedViewContainer>
-                                    ))}
-                                </ResizableContainer>
-                                : null
+                        {floatingGroup &&
+                            <ResizableContainer key={floatingGroup} {...floatingGroupSpatialAttrs} initiallyTryResizeToFit={true}
+                                                  onFocusOut={this.handleClosingFloatingGroup.bind(this, floatingGroup)}
+                                                  onResizeEnd={this.handleFloatingGroupResize.bind(this, floatingGroup)}
+                            >
+                                {this.findGroups(layout, floatingGroup).map(group => (
+                                    <TabbedViewContainer key={group.groupId} containerId={group.groupId} focused={true} selectedViewId={group.selected} state="floating"
+                                                         onMaximize={this.handleContainerMaximization} onMinimize={this.handleContainerMinimization}
+                                                         onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}
+                                    >
+                                        {group.children.map(viewId => views[viewId])}
+                                    </TabbedViewContainer>
+                                ))}
+                            </ResizableContainer>
                         }
                     </div>
                     <Menu orientation="vertical">
