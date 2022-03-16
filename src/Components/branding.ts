@@ -3,6 +3,7 @@ import {Component} from 'react';
 export class ComponentNotFoundException extends Error {
 }
 
+// TODO: Figure out how to use this.
 export default function BrandedComponentFactory(...brandPackages: string[]): <T extends Component>(componentName: string) => { new(): T } {
     return <T extends Component>(componentName: string) => {
         let component: { new(): T };
