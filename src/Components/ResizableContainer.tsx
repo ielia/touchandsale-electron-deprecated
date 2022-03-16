@@ -17,8 +17,8 @@ export interface Props {
     right?: number | string;
     width?: number;
     top?: number | string;
-    onFocusOut?: (event: FocusEvent) => any;
-    onResizeEnd?: (height: number, width: number) => any;
+    onFocusOut?: (event: FocusEvent) => void;
+    onResizeEnd?: (height: number, width: number) => void;
 }
 
 export interface State {

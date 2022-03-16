@@ -16,8 +16,8 @@ export interface Props {
     children: ReactElement<BaseView> | ReactElement<BaseView>[];
     containerId: string;
     wrapperRef?: RefObject<HTMLElement>;
-    onRestore: (containerId: string) => any;
-    onViewSelected: (containerId: string, viewId: string) => any;
+    onRestore: (containerId: string) => void;
+    onViewSelected: (containerId: string, viewId: string) => void;
     open?: boolean;
     selectedView: string;
 }

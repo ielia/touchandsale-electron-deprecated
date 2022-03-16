@@ -10,13 +10,13 @@ import getBrandedComponent from './branding';
 const TabbedViewContainer = getBrandedComponent<BaseTabbedViewContainer>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
 // const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
 
-type LayoutDivisionChangeListener = (pathToStart: string, startRatio: number, endRatio: number) => any;
-type MaximizeContainerListener = (containerId: string) => any;
-type MinimizeContainerListener = (containerId: string) => any;
-type OrientedDragListener = (start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData) => any;
-type OrientedDragStopListener = (onLayoutDivisionChange: LayoutDivisionChangeListener, pathToStart: string, start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData) => any;
-type RestoreContainerListener = (containerId: string) => any;
-type ViewSelectedListener = (containerId: string, viewId: string) => any;
+type LayoutDivisionChangeListener = (pathToStart: string, startRatio: number, endRatio: number) => void;
+type MaximizeContainerListener = (containerId: string) => void;
+type MinimizeContainerListener = (containerId: string) => void;
+type OrientedDragListener = (start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData) => void;
+type OrientedDragStopListener = (onLayoutDivisionChange: LayoutDivisionChangeListener, pathToStart: string, start: RefObject<HTMLDivElement>, end: RefObject<HTMLDivElement>, event: DraggableEvent, data: DraggableData) => void;
+type RestoreContainerListener = (containerId: string) => void;
+type ViewSelectedListener = (containerId: string, viewId: string) => void;
 
 export interface Props {
     children: ReactElement<BaseView> | ReactElement<BaseView>[];

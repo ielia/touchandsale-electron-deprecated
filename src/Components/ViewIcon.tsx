@@ -9,7 +9,7 @@ export interface Props {
     className?: string;
     color: Color;
     label?: string;
-    onClick: (viewId: string) => any;
+    onClick: (viewId: string) => void;
     selected?: boolean;
     shortcutKey?: ShortcutKey;
     title: string;

@@ -18,10 +18,10 @@ export interface Props {
     children: ReactElement<BaseView> | ReactElement<BaseView>[];
     containerId: string;
     focused?: boolean;
-    onMaximize: (containerId: string) => any;
-    onMinimize: (containerId: string) => any;
-    onRestore: (containerId: string) => any;
-    onViewSelected: (containerId: string, viewId: string) => any;
+    onMaximize: (containerId: string) => void;
+    onMinimize: (containerId: string) => void;
+    onRestore: (containerId: string) => void;
+    onViewSelected: (containerId: string, viewId: string) => void;
     selectedViewId: string;
     state: ViewContainerStateOrFloating;
 }
