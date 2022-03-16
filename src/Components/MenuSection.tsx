@@ -3,7 +3,7 @@ import DragIndicator from '@mui/icons-material/DragIndicator';
 
 import './_MenuSection.scss';
 
-interface Props {
+export interface Props {
     className?: string;
     wrapperRef?: RefObject<HTMLElement>;
 }

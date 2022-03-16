@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 
 import './polyfills';
 
+import './brandingSetup';
+
 import './index.scss';
 
 import App from './App';

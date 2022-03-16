@@ -5,7 +5,7 @@ import './_ViewIcon.scss';
 
 import {appendShortcutString, isShortcutKeyPressed, shortcutKeyToShortString} from '../commons';
 
-interface Props {
+export interface Props {
     className?: string;
     color: Color;
     label?: string;

@@ -3,10 +3,7 @@ import React, {PureComponent} from 'react';
 
 import './_SalesPerspective.scss';
 
-import MenuSection from '../MenuSection';
-import Perspective from '../Perspective';
-import PerspectiveMenuItem from '../PerspectiveMenuItem';
-import View from '../View';
+import {MenuSection, Perspective, PerspectiveMenuItem, View} from '..';
 
 export default class SalesPerspective extends PureComponent {
     static accentColor = Color('#006bb5');

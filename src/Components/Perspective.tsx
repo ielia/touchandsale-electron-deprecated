@@ -1,39 +1,48 @@
 import Color from 'color';
-import React, {PureComponent, ReactElement, ReactNode, RefObject, createRef} from 'react';
+import React, {Component, ReactElement, ReactNode, RefObject, createRef} from 'react';
 
 import './_Perspective.scss';
 
 import {getCompassOctoHeadingClassName, getCompassOctoHeadingComponents, getOppositeCompassHeading} from '../commons';
-import Menu from './Menu';
-import MenuSection from './MenuSection';
-import MinimizedViewContainer from './MinimizedViewContainer';
-import PerspectiveSelector from './PerspectiveSelector';
-import ResizableContainer from './ResizableContainer';
-import TabbedViewContainer from './TabbedViewContainer';
-import View from './View';
-import ViewSetLayout from './ViewSetLayout';
+import BaseMenu from './Menu';
+import BaseMenuSection from './MenuSection';
+import BaseMinimizedViewContainer from './MinimizedViewContainer';
+import BasePerspectiveSelector from './PerspectiveSelector';
+import BaseResizableContainer from './ResizableContainer';
+import BaseTabbedViewContainer from './TabbedViewContainer';
+import BaseView from './View';
+import BaseViewSetLayout from './ViewSetLayout';
+import getBrandedComponent from './branding';
+const Menu = getBrandedComponent<BaseMenu>('Menu') as typeof BaseMenu;
+const MenuSection = getBrandedComponent<BaseMenuSection>('MenuSection') as typeof BaseMenuSection;
+const MinimizedViewContainer = getBrandedComponent<BaseMinimizedViewContainer>('MinimizedViewContainer') as typeof BaseMinimizedViewContainer;
+const PerspectiveSelector = getBrandedComponent<BasePerspectiveSelector>('PerspectiveSelector') as typeof BasePerspectiveSelector;
+const ResizableContainer = getBrandedComponent<BaseResizableContainer>('ResizableContainer') as typeof BaseResizableContainer;
+const TabbedViewContainer = getBrandedComponent<BaseTabbedViewContainer>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
+// const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
+const ViewSetLayout = getBrandedComponent<BaseViewSetLayout>('ViewSetLayout') as typeof BaseViewSetLayout;
 
-interface Props {
+export interface Props {
     accentColor: Color;
-    children: ReactElement<View> | ReactElement<View>[],
+    children: ReactElement<BaseView> | ReactElement<BaseView>[],
     className: string;
     floatingGroup?: string | null;
     label: string;
     layout: LayoutSpec;
     maximizedGroup?: string | null;
-    menuSections: ReactElement<MenuSection>[];
+    menuSections: ReactElement<BaseMenuSection>[];
     minimizedGroups: MinimizedGroups;
     shortcutKey: string;
 }
 
-interface State {
+export interface State {
     floatingGroup: string;
     layout: LayoutSpec;
     maximizedGroup: string;
     minimizedGroups: MinimizedGroups;
 }
 
-export default class Perspective extends PureComponent<Props, State> {
+export default class Perspective extends Component<Props, State> {
     layoutContainerRef: RefObject<HTMLDivElement>;
     minimizedFloaterRef: RefObject<HTMLElement>;
 
@@ -61,8 +70,8 @@ export default class Perspective extends PureComponent<Props, State> {
     }
 
     protected buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec,
-                                   views: { [viewId: string]: ReactElement<View> & ReactNode }
-    ): MinimizedViewContainer[] {
+                                   views: { [viewId: string]: ReactElement<BaseView> & ReactNode }
+    ): BaseMinimizedViewContainer[] {
         const minimizedGroupsById = minimizedGroupList.reduce((acc: { [key: string]: MinimizedGroupSpec }, group) => {
             acc[group.containerId] = group;
             return acc;
@@ -354,7 +363,7 @@ export default class Perspective extends PureComponent<Props, State> {
         const {accentColor, children, className, label, menuSections} = this.props;
         const {floatingGroup, layout, maximizedGroup, minimizedGroups} = this.state;
         const childArray = Array.isArray(children) ? children : [children];
-        const views = childArray.reduce((acc: { [viewId: string]: ReactElement<View> & ReactNode }, view) => {
+        const views = childArray.reduce((acc: { [viewId: string]: ReactElement<BaseView> & ReactNode }, view) => {
             acc[view.props.viewId] = view;
             return acc;
         }, {});

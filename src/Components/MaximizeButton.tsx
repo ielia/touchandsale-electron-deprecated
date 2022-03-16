@@ -1,7 +1,7 @@
 import React, {MouseEvent, PureComponent, TouchEvent} from 'react';
 import MaximizeIcon from '@mui/icons-material/Maximize';
 
-interface Props {
+export interface Props {
     onClick: (event: MouseEvent | TouchEvent) => any;
 }
 

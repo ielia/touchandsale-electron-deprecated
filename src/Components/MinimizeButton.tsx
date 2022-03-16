@@ -1,7 +1,7 @@
 import React, {MouseEvent, PureComponent, TouchEvent} from 'react';
 import MinimizeIcon from '@mui/icons-material/Minimize';
 
-interface Props {
+export interface Props {
     onClick: (event: MouseEvent | TouchEvent) => any;
 }
 

@@ -2,7 +2,7 @@ import React, {PureComponent} from 'react';
 
 import './_Menu.scss';
 
-interface Props {
+export interface Props {
     orientation?: ComponentOrientation;
 }
 

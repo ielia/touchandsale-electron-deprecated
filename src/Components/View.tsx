@@ -1,7 +1,7 @@
 import Color from 'color';
 import React, {PureComponent} from 'react';
 
-interface Props {
+export interface Props {
     actions?: any; // TODO: See what to do with these actions.
     className?: string;
     color: Color;

@@ -7,7 +7,7 @@ import {getCompassHeadingDotProduct, getCompassOctoHeadingClassName, getOrthogon
 
 type OrientedHandleDragFunctionsObject = {[orientation in CompassOctoHeading]?: (event: DraggableEvent, data: DraggableData) => void};
 
-interface Props {
+export interface Props {
     bottom?: number | string;
     className?: string;
     height?: number;
@@ -21,7 +21,7 @@ interface Props {
     onResizeEnd?: (height: number, width: number) => any;
 }
 
-interface State {
+export interface State {
     height?: number;
     width?: number;
 }
@@ -31,20 +31,26 @@ function magnitude(value: number | string) {
     return typeof value === 'number'? `${value}px` : value ? value : 'unset';
 }
 
+const CORNER_RESIZING_PREFERENCE_ORDER: CompassOctoHeading[] = ['sw', 'se', 'nw', 'ne'];
+const HORIZONTAL_RESIZING_PREFERENCE_ORDER: CompassOctoHeading[] = ['w', 'e'];
+const VERTICAL_RESIZING_PREFERENCE_ORDER: CompassOctoHeading[] = ['s', 'n'];
+const ORIENTATION_DATA: {[orientation in CompassOctoHeading]: {xMultiplier: number, yMultiplier: number, axis: 'x' | 'y' | 'both'}} = {
+    'n': {xMultiplier: 0, yMultiplier: -1, axis: 'y'},
+    'ne': {xMultiplier: 1, yMultiplier: -1, axis: 'both'},
+    'e': {xMultiplier: 1, yMultiplier: 0, axis: 'x'},
+    'se': {xMultiplier: 1, yMultiplier: 1, axis: 'both'},
+    's': {xMultiplier: 0, yMultiplier: 1, axis: 'y'},
+    'sw': {xMultiplier: -1, yMultiplier: 1, axis: 'both'},
+    'w': {xMultiplier: -1, yMultiplier: 0, axis: 'x'},
+    'nw': {xMultiplier: -1, yMultiplier: -1, axis: 'both'},
+};
+
 export default class ResizableContainer extends Component<Props, State> {
-    static cornerResizingPreferenceOrder: CompassOctoHeading[] = ['sw', 'se', 'nw', 'ne'];
-    static horizontalResizingPreferenceOrder: CompassOctoHeading[] = ['w', 'e'];
-    static verticalResizingPreferenceOrder: CompassOctoHeading[] = ['s', 'n'];
-    static orientationData: {[orientation in CompassOctoHeading]: {xMultiplier: number, yMultiplier: number, axis: 'x' | 'y' | 'both'}} = {
-        'n': {xMultiplier: 0, yMultiplier: -1, axis: 'y'},
-        'ne': {xMultiplier: 1, yMultiplier: -1, axis: 'both'},
-        'e': {xMultiplier: 1, yMultiplier: 0, axis: 'x'},
-        'se': {xMultiplier: 1, yMultiplier: 1, axis: 'both'},
-        's': {xMultiplier: 0, yMultiplier: 1, axis: 'y'},
-        'sw': {xMultiplier: -1, yMultiplier: 1, axis: 'both'},
-        'w': {xMultiplier: -1, yMultiplier: 0, axis: 'x'},
-        'nw': {xMultiplier: -1, yMultiplier: -1, axis: 'both'},
-    };
+    // TODO: See if it is worth cloning these.
+    readonly cornerResizingPreferenceOrder = CORNER_RESIZING_PREFERENCE_ORDER;
+    readonly horizontalResizingPreferenceOrder = HORIZONTAL_RESIZING_PREFERENCE_ORDER;
+    readonly verticalResizingPreferenceOrder = VERTICAL_RESIZING_PREFERENCE_ORDER;
+    readonly orientationData = ORIENTATION_DATA;
 
     contentRef: RefObject<HTMLDivElement>;
     edgesAndCorners: {[orientation in CompassOctoHeading]?: boolean};
@@ -63,7 +69,7 @@ export default class ResizableContainer extends Component<Props, State> {
         this.handleFocusOut = this.handleFocusOut.bind(this);
 
         this.handleOrientedDrag = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'].reduce((acc: OrientedHandleDragFunctionsObject, heading: CompassOctoHeading) => {
-            const {xMultiplier, yMultiplier} = ResizableContainer.orientationData[heading];
+            const {xMultiplier, yMultiplier} = this.orientationData[heading];
             acc[heading] = this.handleDrag.bind(this, xMultiplier, yMultiplier);
             return acc;
         }, {});
@@ -77,7 +83,7 @@ export default class ResizableContainer extends Component<Props, State> {
 
     buildHandle(orientation: CompassOctoHeading, keyPrefix: string = '') {
         const key = keyPrefix + getCompassOctoHeadingClassName(orientation);
-        const axis = ResizableContainer.orientationData[orientation].axis
+        const axis = this.orientationData[orientation].axis
         const handleDrag = this.handleOrientedDrag[orientation];
         const handleRef = createRef<HTMLDivElement>();
         return (
@@ -169,10 +175,10 @@ export default class ResizableContainer extends Component<Props, State> {
         const selfElement = this.selfRef.current;
         const parentElement = selfElement.parentElement; // Using parentElement instead of having to pass a ref... Is it a bad practice?
         const edges = this.edgesAndCorners;
-        const preferredResizeEdge = ResizableContainer.cornerResizingPreferenceOrder.find(o => edges[o]) ??
-            ResizableContainer.horizontalResizingPreferenceOrder.find(o => edges[o]) ??
-            ResizableContainer.verticalResizingPreferenceOrder.find(o => edges[o]);
-        const {xMultiplier, yMultiplier} = ResizableContainer.orientationData[preferredResizeEdge];
+        const preferredResizeEdge = this.cornerResizingPreferenceOrder.find(o => edges[o]) ??
+            this.horizontalResizingPreferenceOrder.find(o => edges[o]) ??
+            this.verticalResizingPreferenceOrder.find(o => edges[o]);
+        const {xMultiplier, yMultiplier} = this.orientationData[preferredResizeEdge];
         if (parentElement) {
             this.parentResizeObserver = new ResizeObserver(() => {
                 const selfElement = this.selfRef.current;

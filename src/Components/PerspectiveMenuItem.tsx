@@ -5,7 +5,7 @@ import './_PerspectiveMenuItem.scss';
 
 import {appendShortcutString, shortcutKeyToShortString} from '../commons';
 
-interface Props {
+export interface Props {
     accentColor: Color;
     label: string;
     shortcutKey: ShortcutKey;

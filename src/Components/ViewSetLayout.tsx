@@ -4,8 +4,11 @@ import Draggable, {DraggableData, DraggableEvent} from 'react-draggable';
 import './_ViewSetLayout.scss';
 
 import {addSeparatorElement} from '../commons';
-import TabbedViewContainer from './TabbedViewContainer';
-import View from './View';
+import BaseTabbedViewContainer from './TabbedViewContainer';
+import BaseView from './View';
+import getBrandedComponent from './branding';
+const TabbedViewContainer = getBrandedComponent<BaseTabbedViewContainer>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
+// const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
 
 type LayoutDivisionChangeListener = (pathToStart: string, startRatio: number, endRatio: number) => any;
 type MaximizeContainerListener = (containerId: string) => any;
@@ -15,8 +18,8 @@ type OrientedDragStopListener = (onLayoutDivisionChange: LayoutDivisionChangeLis
 type RestoreContainerListener = (containerId: string) => any;
 type ViewSelectedListener = (containerId: string, viewId: string) => any;
 
-interface Props {
-    children: ReactElement<View> | ReactElement<View>[];
+export interface Props {
+    children: ReactElement<BaseView> | ReactElement<BaseView>[];
     layout: LayoutSpec;
     onLayoutDivisionChange: LayoutDivisionChangeListener;
     onMaximizeContainer: MaximizeContainerListener;
@@ -45,7 +48,7 @@ export default class ViewSetLayout extends PureComponent<Props> {
         };
     }
 
-    buildTree(currentKey: string, shownState: NonMinimizedViewContainerState, layoutSpec: LayoutSpec, keyedChildren: {[viewId: string]: ReactElement<View> & ReactNode}): ReactHTMLElement<HTMLDivElement> {
+    buildTree(currentKey: string, shownState: NonMinimizedViewContainerState, layoutSpec: LayoutSpec, keyedChildren: {[viewId: string]: ReactElement<BaseView> & ReactNode}): ReactHTMLElement<HTMLDivElement> {
         const {onMaximizeContainer, onMinimizeContainer, onRestoreContainer, onViewSelected} = this.props;
         const style = {flex: `1 1 ${100.0 * layoutSpec.weight}%`};
         let result: React.ReactHTMLElement<HTMLDivElement> = null;
@@ -164,7 +167,7 @@ export default class ViewSetLayout extends PureComponent<Props> {
     render() {
         const {layout, shownState = 'normal', children} = this.props;
         let childArray = Array.isArray(children) ? children : [children];
-        const keyedChildren = childArray.reduce((acc: {[viewId: string]: ReactElement<View> & ReactNode}, child: ReactElement<View> & ReactNode) => {
+        const keyedChildren = childArray.reduce((acc: {[viewId: string]: ReactElement<BaseView> & ReactNode}, child: ReactElement<BaseView> & ReactNode) => {
             acc[child.props.viewId] = child;
             return acc;
         }, {});

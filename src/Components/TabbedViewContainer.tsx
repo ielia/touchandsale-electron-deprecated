@@ -5,17 +5,17 @@ import './_TabbedViewContainer.scss';
 import BaseMaximizeButton from './MaximizeButton';
 import BaseMinimizeButton from './MinimizeButton';
 import BaseRestoreButton from './RestoreButton';
-import View from './View';
+import BaseView from './View';
 import BaseViewTab from './ViewTab';
-import BrandedComponentFactory from './branding';
-const EclipseRCPComponentFactory = BrandedComponentFactory('./brands/EclipseRCP');
-const MaximizeButton = EclipseRCPComponentFactory<BaseMaximizeButton>('MaximizeButton');
-const MinimizeButton = EclipseRCPComponentFactory<BaseMinimizeButton>('MinimizeButton');
-const RestoreButton = EclipseRCPComponentFactory<BaseRestoreButton>('RestoreButton');
-const ViewTab = EclipseRCPComponentFactory<BaseViewTab>('ViewTab');
+import getBrandedComponent from './branding';
+const MaximizeButton = getBrandedComponent<BaseMaximizeButton>('MaximizeButton') as typeof BaseMaximizeButton;
+const MinimizeButton = getBrandedComponent<BaseMinimizeButton>('MinimizeButton') as typeof BaseMinimizeButton;
+const RestoreButton = getBrandedComponent<BaseRestoreButton>('RestoreButton') as typeof BaseRestoreButton;
+// const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
+const ViewTab = getBrandedComponent<BaseViewTab>('ViewTab') as typeof BaseViewTab;
 
-interface Props {
-    children: ReactElement<View> | ReactElement<View>[];
+export interface Props {
+    children: ReactElement<BaseView> | ReactElement<BaseView>[];
     containerId: string;
     focused?: boolean;
     onMaximize: (containerId: string) => any;

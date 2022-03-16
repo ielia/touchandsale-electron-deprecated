@@ -3,7 +3,7 @@ import React, {PureComponent} from 'react';
 
 import './_PerspectiveSelector.scss';
 
-interface Props {
+export interface Props {
     accentColor: Color;
     label: string;
 }

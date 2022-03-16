@@ -3,7 +3,7 @@ import React, {PureComponent, RefObject, createRef} from 'react';
 
 import {appendShortcutString, isShortcutKeyPressed, shortcutKeyToShortString} from '../commons';
 
-interface Props {
+export interface Props {
     actions: any; // TODO: See what to do with these actions.
     color: Color;
     focused?: boolean;
@@ -14,7 +14,6 @@ interface Props {
     viewId: string;
     zIndex?: number;
 }
-export {Props};
 
 export default abstract class ViewTab extends PureComponent<Props> {
     selfRef: RefObject<HTMLDivElement>;

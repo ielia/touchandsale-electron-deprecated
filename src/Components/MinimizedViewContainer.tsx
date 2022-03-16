@@ -3,15 +3,17 @@ import React, {PureComponent, ReactElement, RefObject} from 'react';
 import './_MinimizedViewContainer.scss';
 
 import BaseRestoreButton from './RestoreButton';
-import MenuSection from './MenuSection';
-import View from './View';
-import ViewIcon from './ViewIcon';
-import BrandedComponentFactory from './branding';
-const EclipseRCPComponentFactory = BrandedComponentFactory('./brands/EclipseRCP');
-const RestoreButton = EclipseRCPComponentFactory<BaseRestoreButton>('RestoreButton');
+import BaseMenuSection from './MenuSection';
+import BaseView from './View';
+import BaseViewIcon from './ViewIcon';
+import getBrandedComponent from './branding';
+const RestoreButton = getBrandedComponent<BaseRestoreButton>('RestoreButton') as typeof BaseRestoreButton;
+const MenuSection = getBrandedComponent<BaseMenuSection>('MenuSection') as typeof BaseMenuSection;
+// const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
+const ViewIcon = getBrandedComponent<BaseViewIcon>('ViewIcon') as typeof BaseViewIcon;
 
-interface Props {
-    children: ReactElement<View> | ReactElement<View>[];
+export interface Props {
+    children: ReactElement<BaseView> | ReactElement<BaseView>[];
     containerId: string;
     wrapperRef?: RefObject<HTMLElement>;
     onRestore: (containerId: string) => any;
