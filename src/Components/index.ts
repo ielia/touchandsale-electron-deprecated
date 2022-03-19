@@ -17,6 +17,7 @@ import BasePerspectiveMenuItem from './PerspectiveMenuItem';
 import BasePerspectiveSelector from './PerspectiveSelector';
 import BaseResizableContainer from './ResizableContainer';
 import BaseRestoreButton from './RestoreButton';
+import BaseSimpleMenuSection from './SimpleMenuSection';
 import BaseTabbedViewContainer from './TabbedViewContainer';
 import BaseView from './View';
 import BaseViewIcon from './ViewIcon';
@@ -36,6 +37,7 @@ export const PerspectiveMenuItem = getBrandedComponent<BasePerspectiveMenuItem>(
 export const PerspectiveSelector = getBrandedComponent<BasePerspectiveSelector>('PerspectiveSelector') as typeof BasePerspectiveSelector;
 export const ResizableContainer = getBrandedComponent<BaseResizableContainer>('ResizableContainer') as typeof BaseResizableContainer;
 export const RestoreButton = getBrandedComponent<BaseRestoreButton>('RestoreButton') as typeof BaseRestoreButton;
+export const SimpleMenuSection = getBrandedComponent<BaseSimpleMenuSection>('SimpleMenuSection') as typeof BaseSimpleMenuSection;
 export const TabbedViewContainer = getBrandedComponent<BaseTabbedViewContainer>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
 export const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
 export const ViewIcon = getBrandedComponent<BaseViewIcon>('ViewIcon') as typeof BaseViewIcon;

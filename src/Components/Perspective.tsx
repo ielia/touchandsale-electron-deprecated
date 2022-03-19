@@ -9,44 +9,45 @@ import BaseMenuSection from './MenuSection';
 import BaseMinimizedViewContainer from './MinimizedViewContainer';
 import BasePerspectiveSelector from './PerspectiveSelector';
 import BaseResizableContainer from './ResizableContainer';
+import BaseSimpleMenuSection from './SimpleMenuSection';
 import BaseTabbedViewContainer from './TabbedViewContainer';
 import BaseView from './View';
 import BaseViewSetLayout from './ViewSetLayout';
 import getBrandedComponent from './branding';
 const Menu = getBrandedComponent<BaseMenu>('Menu') as typeof BaseMenu;
-const MenuSection = getBrandedComponent<BaseMenuSection>('MenuSection') as typeof BaseMenuSection;
 const MinimizedViewContainer = getBrandedComponent<BaseMinimizedViewContainer>('MinimizedViewContainer') as typeof BaseMinimizedViewContainer;
 const PerspectiveSelector = getBrandedComponent<BasePerspectiveSelector>('PerspectiveSelector') as typeof BasePerspectiveSelector;
 const ResizableContainer = getBrandedComponent<BaseResizableContainer>('ResizableContainer') as typeof BaseResizableContainer;
+const SimpleMenuSection = getBrandedComponent<BaseSimpleMenuSection>('SimpleMenuSection') as typeof BaseSimpleMenuSection;
 const TabbedViewContainer = getBrandedComponent<BaseTabbedViewContainer>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
-// const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
 const ViewSetLayout = getBrandedComponent<BaseViewSetLayout>('ViewSetLayout') as typeof BaseViewSetLayout;
 
-export interface Props {
+export interface Props<V extends BaseView = BaseView, M extends BaseMenuSection = BaseMenuSection> {
     accentColor: Color;
-    children: ReactElement<BaseView> | ReactElement<BaseView>[],
+    children: ReactElement<V> | ReactElement<V>[],
     className: string;
     floatingGroup?: string | null;
     label: string;
     layout: LayoutSpec;
     maximizedGroup?: string | null;
-    menuSections: ReactElement<BaseMenuSection>[];
+    menuSections: ReactElement<M>[];
     minimizedGroups: MinimizedGroups;
     shortcutKey: string;
 }
 
 export interface State {
+    dragging: {menuId: string, sectionId: string} | {viewId: string} | null;
     floatingGroup: string;
     layout: LayoutSpec;
     maximizedGroup: string;
     minimizedGroups: MinimizedGroups;
 }
 
-export default class Perspective extends Component<Props, State> {
+export default class Perspective<V extends BaseView = BaseView, M extends BaseMenuSection = BaseMenuSection> extends Component<Props<V, M>, State> {
     layoutContainerRef: RefObject<HTMLDivElement>;
     minimizedFloaterRef: RefObject<HTMLElement>;
 
-    constructor(props: Props) {
+    constructor(props: Props<V, M>) {
         super(props);
 
         this.buildMinimizedGroups = this.buildMinimizedGroups.bind(this);
@@ -55,6 +56,11 @@ export default class Perspective extends Component<Props, State> {
         this.handleContainerMinimization = this.handleContainerMinimization.bind(this);
         this.handleContainerRestoration = this.handleContainerRestoration.bind(this);
         this.handleLayoutDivisionChange = this.handleLayoutDivisionChange.bind(this);
+        this.handleMenuDragEnter = this.handleMenuDragEnter.bind(this);
+        this.handleMenuDragLeave = this.handleMenuDragLeave.bind(this);
+        this.handleMenuDragOver = this.handleMenuDragOver.bind(this);
+        this.handleMenuSectionDragEnd = this.handleMenuSectionDragEnd.bind(this);
+        this.handleMenuSectionDragStart = this.handleMenuSectionDragStart.bind(this);
         this.handleMinimizedViewSelection = this.handleMinimizedViewSelection.bind(this);
         this.handleViewSelection = this.handleViewSelection.bind(this);
         this.layoutContainerRef = createRef();
@@ -62,6 +68,7 @@ export default class Perspective extends Component<Props, State> {
 
         const {floatingGroup, layout, maximizedGroup, minimizedGroups} = this.props;
         this.state = {
+            dragging: null,
             floatingGroup: floatingGroup ?? null,
             layout,
             maximizedGroup: maximizedGroup ?? null,
@@ -71,7 +78,7 @@ export default class Perspective extends Component<Props, State> {
 
     protected buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec,
                                    views: { [viewId: string]: ReactElement<BaseView> & ReactNode }
-    ): BaseMinimizedViewContainer[] {
+    ): ReactElement<BaseMinimizedViewContainer>[] {
         const minimizedGroupsById = minimizedGroupList.reduce((acc: { [key: string]: MinimizedGroupSpec }, group) => {
             acc[group.containerId] = group;
             return acc;
@@ -83,8 +90,10 @@ export default class Perspective extends Component<Props, State> {
                 const {children, groupId, selected} = group;
                 const wrapperRefAttr = minimizedGroupsById[groupId].floating ? {wrapperRef: this.minimizedFloaterRef} : {};
                 acc.push(
-                    <MinimizedViewContainer key={groupId} containerId={groupId} selectedView={selected} onRestore={this.handleContainerRestoration}
-                                            onViewSelected={this.handleMinimizedViewSelection} {...wrapperRefAttr}>
+                    <MinimizedViewContainer key={groupId} sectionId={groupId} selectedView={selected}
+                                            {...wrapperRefAttr}
+                                            onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}
+                                            onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}>
                         {children.map(viewId => views[viewId])}
                     </MinimizedViewContainer>
                 );
@@ -230,6 +239,26 @@ export default class Perspective extends Component<Props, State> {
     protected handleLayoutDivisionChange(pathToStart: string, startRatio: number, endRatio: number): void {
         // Will not compare for weights equality to prevent a re-render, for it should seldomly be the same.
         this.setState(({layout, ...others}) => ({layout: this.updateWeights(layout, pathToStart, startRatio, endRatio), ...others}));
+    }
+
+    protected handleMenuDragEnter(menuId: string): void {
+        console.log('Perspective.handleMenuDragEnter MENUID:', menuId);
+    }
+
+    protected handleMenuDragLeave(menuId: string): void {
+        console.log('Perspective.handleMenuDragLeave MENUID:', menuId);
+    }
+
+    protected handleMenuDragOver(menuId: string, x: number, y: number): void {
+        console.log(`Perspective.handleMenuDragOver MENUID: "${menuId}", x: ${x}, y: ${y}`);
+    }
+
+    protected handleMenuSectionDragEnd(sectionId: string, type: string): void {
+        console.log('Perspective.handleMenuSectionDragEnd SECTIONID:', sectionId, '| TYPE:', type);
+    }
+
+    protected handleMenuSectionDragStart(sectionId: string, type: string): void {
+        console.log('Perspective.handleMenuSectionDragStart SECTIONID:', sectionId, '| TYPE:', type);
     }
 
     protected handleMinimizedViewSelection(containerId: string, viewId: string): void {
@@ -385,14 +414,16 @@ export default class Perspective extends Component<Props, State> {
         }
         return (
             <div className={`perspective ${className}`}>
-                <Menu>
-                    <MenuSection>
-                        <PerspectiveSelector accentColor={accentColor} label={label}/>
-                    </MenuSection>
-                    {menuSections}
+                <Menu menuId="top" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}>
+                    {[
+                        <SimpleMenuSection key="perspective-selector" sectionId="perspective-selector" type="perspective-selector" onDragStart={this.handleMenuSectionDragStart} onDragEnd={this.handleMenuSectionDragEnd}>
+                            <PerspectiveSelector accentColor={accentColor} label={label}/>
+                        </SimpleMenuSection>,
+                        ...menuSections
+                    ]}
                 </Menu>
                 <div className="body">
-                    <Menu orientation="vertical">
+                    <Menu menuId="left" orientation="vertical" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}>
                         {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.left, layout, views)}
                     </Menu>
                     <div className="perspective-layout-container" ref={this.layoutContainerRef}>
@@ -417,10 +448,11 @@ export default class Perspective extends Component<Props, State> {
                             </ResizableContainer>
                         }
                     </div>
-                    <Menu orientation="vertical">
+                    <Menu menuId="right" orientation="vertical" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}>
                         {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.right, layout, views)}
                     </Menu>
                 </div>
+                <Menu menuId="bottom" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}/>
             </div>
         );
     }

@@ -1,5 +1,8 @@
+@import './colors';
+
 .menu-section {
   align-items: center;
+  background-color: $main-bg-color;
   display: flex;
   flex: 0 0 auto;
   justify-items: flex-start;
@@ -7,6 +10,7 @@
   padding-bottom: 2px;
 
   .handle {
+    cursor: grab;
     font-size: smaller;
     font-stretch: ultra-condensed;
     user-select: none;

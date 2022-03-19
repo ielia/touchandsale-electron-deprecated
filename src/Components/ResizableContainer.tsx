@@ -228,8 +228,8 @@ export default class ResizableContainer extends Component<Props, State> {
         return (
             <div className={`resizable-container ${className ?? ''} ${resizableEdges.map(edge => getCompassOctoHeadingClassName(edge)).join(' ')}`}
                  style={{bottom: magnitude(bottom), height: magnitude(height), left: magnitude(left), right: magnitude(right), top: magnitude(top), width: magnitude(width)}}
-                 tabIndex={0}
-                 ref={this.selfRef}>
+                 tabIndex={0} ref={this.selfRef}
+            >
                 <div className="horizontal-arrangement top">
                     {this.edgesAndCorners['nw'] && this.buildHandle('nw', 'top-')}
                     {this.edgesAndCorners['n'] && this.buildHandle('n')}

@@ -1,3 +1,5 @@
+import {Ref, RefObject} from 'react';
+
 /**
  * Add separator element interleaved in the list. This function does NOT modify the list passed as parameter,
  * but creates a new one with the elements of the original.
@@ -23,6 +25,21 @@ export function addSeparatorElement<T, S>(createSeparator: (index?: number, list
  */
 export function appendShortcutString(str: string, shortcutKey: ShortcutKey): string {
     return shortcutKey ? `${str} (${shortcutKeyToString(shortcutKey)})` : str;
+}
+
+/**
+ * Filter members of an object into another. Leave members in the target untouched if not defined on the source.
+ * @param source Source object.
+ * @param target Target object.
+ * @returns The target instance with filtered members from the source.
+ */
+export function filterMembers<S extends T, T>(source: S, target: T): T {
+    for (const member in target) {
+        if (member in source) {
+            target[member] = source[member];
+        }
+    }
+    return target;
 }
 
 /**
@@ -109,6 +126,28 @@ export function isShortcutKeyPressed(event: KeyboardEvent, shortcutKey: Shortcut
         && !!event.metaKey === !!shortcutKey.metaKey
         && !!event.shiftKey === !!shortcutKey.shiftKey;
 }
+
+/*
+export function mergeRef<T>(...refs: Ref<T>[]): Ref<T> {
+    const filteredRefs = refs.filter(r => r);
+    if (!filteredRefs.length) return null;
+    if (filteredRefs.length === 1) return filteredRefs[0];
+    const packagedRefs = filteredRefs.map(ref =>
+        typeof ref === 'function'
+            ? ((instance: T) => { ref(instance); })
+            : ((instance: T) => { (ref as RefObject<T>).current = instance; })
+    );
+    return inst => {
+        for (const ref of filteredRefs) {
+            if (typeof ref === 'function') {
+                ref(inst);
+            } else if (ref) {
+                ref.current = inst;
+            }
+        }
+    };
+}
+*/
 
 /**
  * Converts a shortcut key specification into a short string.

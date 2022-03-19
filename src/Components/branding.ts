@@ -16,8 +16,9 @@ export function setBrands(...brands: string[]) {
     BRANDS.splice(0, BRANDS.length, ...brands);
 }
 
-export function BrandedComponentFactory(...brandPackages: string[]): <T extends Component>(componentName: string) => { new(): T } {
-    return <T extends Component>(componentName: string): { new(): T } => {
+// TODO: Figure out how to change that `any` for the right thing. Tried with `ConstructorParameters<T>`, but it does not work.
+export function BrandedComponentFactory(...brandPackages: string[]): <T extends Component>(componentName: string) => { new(...params: any): T } {
+    return <T extends Component>(componentName: string): { new(...params: any): T } => {
         let component: { new(): T };
         const brandPackagesSearchedFor = brandPackages.concat(['./brands/basic', '.']);
         let i = 0;
@@ -35,5 +36,5 @@ export function BrandedComponentFactory(...brandPackages: string[]): <T extends 
     }
 }
 
-const getBrandedComponent = <T extends Component>(componentName: string): { new(): T } => BrandedComponentFactory(...BRANDS)(componentName);
+const getBrandedComponent = <T extends Component>(componentName: string): { new(...params: any): T } => BrandedComponentFactory(...BRANDS)(componentName);
 export default getBrandedComponent;

@@ -3,7 +3,7 @@ import React, {PureComponent} from 'react';
 
 import './_SalesPerspective.scss';
 
-import {MenuSection, Perspective, PerspectiveMenuItem, View} from '..';
+import {Perspective, PerspectiveMenuItem, SimpleMenuSection, View} from '..';
 
 export default class SalesPerspective extends PureComponent {
     static accentColor = Color('#006bb5');
@@ -52,7 +52,7 @@ export default class SalesPerspective extends PureComponent {
                 {...layoutConfig}
                 shortcutKey="aV"
                 menuSections={[
-                    <MenuSection key="section0">
+                    <SimpleMenuSection key="section0" sectionId="section0">
                         <PerspectiveMenuItem key="op-type" accentColor={SalesPerspective.accentColor} title="Tipo de operación" label="Oper." shortcutKey={{key: 'F3'}}/>
                         <PerspectiveMenuItem key="def-vals" accentColor={SalesPerspective.accentColor} title="Valores por defecto" label="V.Defe." shortcutKey={{key: 'F12'}}/>
                         <PerspectiveMenuItem key="last-ops" accentColor={SalesPerspective.accentColor} title="Consulta de operaciones anteriores" label="Consul." shortcutKey={{key: 'F11'}}/>
@@ -61,8 +61,8 @@ export default class SalesPerspective extends PureComponent {
                         <PerspectiveMenuItem key="sum" accentColor={SalesPerspective.accentColor} title="Visualizar suma de operaciones previas" label="Suma" shortcutKey={{key: '+', altKey: true}}/>
                         <PerspectiveMenuItem key="expiration" accentColor={SalesPerspective.accentColor} title="Cambiar fecha de vencimiento (Presupuesto)" label="Vto." shortcutKey={{key: 'F', ctrlKey: true}}/>
                         <PerspectiveMenuItem key="client-log" accentColor={SalesPerspective.accentColor} title="Histórico Cliente" label="Histór." shortcutKey={{key: 'H', ctrlKey: true}}/>
-                    </MenuSection>,
-                    <MenuSection key="section1">
+                    </SimpleMenuSection>,
+                    <SimpleMenuSection key="section1" sectionId="section1">
                         <PerspectiveMenuItem key="load-obs" accentColor={SalesPerspective.accentColor} title="Cargar observaciones" label="Observ." shortcutKey={{key: 'O', ctrlKey: true}}/>
                         <PerspectiveMenuItem key="stock-deposit" accentColor={SalesPerspective.accentColor} title="Depósitos de Stock" label="Depós." shortcutKey={{key: 'P', ctrlKey: true}}/>
                         <PerspectiveMenuItem key="stock-query" accentColor={SalesPerspective.accentColor} title="Interconsulta de Stock" label="Interc." shortcutKey={{key: 'S', ctrlKey: true}}/>
@@ -70,11 +70,11 @@ export default class SalesPerspective extends PureComponent {
                         <PerspectiveMenuItem key="save-op" accentColor={SalesPerspective.accentColor} title="Guarda operación en curso de forma pendiente" label="G.Pend." shortcutKey={{key: 'F10', altKey: true}}/>
                         <PerspectiveMenuItem key="print-prev" accentColor={SalesPerspective.accentColor} title="Vista previa impresión" label="V.Impr." shortcutKey={{key: 'P', ctrlKey: true, shiftKey: true}}/>
                         <PerspectiveMenuItem key="print-prev-temp" accentColor={SalesPerspective.accentColor} title="Vista previa impresión temporal" label="V.Tem." shortcutKey={{key: 'T', ctrlKey: true, shiftKey: true}}/>
-                    </MenuSection>,
-                    <MenuSection key="section2">
+                    </SimpleMenuSection>,
+                    <SimpleMenuSection key="section2" sectionId="section2">
                         <div className="TnS-about"/>
                         <div className="zWeb-link"/>
-                    </MenuSection>
+                    </SimpleMenuSection>
                 ]}
             >
                 <View key="agreements" viewId="agreements" color={Color('#006bb5')} iconLabel="Cnv" label="Convenios" className="agreements" shortcutKey={{key: 'F8'}} actions={[]}>

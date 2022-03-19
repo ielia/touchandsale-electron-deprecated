@@ -8,7 +8,6 @@ import BaseTabbedViewContainer from './TabbedViewContainer';
 import BaseView from './View';
 import getBrandedComponent from './branding';
 const TabbedViewContainer = getBrandedComponent<BaseTabbedViewContainer>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
-// const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
 
 type LayoutDivisionChangeListener = (pathToStart: string, startRatio: number, endRatio: number) => void;
 type MaximizeContainerListener = (containerId: string) => void;

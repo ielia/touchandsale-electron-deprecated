@@ -11,7 +11,6 @@ import getBrandedComponent from './branding';
 const MaximizeButton = getBrandedComponent<BaseMaximizeButton>('MaximizeButton') as typeof BaseMaximizeButton;
 const MinimizeButton = getBrandedComponent<BaseMinimizeButton>('MinimizeButton') as typeof BaseMinimizeButton;
 const RestoreButton = getBrandedComponent<BaseRestoreButton>('RestoreButton') as typeof BaseRestoreButton;
-// const View = getBrandedComponent<BaseView>('View') as typeof BaseView;
 const ViewTab = getBrandedComponent<BaseViewTab>('ViewTab') as typeof BaseViewTab;
 
 export interface Props {
