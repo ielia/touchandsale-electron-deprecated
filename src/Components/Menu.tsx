@@ -1,7 +1,9 @@
 import React, {DragEvent, PureComponent, ReactElement, RefObject, createRef} from 'react';
+import mergeRefs from 'react-merge-refs';
 
 import './_Menu.scss';
 
+import Wrapped from './mixins/WrappedComponent';
 import BaseMenuSection from './MenuSection';
 
 export class ChildrenNotAcceptable extends Error {
@@ -13,17 +15,18 @@ export class ChildrenNotAcceptable extends Error {
     }
 }
 
-export interface Props<M extends BaseMenuSection = BaseMenuSection> {
+export interface Props<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof BaseMenuSection>> {
     accepts?: string[];
     children?: ReactElement<M> | ReactElement<M>[];
     menuId: string;
-    onDragEnter?: (menuId: string) => void;
-    onDragLeave?: (menuId: string) => void;
-    onDragOver?: (menuId: string, x: number, y: number) => void;
+    onDragEnter?: (type: string, menuId: string) => void;
+    onDragLeave?: (type: string, menuId: string) => void;
+    onDragOver?: (type: string, menuId: string, x: number, y: number) => void;
     orientation?: ComponentOrientation;
+    wrapperRef?: RefObject<HTMLElement>;
 }
 
-export default class Menu<M extends BaseMenuSection = BaseMenuSection> extends PureComponent<Props<M>> {
+class Menu<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof BaseMenuSection>> extends PureComponent<Props<M>> {
     selfRef: RefObject<HTMLDivElement>;
 
     constructor(props: Props<M>) {
@@ -49,41 +52,57 @@ export default class Menu<M extends BaseMenuSection = BaseMenuSection> extends P
     }
 
     handleDragEnter(event: DragEvent<HTMLDivElement>): void {
-        const {menuId, onDragEnter} = this.props;
+        const {accepts, menuId, onDragEnter} = this.props;
         // console.log('Menu.onDragEnter data:', event.dataTransfer.getData('text/html'), '| event:', event);
+        console.log('Menu.onDragEnter event:', event);
         // event.dataTransfer.dropEffect = 'move';
-        if (onDragEnter) {
-            onDragEnter(menuId);
+        const draggable = event.relatedTarget as HTMLElement;
+        const sectionType = draggable.dataset['section-type'];
+        if (!accepts || accepts.indexOf(sectionType) >= 0) {
+            if (onDragEnter) {
+                onDragEnter(sectionType, menuId);
+            }
         }
     }
 
     handleDragLeave(event: DragEvent<HTMLDivElement>): void {
-        const {menuId, onDragLeave} = this.props;
-        // console.log('Menu.onDragLeave event:', event);
+        const {accepts, menuId, onDragLeave} = this.props;
+        console.log('Menu.onDragLeave event:', event);
         // event.dataTransfer.dropEffect = 'none';
-        if (onDragLeave) {
-            onDragLeave(menuId);
+        const draggable = event.relatedTarget as HTMLElement;
+        const sectionType = draggable.dataset['section-type'];
+        if (!accepts || accepts.indexOf(sectionType) >= 0) {
+            if (onDragLeave) {
+                onDragLeave(sectionType, menuId);
+            }
         }
     }
 
     handleDragOver(event: DragEvent<HTMLDivElement>): void {
-        const {menuId, onDragOver} = this.props;
+        const {accepts, menuId, onDragOver} = this.props;
         const {clientX, clientY} = event;
-        // console.log('Menu.onDragOver event:', event);
-        if (onDragOver) {
-            onDragOver(menuId, clientX, clientY);
+        console.log('Menu.onDragOver event:', event);
+        const draggable = event.relatedTarget as HTMLElement;
+        const sectionType = draggable.dataset['section-type'];
+        if (!accepts || accepts.indexOf(sectionType) >= 0) {
+            if (onDragOver) {
+                onDragOver(sectionType, menuId, clientX, clientY);
+            }
         }
     }
 
     render() {
-        const {orientation = 'horizontal', children} = this.props;
+        const {children, orientation = 'horizontal', wrapperRef} = this.props;
+        const ref = mergeRefs<HTMLDivElement>([this.selfRef, wrapperRef as RefObject<HTMLDivElement>]);
         return (
             <div className={`menu ${orientation}`}
                  onDragEnter={this.handleDragEnter} onDragLeave={this.handleDragLeave} onDragOver={this.handleDragOver}
-                 ref={this.selfRef}
+                 ref={ref}
             >
                 {children}
             </div>
         );
     }
-};
+}
+
+export default Wrapped(Menu);

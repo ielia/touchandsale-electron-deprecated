@@ -6,27 +6,39 @@
   display: flex;
   flex: 0 0 auto;
   justify-items: flex-start;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding: 2px;
+  z-index: 1;
 
-  .handle {
+  &.dragging {
+    border: 1px solid $main-border-color;
+    padding: 1px;
+    /* pointer-events: none; */
+    z-index: 2;
+  }
+
+  & > .handle {
     cursor: grab;
     font-size: smaller;
     font-stretch: ultra-condensed;
     user-select: none;
   }
-}
 
-.menu.horizontal .menu-section {
-  padding-top: 2px;
-  padding-bottom: 2px;
+  & > .menu-section-body {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    justify-items: flex-start;
+  }
 }
 
 .menu.vertical .menu-section {
   flex-direction: column;
-  padding-inline: 2px;
 
-  .handle {
+  & > .handle {
     transform: rotate(90deg);
+  }
+
+  & > .menu-section-body {
+    flex-direction: column;
   }
 }

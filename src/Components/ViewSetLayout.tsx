@@ -7,7 +7,7 @@ import {addSeparatorElement} from '../commons';
 import BaseTabbedViewContainer from './TabbedViewContainer';
 import BaseView from './View';
 import getBrandedComponent from './branding';
-const TabbedViewContainer = getBrandedComponent<BaseTabbedViewContainer>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
+const TabbedViewContainer = getBrandedComponent<InstanceType<typeof BaseTabbedViewContainer>>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
 
 type LayoutDivisionChangeListener = (pathToStart: string, startRatio: number, endRatio: number) => void;
 type MaximizeContainerListener = (containerId: string) => void;

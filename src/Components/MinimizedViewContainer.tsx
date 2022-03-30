@@ -1,4 +1,4 @@
-import React, {ReactElement, RefObject} from 'react';
+import React, {ReactElement} from 'react';
 
 import './_MinimizedViewContainer.scss';
 
@@ -7,9 +7,9 @@ import BaseMenuSection, {Props as BaseMenuSectionProps} from './MenuSection';
 import BaseView from './View';
 import BaseViewIcon from './ViewIcon';
 import getBrandedComponent from './branding';
-const RestoreButton = getBrandedComponent<BaseRestoreButton>('RestoreButton') as typeof BaseRestoreButton;
-const MenuSection = getBrandedComponent<BaseMenuSection>('MenuSection') as typeof BaseMenuSection;
-const ViewIcon = getBrandedComponent<BaseViewIcon>('ViewIcon') as typeof BaseViewIcon;
+const RestoreButton = getBrandedComponent<InstanceType<typeof BaseRestoreButton>>('RestoreButton') as typeof BaseRestoreButton;
+const MenuSection = getBrandedComponent<InstanceType<typeof BaseMenuSection>>('MenuSection') as typeof BaseMenuSection;
+const ViewIcon = getBrandedComponent<InstanceType<typeof BaseViewIcon>>('ViewIcon') as typeof BaseViewIcon;
 
 export type Props<V extends BaseView = BaseView> = BaseMenuSectionProps & {
     children: ReactElement<V> | ReactElement<V>[];
@@ -31,6 +31,22 @@ export default class MinimizedViewContainer<V extends BaseView = BaseView> exten
         this.handleViewSelection = this.handleViewSelection.bind(this);
     }
 
+    buildContent(): ReactElement {
+        const {children, selectedView} = this.props;
+        const childArray = Array.isArray(children) ? children : [children];
+        return (<>
+            <RestoreButton onClick={this.handleRestoreButtonClick}/>
+            {childArray.map(({props: {color, iconLabel, label, shortcutKey, viewId}}) => (
+                <ViewIcon key={viewId} viewId={viewId} color={color} label={iconLabel} selected={viewId === selectedView} shortcutKey={shortcutKey} title={label} onClick={this.handleViewSelection}/>
+            ))}
+        </>);
+    }
+
+    getMainClassName(): string {
+        const {className, open} = this.props;
+        return `minimized-view-container menu-section ${open ? 'open' : ''} ${className ?? ''}`;
+    }
+
     handleRestoreButtonClick(): void {
         const {onRestore, sectionId} = this.props;
         onRestore(sectionId);
@@ -39,21 +55,5 @@ export default class MinimizedViewContainer<V extends BaseView = BaseView> exten
     handleViewSelection(viewId: string): void {
         const {sectionId, onViewSelected} = this.props;
         onViewSelected(sectionId, viewId);
-    }
-
-    render() {
-        const {children, className, draggable = true, open, selectedView, wrapperRef} = this.props;
-        const childArray = Array.isArray(children) ? children : [children];
-        // What can one do if the component receives a ref to a more basic object? Cast it? Well, there it is below:
-        const attrs = this.getContainerAttributes(`minimized-view-container ${open ? 'open' : ''} ${className ?? ''}`, draggable, wrapperRef as RefObject<HTMLDivElement>);
-        return (
-            <div {...attrs}>
-                {this.buildDragHandle()}
-                <RestoreButton onClick={this.handleRestoreButtonClick}/>
-                {childArray.map(({props: {color, iconLabel, label, shortcutKey, viewId}}) => (
-                    <ViewIcon key={viewId} viewId={viewId} color={color} label={iconLabel} selected={viewId === selectedView} shortcutKey={shortcutKey} title={label} onClick={this.handleViewSelection}/>
-                ))}
-            </div>
-        );
     }
 };

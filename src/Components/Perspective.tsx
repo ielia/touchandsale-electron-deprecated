@@ -14,15 +14,15 @@ import BaseTabbedViewContainer from './TabbedViewContainer';
 import BaseView from './View';
 import BaseViewSetLayout from './ViewSetLayout';
 import getBrandedComponent from './branding';
-const Menu = getBrandedComponent<BaseMenu>('Menu') as typeof BaseMenu;
-const MinimizedViewContainer = getBrandedComponent<BaseMinimizedViewContainer>('MinimizedViewContainer') as typeof BaseMinimizedViewContainer;
-const PerspectiveSelector = getBrandedComponent<BasePerspectiveSelector>('PerspectiveSelector') as typeof BasePerspectiveSelector;
-const ResizableContainer = getBrandedComponent<BaseResizableContainer>('ResizableContainer') as typeof BaseResizableContainer;
-const SimpleMenuSection = getBrandedComponent<BaseSimpleMenuSection>('SimpleMenuSection') as typeof BaseSimpleMenuSection;
-const TabbedViewContainer = getBrandedComponent<BaseTabbedViewContainer>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
-const ViewSetLayout = getBrandedComponent<BaseViewSetLayout>('ViewSetLayout') as typeof BaseViewSetLayout;
+const Menu = getBrandedComponent<InstanceType<typeof BaseMenu>>('Menu') as typeof BaseMenu;
+const MinimizedViewContainer = getBrandedComponent<InstanceType<typeof BaseMinimizedViewContainer>>('MinimizedViewContainer') as typeof BaseMinimizedViewContainer;
+const PerspectiveSelector = getBrandedComponent<InstanceType<typeof BasePerspectiveSelector>>('PerspectiveSelector') as typeof BasePerspectiveSelector;
+const ResizableContainer = getBrandedComponent<InstanceType<typeof BaseResizableContainer>>('ResizableContainer') as typeof BaseResizableContainer;
+const SimpleMenuSection = getBrandedComponent<InstanceType<typeof BaseSimpleMenuSection>>('SimpleMenuSection') as typeof BaseSimpleMenuSection;
+const TabbedViewContainer = getBrandedComponent<InstanceType<typeof BaseTabbedViewContainer>>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
+const ViewSetLayout = getBrandedComponent<InstanceType<typeof BaseViewSetLayout>>('ViewSetLayout') as typeof BaseViewSetLayout;
 
-export interface Props<V extends BaseView = BaseView, M extends BaseMenuSection = BaseMenuSection> {
+export interface Props<V extends BaseView = BaseView, M extends typeof BaseMenuSection = typeof BaseMenuSection> {
     accentColor: Color;
     children: ReactElement<V> | ReactElement<V>[],
     className: string;
@@ -43,7 +43,7 @@ export interface State {
     minimizedGroups: MinimizedGroups;
 }
 
-export default class Perspective<V extends BaseView = BaseView, M extends BaseMenuSection = BaseMenuSection> extends Component<Props<V, M>, State> {
+export default class Perspective<V extends BaseView = BaseView, M extends typeof BaseMenuSection = typeof BaseMenuSection> extends Component<Props<V, M>, State> {
     layoutContainerRef: RefObject<HTMLDivElement>;
     minimizedFloaterRef: RefObject<HTMLElement>;
 
@@ -59,6 +59,7 @@ export default class Perspective<V extends BaseView = BaseView, M extends BaseMe
         this.handleMenuDragEnter = this.handleMenuDragEnter.bind(this);
         this.handleMenuDragLeave = this.handleMenuDragLeave.bind(this);
         this.handleMenuDragOver = this.handleMenuDragOver.bind(this);
+        this.handleMenuSectionDrag = this.handleMenuSectionDrag.bind(this);
         this.handleMenuSectionDragEnd = this.handleMenuSectionDragEnd.bind(this);
         this.handleMenuSectionDragStart = this.handleMenuSectionDragStart.bind(this);
         this.handleMinimizedViewSelection = this.handleMinimizedViewSelection.bind(this);
@@ -92,7 +93,7 @@ export default class Perspective<V extends BaseView = BaseView, M extends BaseMe
                 acc.push(
                     <MinimizedViewContainer key={groupId} sectionId={groupId} selectedView={selected}
                                             {...wrapperRefAttr}
-                                            onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}
+                                            onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}
                                             onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}>
                         {children.map(viewId => views[viewId])}
                     </MinimizedViewContainer>
@@ -241,23 +242,27 @@ export default class Perspective<V extends BaseView = BaseView, M extends BaseMe
         this.setState(({layout, ...others}) => ({layout: this.updateWeights(layout, pathToStart, startRatio, endRatio), ...others}));
     }
 
-    protected handleMenuDragEnter(menuId: string): void {
+    protected handleMenuDragEnter(type: string, menuId: string): void {
         console.log('Perspective.handleMenuDragEnter MENUID:', menuId);
     }
 
-    protected handleMenuDragLeave(menuId: string): void {
+    protected handleMenuDragLeave(type: string, menuId: string): void {
         console.log('Perspective.handleMenuDragLeave MENUID:', menuId);
     }
 
-    protected handleMenuDragOver(menuId: string, x: number, y: number): void {
+    protected handleMenuDragOver(type: string, menuId: string, x: number, y: number): void {
         console.log(`Perspective.handleMenuDragOver MENUID: "${menuId}", x: ${x}, y: ${y}`);
     }
 
-    protected handleMenuSectionDragEnd(sectionId: string, type: string): void {
+    protected handleMenuSectionDrag(type: string, sectionId: string, x: number, y: number): void {
+        console.log('Perspective.handleMenuSectionDrag SECTIONID:', sectionId, '| TYPE:', type, '| x:', x, '| y:', y);
+    }
+
+    protected handleMenuSectionDragEnd(type: string, sectionId: string): void {
         console.log('Perspective.handleMenuSectionDragEnd SECTIONID:', sectionId, '| TYPE:', type);
     }
 
-    protected handleMenuSectionDragStart(sectionId: string, type: string): void {
+    protected handleMenuSectionDragStart(type: string, sectionId: string): void {
         console.log('Perspective.handleMenuSectionDragStart SECTIONID:', sectionId, '| TYPE:', type);
     }
 
@@ -416,7 +421,7 @@ export default class Perspective<V extends BaseView = BaseView, M extends BaseMe
             <div className={`perspective ${className}`}>
                 <Menu menuId="top" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}>
                     {[
-                        <SimpleMenuSection key="perspective-selector" sectionId="perspective-selector" type="perspective-selector" onDragStart={this.handleMenuSectionDragStart} onDragEnd={this.handleMenuSectionDragEnd}>
+                        <SimpleMenuSection key="perspective-selector" sectionId="perspective-selector" type="perspective-selector" onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}>
                             <PerspectiveSelector accentColor={accentColor} label={label}/>
                         </SimpleMenuSection>,
                         ...menuSections

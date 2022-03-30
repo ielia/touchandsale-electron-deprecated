@@ -8,10 +8,10 @@ import BaseRestoreButton from './RestoreButton';
 import BaseView from './View';
 import BaseViewTab from './ViewTab';
 import getBrandedComponent from './branding';
-const MaximizeButton = getBrandedComponent<BaseMaximizeButton>('MaximizeButton') as typeof BaseMaximizeButton;
-const MinimizeButton = getBrandedComponent<BaseMinimizeButton>('MinimizeButton') as typeof BaseMinimizeButton;
-const RestoreButton = getBrandedComponent<BaseRestoreButton>('RestoreButton') as typeof BaseRestoreButton;
-const ViewTab = getBrandedComponent<BaseViewTab>('ViewTab') as typeof BaseViewTab;
+const MaximizeButton = getBrandedComponent<InstanceType<typeof BaseMaximizeButton>>('MaximizeButton') as typeof BaseMaximizeButton;
+const MinimizeButton = getBrandedComponent<InstanceType<typeof BaseMinimizeButton>>('MinimizeButton') as typeof BaseMinimizeButton;
+const RestoreButton = getBrandedComponent<InstanceType<typeof BaseRestoreButton>>('RestoreButton') as typeof BaseRestoreButton;
+const ViewTab = getBrandedComponent<InstanceType<typeof BaseViewTab>>('ViewTab') as typeof BaseViewTab;
 
 export interface Props {
     children: ReactElement<BaseView> | ReactElement<BaseView>[];
