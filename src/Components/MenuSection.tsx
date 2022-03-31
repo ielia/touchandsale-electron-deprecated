@@ -27,6 +27,8 @@ class MenuSection<C extends Component = Component, P extends Props<C> = Props<C>
     dragStartLeft: number;
     dragStartTop: number;
     handleRef: RefObject<HTMLElement>;
+    lastPositionOffsetX: number;
+    lastPositionOffsetY: number;
     selfRef: RefObject<HTMLElement>;
 
     constructor(props: P) {
@@ -58,8 +60,8 @@ class MenuSection<C extends Component = Component, P extends Props<C> = Props<C>
         const self = this;
         const selfRef = this.selfRef;
         return {
-            get x() { return (self.dragStartLeft ?? 0) - (selfRef.current ? selfRef.current.offsetLeft : 0); },
-            get y() { return (self.dragStartTop ?? 0) - (selfRef.current ? selfRef.current.offsetTop : 0); },
+            get x() { return Number.isFinite(self.dragStartLeft) ? self.dragStartLeft - (selfRef.current ? selfRef.current.offsetLeft : 0) : 0; },
+            get y() { return Number.isFinite(self.dragStartTop) ? self.dragStartTop - (selfRef.current ? selfRef.current.offsetTop : 0) : 0; },
         }
     }
 
@@ -84,7 +86,8 @@ class MenuSection<C extends Component = Component, P extends Props<C> = Props<C>
         const selfElement = this.selfRef.current;
         selfElement.style.marginBottom = `${-selfElement.offsetHeight}px`;
         selfElement.style.marginRight = `${-selfElement.offsetWidth}px`;
-        // selfElement.style.backgroundColor = 'red'; // FIXME: REMOVE THIS DEBUG LINE.
+        this.lastPositionOffsetX = this.dragStartLeft;
+        this.lastPositionOffsetY = this.dragStartTop;
         if (onDrag) {
             onDrag(type, sectionId, event.pageX, event.pageY);
         }
@@ -109,8 +112,8 @@ class MenuSection<C extends Component = Component, P extends Props<C> = Props<C>
     handleMouseDown(event: MouseEvent) {
         console.log('MenuSection.onMouseDown (', this.props.sectionId, ') event:', event);
         const selfElement = this.selfRef.current;
-        this.dragStartLeft = selfElement.offsetLeft;
-        this.dragStartTop = selfElement.offsetTop;
+        this.dragStartLeft = this.lastPositionOffsetX ?? selfElement.offsetLeft;
+        this.dragStartTop = this.lastPositionOffsetY ?? selfElement.offsetTop;
     }
 
     render() {
