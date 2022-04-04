@@ -1,5 +1,3 @@
-import {Ref, RefObject} from 'react';
-
 /**
  * Add separator element interleaved in the list. This function does NOT modify the list passed as parameter,
  * but creates a new one with the elements of the original.
@@ -127,27 +125,28 @@ export function isShortcutKeyPressed(event: KeyboardEvent, shortcutKey: Shortcut
         && !!event.shiftKey === !!shortcutKey.shiftKey;
 }
 
-/*
-export function mergeRef<T>(...refs: Ref<T>[]): Ref<T> {
-    const filteredRefs = refs.filter(r => r);
-    if (!filteredRefs.length) return null;
-    if (filteredRefs.length === 1) return filteredRefs[0];
-    const packagedRefs = filteredRefs.map(ref =>
-        typeof ref === 'function'
-            ? ((instance: T) => { ref(instance); })
-            : ((instance: T) => { (ref as RefObject<T>).current = instance; })
-    );
-    return inst => {
-        for (const ref of filteredRefs) {
-            if (typeof ref === 'function') {
-                ref(inst);
-            } else if (ref) {
-                ref.current = inst;
-            }
-        }
-    };
+/**
+ * Returns the Manhattan distance from a point to a rectangle.
+ * @param rect Rectangle.
+ * @param x X coordinate of the point.
+ * @param y X coordinate of the point.
+ * @returns The manhattan distance.
+ */
+export function manhattanDistanceToRectangle(
+    rect: {bottom: number, left: number, right: number, top: number} | {height: number, left: number, top: number, width: number},
+    {x, y}: {x: number, y: number}
+): number {
+    const {left, top} = rect;
+    let bottom: number, right: number;
+    if ('height' in rect) {
+        bottom = top + rect.height;
+        right = left + rect.width;
+    } else {
+        bottom = rect.bottom;
+        right = rect.right;
+    }
+    return (x < left ? left - x : x > right ? x - right : 0) + (y < top ? top - y : y > bottom ? y - bottom : 0);
 }
-*/
 
 /**
  * Converts a shortcut key specification into a short string.

@@ -82,7 +82,7 @@ class MenuSection<C extends Component = Component, P extends Props<C> = Props<C>
 
     handleDrag(event: DragEvent<HTMLDivElement>, data: DraggableData): void {
         const {onDrag, sectionId, type} = this.props;
-        console.log('MenuSection.onDrag (', this.props.sectionId, ') event:', event, '| data:', data, '| pageX:', event.pageX, '| pageY:', event.pageY);
+        // console.log('MenuSection.onDrag (', this.props.sectionId, ') event:', event, '| data:', data, '| pageX:', event.pageX, '| pageY:', event.pageY);
         const selfElement = this.selfRef.current;
         selfElement.style.marginBottom = `${-selfElement.offsetHeight}px`;
         selfElement.style.marginRight = `${-selfElement.offsetWidth}px`;
@@ -148,6 +148,4 @@ class MenuSection<C extends Component = Component, P extends Props<C> = Props<C>
         }
     }
 }
-
 export default Wrapped(MenuSection);
-// export default MenuSection;

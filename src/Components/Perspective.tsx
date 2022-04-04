@@ -3,7 +3,7 @@ import React, {Component, ReactElement, ReactNode, RefObject, createRef} from 'r
 
 import './_Perspective.scss';
 
-import {getCompassOctoHeadingClassName, getCompassOctoHeadingComponents, getOppositeCompassHeading} from '../commons';
+import {getCompassOctoHeadingClassName, getCompassOctoHeadingComponents, getOppositeCompassHeading, manhattanDistanceToRectangle} from '../commons';
 import BaseMenu from './Menu';
 import BaseMenuSection from './MenuSection';
 import BaseMinimizedViewContainer from './MinimizedViewContainer';
@@ -21,6 +21,11 @@ const ResizableContainer = getBrandedComponent<InstanceType<typeof BaseResizable
 const SimpleMenuSection = getBrandedComponent<InstanceType<typeof BaseSimpleMenuSection>>('SimpleMenuSection') as typeof BaseSimpleMenuSection;
 const TabbedViewContainer = getBrandedComponent<InstanceType<typeof BaseTabbedViewContainer>>('TabbedViewContainer') as typeof BaseTabbedViewContainer;
 const ViewSetLayout = getBrandedComponent<InstanceType<typeof BaseViewSetLayout>>('ViewSetLayout') as typeof BaseViewSetLayout;
+
+/**
+ * Menu snap margin in pixels.
+ */
+const MENU_SNAP_MARGIN = 5;
 
 export interface Props<V extends BaseView = BaseView, M extends typeof BaseMenuSection = typeof BaseMenuSection> {
     accentColor: Color;
@@ -45,6 +50,7 @@ export interface State {
 
 export default class Perspective<V extends BaseView = BaseView, M extends typeof BaseMenuSection = typeof BaseMenuSection> extends Component<Props<V, M>, State> {
     layoutContainerRef: RefObject<HTMLDivElement>;
+    menus: {[menuId: string]: {ref: RefObject<HTMLElement>}};
     minimizedFloaterRef: RefObject<HTMLElement>;
 
     constructor(props: Props<V, M>) {
@@ -65,6 +71,7 @@ export default class Perspective<V extends BaseView = BaseView, M extends typeof
         this.handleMinimizedViewSelection = this.handleMinimizedViewSelection.bind(this);
         this.handleViewSelection = this.handleViewSelection.bind(this);
         this.layoutContainerRef = createRef();
+        this.menus = {bottom: {ref: createRef()}, left: {ref: createRef()}, right: {ref: createRef()}, top: {ref: createRef()}};
         this.minimizedFloaterRef = createRef();
 
         const {floatingGroup, layout, maximizedGroup, minimizedGroups} = this.props;
@@ -101,6 +108,27 @@ export default class Perspective<V extends BaseView = BaseView, M extends typeof
             }
             return acc;
         }, []);
+    }
+
+    protected findClosestMenuToPoint(x: number, y: number): {manhattanDistance: number, menuId: string, menu: {ref: RefObject<HTMLElement>}} {
+        // console.log('Perspective.findClosestMatchingMenuToPoint x:', x, '| y:', y);
+        const match = Object.entries(this.menus).reduce((match: {manhattanDistance: number, menuId: string, menu: {ref: RefObject<HTMLElement>}}, [menuId, menu]) => {
+            let result = match;
+            if (!match || match.manhattanDistance > 0) {
+                const menuElement = menu.ref.current;
+                if (menuElement) {
+                    const rect = {height: menuElement.offsetHeight, left: menuElement.offsetLeft, top: menuElement.offsetTop, width: menuElement.offsetWidth};
+                    const manhattanDistance = manhattanDistanceToRectangle(rect, {x, y});
+                    if (!match || match.manhattanDistance > manhattanDistance) {
+                        result = {manhattanDistance, menuId, menu};
+                    }
+                }
+            }
+            return result;
+        }, null);
+        return Number.isFinite(match.manhattanDistance) && match.manhattanDistance < MENU_SNAP_MARGIN
+            ? match
+            : null;
     }
 
     protected findGroups(layout: LayoutSpec, ...groupIds: string[]): LeafLayoutSpec[] {
@@ -255,7 +283,9 @@ export default class Perspective<V extends BaseView = BaseView, M extends typeof
     }
 
     protected handleMenuSectionDrag(type: string, sectionId: string, x: number, y: number): void {
-        console.log('Perspective.handleMenuSectionDrag SECTIONID:', sectionId, '| TYPE:', type, '| x:', x, '| y:', y);
+        // console.log('Perspective.handleMenuSectionDrag SECTIONID:', sectionId, '| TYPE:', type, '| x:', x, '| y:', y);
+        const match = this.findClosestMenuToPoint(x, y);
+        console.log('MATCH:', match);
     }
 
     protected handleMenuSectionDragEnd(type: string, sectionId: string): void {
@@ -419,7 +449,7 @@ export default class Perspective<V extends BaseView = BaseView, M extends typeof
         }
         return (
             <div className={`perspective ${className}`}>
-                <Menu menuId="top" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}>
+                <Menu menuId="top" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver} wrapperRef={this.menus.top.ref}>
                     {[
                         <SimpleMenuSection key="perspective-selector" sectionId="perspective-selector" type="perspective-selector" onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}>
                             <PerspectiveSelector accentColor={accentColor} label={label}/>
@@ -428,7 +458,7 @@ export default class Perspective<V extends BaseView = BaseView, M extends typeof
                     ]}
                 </Menu>
                 <div className="body">
-                    <Menu menuId="left" orientation="vertical" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}>
+                    <Menu menuId="left" orientation="vertical" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}  wrapperRef={this.menus.left.ref}>
                         {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.left, layout, views)}
                     </Menu>
                     <div className="perspective-layout-container" ref={this.layoutContainerRef}>
@@ -453,11 +483,11 @@ export default class Perspective<V extends BaseView = BaseView, M extends typeof
                             </ResizableContainer>
                         }
                     </div>
-                    <Menu menuId="right" orientation="vertical" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}>
+                    <Menu menuId="right" orientation="vertical" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}  wrapperRef={this.menus.right.ref}>
                         {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.right, layout, views)}
                     </Menu>
                 </div>
-                <Menu menuId="bottom" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}/>
+                <Menu menuId="bottom" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}  wrapperRef={this.menus.bottom.ref}/>
             </div>
         );
     }

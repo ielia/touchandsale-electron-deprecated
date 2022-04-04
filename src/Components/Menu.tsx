@@ -16,7 +16,7 @@ export class ChildrenNotAcceptable extends Error {
 }
 
 export interface Props<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof BaseMenuSection>> {
-    accepts?: string[];
+    // accepts?: string[];
     children?: ReactElement<M> | ReactElement<M>[];
     menuId: string;
     onDragEnter?: (type: string, menuId: string) => void;
@@ -36,6 +36,7 @@ class Menu<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof 
         this.handleDragOver = this.handleDragOver.bind(this);
         this.selfRef = createRef();
 
+        /* TODO: See if this makes sense...
         const {accepts, children} = this.props;
         if (accepts) {
             const childArray = Array.isArray(children) ? children : [children];
@@ -49,45 +50,61 @@ class Menu<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof 
                 );
             }
         }
+        */
     }
 
     handleDragEnter(event: DragEvent<HTMLDivElement>): void {
-        const {accepts, menuId, onDragEnter} = this.props;
+        const {/* accepts, */ menuId, onDragEnter} = this.props;
         // console.log('Menu.onDragEnter data:', event.dataTransfer.getData('text/html'), '| event:', event);
         console.log('Menu.onDragEnter event:', event);
         // event.dataTransfer.dropEffect = 'move';
         const draggable = event.relatedTarget as HTMLElement;
         const sectionType = draggable.dataset['section-type'];
+        /*
         if (!accepts || accepts.indexOf(sectionType) >= 0) {
             if (onDragEnter) {
                 onDragEnter(sectionType, menuId);
             }
         }
+        */
+        if (onDragEnter) {
+            onDragEnter(sectionType, menuId);
+        }
     }
 
     handleDragLeave(event: DragEvent<HTMLDivElement>): void {
-        const {accepts, menuId, onDragLeave} = this.props;
+        const {/* accepts, */ menuId, onDragLeave} = this.props;
         console.log('Menu.onDragLeave event:', event);
         // event.dataTransfer.dropEffect = 'none';
         const draggable = event.relatedTarget as HTMLElement;
         const sectionType = draggable.dataset['section-type'];
+        /*
         if (!accepts || accepts.indexOf(sectionType) >= 0) {
             if (onDragLeave) {
                 onDragLeave(sectionType, menuId);
             }
         }
+        */
+        if (onDragLeave) {
+            onDragLeave(sectionType, menuId);
+        }
     }
 
     handleDragOver(event: DragEvent<HTMLDivElement>): void {
-        const {accepts, menuId, onDragOver} = this.props;
+        const {/* accepts, */ menuId, onDragOver} = this.props;
         const {clientX, clientY} = event;
         console.log('Menu.onDragOver event:', event);
         const draggable = event.relatedTarget as HTMLElement;
         const sectionType = draggable.dataset['section-type'];
+        /*
         if (!accepts || accepts.indexOf(sectionType) >= 0) {
             if (onDragOver) {
                 onDragOver(sectionType, menuId, clientX, clientY);
             }
+        }
+        */
+        if (onDragOver) {
+            onDragOver(sectionType, menuId, clientX, clientY);
         }
     }
 
@@ -104,5 +121,4 @@ class Menu<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof 
         );
     }
 }
-
 export default Wrapped(Menu);
