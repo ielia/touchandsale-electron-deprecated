@@ -5,7 +5,6 @@ import './_Perspective.scss';
 
 import {getCompassOctoHeadingClassName, getCompassOctoHeadingComponents, getOppositeCompassHeading, manhattanDistanceToRectangle} from '../commons';
 import BaseMenu from './Menu';
-import BaseMenuSection from './MenuSection';
 import BaseMinimizedViewContainer from './MinimizedViewContainer';
 import BasePerspectiveSelector from './PerspectiveSelector';
 import BaseResizableContainer from './ResizableContainer';
@@ -27,7 +26,7 @@ const ViewSetLayout = getBrandedComponent<InstanceType<typeof BaseViewSetLayout>
  */
 const MENU_SNAP_MARGIN = 5;
 
-export interface Props<V extends BaseView = BaseView, M extends typeof BaseMenuSection = typeof BaseMenuSection> {
+export interface Props<V extends BaseView = BaseView> {
     accentColor: Color;
     children: ReactElement<V> | ReactElement<V>[],
     className: string;
@@ -35,7 +34,7 @@ export interface Props<V extends BaseView = BaseView, M extends typeof BaseMenuS
     label: string;
     layout: LayoutSpec;
     maximizedGroup?: string | null;
-    menuSections: ReactElement<M>[];
+    menuSections: {sectionId: string, content: ReactElement<Component>[]}[];
     minimizedGroups: MinimizedGroups;
     shortcutKey: string;
 }
@@ -48,12 +47,12 @@ export interface State {
     minimizedGroups: MinimizedGroups;
 }
 
-export default class Perspective<V extends BaseView = BaseView, M extends typeof BaseMenuSection = typeof BaseMenuSection> extends Component<Props<V, M>, State> {
+export default class Perspective<V extends BaseView = BaseView> extends Component<Props<V>, State> {
     layoutContainerRef: RefObject<HTMLDivElement>;
     menus: {[menuId: string]: {ref: RefObject<HTMLElement>}};
     minimizedFloaterRef: RefObject<HTMLElement>;
 
-    constructor(props: Props<V, M>) {
+    constructor(props: Props<V>) {
         super(props);
 
         this.buildMinimizedGroups = this.buildMinimizedGroups.bind(this);
@@ -454,7 +453,11 @@ export default class Perspective<V extends BaseView = BaseView, M extends typeof
                         <SimpleMenuSection key="perspective-selector" sectionId="perspective-selector" type="perspective-selector" onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}>
                             <PerspectiveSelector accentColor={accentColor} label={label}/>
                         </SimpleMenuSection>,
-                        ...menuSections
+                        ...menuSections.map(({sectionId, content}) => (
+                            <SimpleMenuSection key={sectionId} sectionId={sectionId} type="options-menu" onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}>
+                                {content}
+                            </SimpleMenuSection>
+                        )),
                     ]}
                 </Menu>
                 <div className="body">
