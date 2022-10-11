@@ -11,7 +11,8 @@ export interface Props<C extends Component = Component> {
     className?: string;
     children: ReactElement<C> | ReactElement<C>[];
     draggable?: boolean;
-    onDrag?: (type: string, sectionId: string, x: number, y: number) => void;
+    hung?: boolean;
+    onDrag?: (type: string, sectionId: string, x: number, y: number, elementRectangle: {bottom: number, left: number, right: number, top: number}) => void;
     onDragStart?: (type: string, sectionId: string) => void;
     onDragEnd?: (type: string, sectionId: string) => void;
     sectionId: string;
@@ -77,7 +78,7 @@ class MenuSection<C extends Component = Component, P extends Props<C> = Props<C>
     }
 
     getMainClassName() {
-        return `menu-section ${this.props.className ?? ''}`;
+        return `menu-section ${this.props.className ?? ''} ${this.props.hung ? 'hung' : ''}`;
     }
 
     handleDrag(event: DragEvent<HTMLDivElement>, data: DraggableData): void {
@@ -89,7 +90,8 @@ class MenuSection<C extends Component = Component, P extends Props<C> = Props<C>
         this.lastPositionOffsetX = this.dragStartLeft;
         this.lastPositionOffsetY = this.dragStartTop;
         if (onDrag) {
-            onDrag(type, sectionId, event.pageX, event.pageY);
+            const {left, right, top, bottom} = selfElement.getBoundingClientRect()
+            onDrag(type, sectionId, event.pageX, event.pageY, {bottom, left, right, top});
         }
     }
 

@@ -1,11 +1,13 @@
-import React, {DragEvent, PureComponent, ReactElement, RefObject, createRef} from 'react';
+import React, {MouseEvent, PureComponent, ReactElement, RefObject, createRef} from 'react';
 import mergeRefs from 'react-merge-refs';
 
 import './_Menu.scss';
 
+import {getChildArray} from '../commons';
 import Wrapped from './mixins/WrappedComponent';
 import BaseMenuSection from './MenuSection';
 
+/*
 export class ChildrenNotAcceptable extends Error {
     children: ReactElement[];
 
@@ -14,32 +16,31 @@ export class ChildrenNotAcceptable extends Error {
         this.children = children;
     }
 }
+*/
 
-export interface Props<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof BaseMenuSection>> {
+export interface Props {
     // accepts?: string[];
-    children?: ReactElement<M> | ReactElement<M>[];
+    children?: ReactElement<InstanceType<typeof BaseMenuSection>> | ReactElement<InstanceType<typeof BaseMenuSection>>[];
+    draggingSection?: ReactElement<InstanceType<typeof BaseMenuSection>>;
     menuId: string;
-    onDragEnter?: (type: string, menuId: string) => void;
-    onDragLeave?: (type: string, menuId: string) => void;
-    onDragOver?: (type: string, menuId: string, x: number, y: number) => void;
+    onSectionDropIn?: (type: string, menuId: string, sections: {sectionId: string, type: string}[]) => void;
     orientation?: ComponentOrientation;
     wrapperRef?: RefObject<HTMLElement>;
 }
 
-class Menu<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof BaseMenuSection>> extends PureComponent<Props<M>> {
+class Menu extends PureComponent<Props> {
     selfRef: RefObject<HTMLDivElement>;
 
-    constructor(props: Props<M>) {
+    constructor(props: Props) {
         super(props);
-        this.handleDragEnter = this.handleDragEnter.bind(this);
-        this.handleDragLeave = this.handleDragLeave.bind(this);
-        this.handleDragOver = this.handleDragOver.bind(this);
+        this.handleMouseOver = this.handleMouseOver.bind(this);
+        this.handleMouseUp = this.handleMouseUp.bind(this);
         this.selfRef = createRef();
 
         /* TODO: See if this makes sense...
-        const {accepts, children} = this.props;
+        const {accepts} = this.props;
         if (accepts) {
-            const childArray = Array.isArray(children) ? children : [children];
+            const childArray = getChildArray(this);
             const faultyChildren = childArray.filter(child => accepts.indexOf(child.props.type) < 0);
             if (faultyChildren.length) {
                 const unacceptableTypes = faultyChildren.map(child => child.props.type);
@@ -53,58 +54,20 @@ class Menu<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof 
         */
     }
 
-    handleDragEnter(event: DragEvent<HTMLDivElement>): void {
-        const {/* accepts, */ menuId, onDragEnter} = this.props;
-        // console.log('Menu.onDragEnter data:', event.dataTransfer.getData('text/html'), '| event:', event);
-        console.log('Menu.onDragEnter event:', event);
-        // event.dataTransfer.dropEffect = 'move';
-        const draggable = event.relatedTarget as HTMLElement;
-        const sectionType = draggable.dataset['section-type'];
-        /*
-        if (!accepts || accepts.indexOf(sectionType) >= 0) {
-            if (onDragEnter) {
-                onDragEnter(sectionType, menuId);
-            }
-        }
-        */
-        if (onDragEnter) {
-            onDragEnter(sectionType, menuId);
+    handleMouseOver(event: MouseEvent<HTMLDivElement>): void {
+        if (this.props.draggingSection) {
+            console.log('<><><><><> Menu.handleMouseOver:', event);
         }
     }
 
-    handleDragLeave(event: DragEvent<HTMLDivElement>): void {
-        const {/* accepts, */ menuId, onDragLeave} = this.props;
-        console.log('Menu.onDragLeave event:', event);
-        // event.dataTransfer.dropEffect = 'none';
-        const draggable = event.relatedTarget as HTMLElement;
-        const sectionType = draggable.dataset['section-type'];
-        /*
-        if (!accepts || accepts.indexOf(sectionType) >= 0) {
-            if (onDragLeave) {
-                onDragLeave(sectionType, menuId);
-            }
-        }
-        */
-        if (onDragLeave) {
-            onDragLeave(sectionType, menuId);
-        }
-    }
-
-    handleDragOver(event: DragEvent<HTMLDivElement>): void {
-        const {/* accepts, */ menuId, onDragOver} = this.props;
-        const {clientX, clientY} = event;
-        console.log('Menu.onDragOver event:', event);
-        const draggable = event.relatedTarget as HTMLElement;
-        const sectionType = draggable.dataset['section-type'];
-        /*
-        if (!accepts || accepts.indexOf(sectionType) >= 0) {
-            if (onDragOver) {
-                onDragOver(sectionType, menuId, clientX, clientY);
-            }
-        }
-        */
-        if (onDragOver) {
-            onDragOver(sectionType, menuId, clientX, clientY);
+    handleMouseUp(event: MouseEvent<HTMLDivElement>): void {
+        const {draggingSection, onSectionDropIn} = this.props;
+        if (draggingSection && onSectionDropIn) {
+            const {menuId} = this.props;
+            // const childArray = getChildArray(this);
+            const childArray = Array.isArray(this.props.children) ? this.props.children : [this.props.children];
+            console.log('<><><><><> Menu.handleMouseUp:', event);
+            // onSectionDropIn(draggingSection.props.type, menuId, childArray.map(child => ({sectionId: child.props.sectionId, type: child.props.type})));
         }
     }
 
@@ -112,10 +75,7 @@ class Menu<M extends InstanceType<typeof BaseMenuSection> = InstanceType<typeof 
         const {children, orientation = 'horizontal', wrapperRef} = this.props;
         const ref = mergeRefs<HTMLDivElement>([this.selfRef, wrapperRef as RefObject<HTMLDivElement>]);
         return (
-            <div className={`menu ${orientation}`}
-                 onDragEnter={this.handleDragEnter} onDragLeave={this.handleDragLeave} onDragOver={this.handleDragOver}
-                 ref={ref}
-            >
+            <div className={`menu ${orientation}`} onMouseOver={this.handleMouseOver} onMouseUp={this.handleMouseOver} ref={ref}>
                 {children}
             </div>
         );

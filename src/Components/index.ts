@@ -11,7 +11,7 @@ import BaseMaximizeButton from './MaximizeButton';
 import BaseMenu from './Menu';
 import BaseMenuSection from './MenuSection';
 import BaseMinimizeButton from './MinimizeButton';
-import BaseMinimizedViewContainer from './MinimizedViewContainer';
+import {default as BaseMinimizedViewContainer} from './MinimizedViewContainer';
 import BasePerspective from './Perspective';
 import BasePerspectiveMenuItem from './PerspectiveMenuItem';
 import BasePerspectiveSelector from './PerspectiveSelector';

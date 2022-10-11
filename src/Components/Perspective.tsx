@@ -3,9 +3,10 @@ import React, {Component, ReactElement, ReactNode, RefObject, createRef} from 'r
 
 import './_Perspective.scss';
 
-import {getCompassOctoHeadingClassName, getCompassOctoHeadingComponents, getOppositeCompassHeading, manhattanDistanceToRectangle} from '../commons';
+import {getCompassOctoHeadingClassName, getCompassOctoHeadingComponents, getOppositeCompassHeading, listToDictionary, manhattanDistanceToRectangle} from '../commons';
 import BaseMenu from './Menu';
-import BaseMinimizedViewContainer from './MinimizedViewContainer';
+import BaseMenuSection from './MenuSection';
+import {default as BaseMinimizedViewContainer, MinimizedViewContainerPropsType} from './MinimizedViewContainer';
 import BasePerspectiveSelector from './PerspectiveSelector';
 import BaseResizableContainer from './ResizableContainer';
 import BaseSimpleMenuSection from './SimpleMenuSection';
@@ -25,25 +26,31 @@ const ViewSetLayout = getBrandedComponent<InstanceType<typeof BaseViewSetLayout>
  * Menu snap margin in pixels.
  */
 const MENU_SNAP_MARGIN = 5;
+type SimpleMenuSectionPropsType = 'options-menu';
+type MenuSectionType = SimpleMenuSectionPropsType | MinimizedViewContainerPropsType;
+const SIMPLE_MENU_SECTION_TYPE: SimpleMenuSectionPropsType = 'options-menu';
+type MenuSectionTypeAndId = `${MenuSectionType}:${string}`;
 
 export interface Props<V extends BaseView = BaseView> {
     accentColor: Color;
-    children: ReactElement<V> | ReactElement<V>[],
+    children: ReactElement<V> | ReactElement<V>[];
     className: string;
     floatingGroup?: string | null;
     label: string;
     layout: LayoutSpec;
     maximizedGroup?: string | null;
-    menuSections: {sectionId: string, content: ReactElement<Component>[]}[];
+    menuSections: {menuId: string, sectionId: string, content: ReactElement<Component>[]}[];
     minimizedGroups: MinimizedGroups;
     shortcutKey: string;
 }
 
 export interface State {
-    dragging: {menuId: string, sectionId: string} | {viewId: string} | null;
+    dragging: {menuId?: string, sectionId: string, type: MenuSectionType} | null;
     floatingGroup: string;
     layout: LayoutSpec;
     maximizedGroup: string;
+    menuSectionsByTypeAndId: {[key: MenuSectionTypeAndId]: {element: ReactElement<InstanceType<typeof BaseMenuSection>>, sectionId: string, type: MenuSectionType}};
+    menuSectionsByLocation: {[key: string]: {sectionId: string, type: MenuSectionType}[]};
     minimizedGroups: MinimizedGroups;
 }
 
@@ -64,6 +71,7 @@ export default class Perspective<V extends BaseView = BaseView> extends Componen
         this.handleMenuDragEnter = this.handleMenuDragEnter.bind(this);
         this.handleMenuDragLeave = this.handleMenuDragLeave.bind(this);
         this.handleMenuDragOver = this.handleMenuDragOver.bind(this);
+        this.handleMenuDropInSection = this.handleMenuDropInSection.bind(this);
         this.handleMenuSectionDrag = this.handleMenuSectionDrag.bind(this);
         this.handleMenuSectionDragEnd = this.handleMenuSectionDragEnd.bind(this);
         this.handleMenuSectionDragStart = this.handleMenuSectionDragStart.bind(this);
@@ -73,12 +81,30 @@ export default class Perspective<V extends BaseView = BaseView> extends Componen
         this.menus = {bottom: {ref: createRef()}, left: {ref: createRef()}, right: {ref: createRef()}, top: {ref: createRef()}};
         this.minimizedFloaterRef = createRef();
 
-        const {floatingGroup, layout, maximizedGroup, minimizedGroups} = this.props;
+        const {floatingGroup, layout, maximizedGroup, menuSections, minimizedGroups} = this.props;
+        const menuSectionsByTypeAndId = menuSections.reduce((acc, {sectionId, content}) => {
+            acc[`${SIMPLE_MENU_SECTION_TYPE}:${sectionId}`] = {
+                element: (
+                    <SimpleMenuSection key={sectionId} sectionId={sectionId} type={SIMPLE_MENU_SECTION_TYPE} onDrag={this.handleMenuSectionDrag}
+                                       onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}>
+                        {content}
+                    </SimpleMenuSection>
+                ),
+                sectionId,
+                type: 'options-menu',
+            };
+            return acc;
+        }, {} as {[key: MenuSectionTypeAndId]: {element: ReactElement<InstanceType<typeof BaseMenuSection>>, sectionId: string, type: MenuSectionType}});
         this.state = {
             dragging: null,
             floatingGroup: floatingGroup ?? null,
             layout,
             maximizedGroup: maximizedGroup ?? null,
+            menuSectionsByTypeAndId,
+            menuSectionsByLocation: menuSections.reduce((acc: {[key: string]: {sectionId: string, type: MenuSectionType}[]}, {menuId, sectionId}) => {
+                acc[menuId].push({sectionId, type: menuSectionsByTypeAndId[`${SIMPLE_MENU_SECTION_TYPE}:${sectionId}`].type});
+                return acc;
+            }, {bottom: [], left: [], right: [], top: []}), // TODO: See if we can generalise these.
             minimizedGroups,
         };
     }
@@ -86,30 +112,32 @@ export default class Perspective<V extends BaseView = BaseView> extends Componen
     protected buildMinimizedGroups(maximizedContext: boolean, minimizedGroupList: MinimizedGroupSpec[], layout: LayoutSpec,
                                    views: { [viewId: string]: ReactElement<BaseView> & ReactNode }
     ): ReactElement<BaseMinimizedViewContainer>[] {
-        const minimizedGroupsById = minimizedGroupList.reduce((acc: { [key: string]: MinimizedGroupSpec }, group) => {
-            acc[group.containerId] = group;
-            return acc;
-        }, {});
-        const groups = this.findGroups(layout, ...Object.keys(minimizedGroupsById));
-        return groups.reduce((acc, group) => {
-            const state = group.state;
-            if (maximizedContext ? state !== 'maximized' : state === 'minimized') {
-                const {children, groupId, selected} = group;
-                const wrapperRefAttr = minimizedGroupsById[groupId].floating ? {wrapperRef: this.minimizedFloaterRef} : {};
-                acc.push(
-                    <MinimizedViewContainer key={groupId} sectionId={groupId} selectedView={selected}
-                                            {...wrapperRefAttr}
-                                            onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}
-                                            onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}>
-                        {children.map(viewId => views[viewId])}
-                    </MinimizedViewContainer>
-                );
-            }
-            return acc;
-        }, []);
+        let result = [];
+        if (minimizedGroupList) {
+            const minimizedGroupsById = listToDictionary(group => group.containerId, minimizedGroupList);
+            const groups = this.findGroups(layout, ...Object.keys(minimizedGroupsById));
+            result = groups.reduce((acc, group) => {
+                const state = group.state;
+                if (maximizedContext ? state !== 'maximized' : state === 'minimized') {
+                    const {children, groupId, selected} = group;
+                    const wrapperRefAttr = minimizedGroupsById[groupId].floating ? {wrapperRef: this.minimizedFloaterRef} : {};
+                    acc.push(
+                        <MinimizedViewContainer key={groupId} sectionId={groupId} selectedView={selected}
+                                                {...wrapperRefAttr}
+                                                onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}
+                                                onRestore={this.handleContainerRestoration} onViewSelected={this.handleMinimizedViewSelection}>
+                            {children.map(viewId => views[viewId])}
+                        </MinimizedViewContainer>
+                    );
+                }
+                return acc;
+            }, []);
+        }
+        return result;
     }
 
-    protected findClosestMenuToPoint(x: number, y: number): {manhattanDistance: number, menuId: string, menu: {ref: RefObject<HTMLElement>}} {
+    protected findClosestMenuToPoint(x: number, y: number): {manhattanDistance: number, menuId: string, menu: {ref: RefObject<HTMLElement>}}
+    {
         // console.log('Perspective.findClosestMatchingMenuToPoint x:', x, '| y:', y);
         const match = Object.entries(this.menus).reduce((match: {manhattanDistance: number, menuId: string, menu: {ref: RefObject<HTMLElement>}}, [menuId, menu]) => {
             let result = match;
@@ -281,18 +309,30 @@ export default class Perspective<V extends BaseView = BaseView> extends Componen
         console.log(`Perspective.handleMenuDragOver MENUID: "${menuId}", x: ${x}, y: ${y}`);
     }
 
-    protected handleMenuSectionDrag(type: string, sectionId: string, x: number, y: number): void {
+    protected handleMenuDropInSection(type: string, menuId: string, containedSections: string): void {
+        console.log(`Perspective.handleMenuDropInSection MENUID: "${menuId}", ${containedSections}`);
+    }
+
+    protected handleMenuSectionDrag(type: MenuSectionType, sectionId: string, x: number, y: number, elementRectangle: {bottom: number, left: number, right: number, top: number}): void {
         // console.log('Perspective.handleMenuSectionDrag SECTIONID:', sectionId, '| TYPE:', type, '| x:', x, '| y:', y);
         const match = this.findClosestMenuToPoint(x, y);
-        console.log('MATCH:', match);
+        // TODO: Remove most of the following if we can trust on DragStart.
+        if (match && (!this.state.dragging || (this.state.dragging && this.state.dragging.menuId !== match.menuId))) {
+            this.setState(({dragging, ...restOfState}) => ({dragging: {menuId: match.menuId, sectionId, type}, ...restOfState}));
+        } else if (!match && (!this.state.dragging || (this.state.dragging && this.state.dragging.menuId))) {
+            this.setState(({dragging, ...restOfState}) => ({dragging: {sectionId, type}, ...restOfState}));
+        }
+        // console.log('MATCH:', match);
     }
 
     protected handleMenuSectionDragEnd(type: string, sectionId: string): void {
         console.log('Perspective.handleMenuSectionDragEnd SECTIONID:', sectionId, '| TYPE:', type);
+        this.setState(({dragging, ...restOfState}) => ({dragging: null, ...restOfState}));
     }
 
-    protected handleMenuSectionDragStart(type: string, sectionId: string): void {
+    protected handleMenuSectionDragStart(type: MenuSectionType, sectionId: string): void {
         console.log('Perspective.handleMenuSectionDragStart SECTIONID:', sectionId, '| TYPE:', type);
+        this.setState(({dragging, ...restOfState}) => ({dragging: {sectionId, type}, ...restOfState}));
     }
 
     protected handleMinimizedViewSelection(containerId: string, viewId: string): void {
@@ -423,8 +463,9 @@ export default class Perspective<V extends BaseView = BaseView> extends Componen
     }
 
     render() {
-        const {accentColor, children, className, label, menuSections} = this.props;
-        const {floatingGroup, layout, maximizedGroup, minimizedGroups} = this.state;
+        const {accentColor, children, className, label} = this.props;
+        const {dragging, floatingGroup, layout, maximizedGroup, menuSectionsByTypeAndId, menuSectionsByLocation, minimizedGroups} = this.state;
+        const draggingSection = dragging ? menuSectionsByTypeAndId[`${dragging.type}:${dragging.sectionId}`].element : null;
         const childArray = Array.isArray(children) ? children : [children];
         const views = childArray.reduce((acc: { [viewId: string]: ReactElement<BaseView> & ReactNode }, view) => {
             acc[view.props.viewId] = view;
@@ -448,20 +489,17 @@ export default class Perspective<V extends BaseView = BaseView> extends Componen
         }
         return (
             <div className={`perspective ${className}`}>
-                <Menu menuId="top" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver} wrapperRef={this.menus.top.ref}>
+                <Menu menuId="top" draggingSection={dragging && dragging.menuId === 'top' ? draggingSection : null} wrapperRef={this.menus.top.ref}>
                     {[
-                        <SimpleMenuSection key="perspective-selector" sectionId="perspective-selector" type="perspective-selector" onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}>
+                        <SimpleMenuSection key="perspective-selector" sectionId="perspective-selector" type="perspective-selector" draggable={false}
+                                           onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}>
                             <PerspectiveSelector accentColor={accentColor} label={label}/>
                         </SimpleMenuSection>,
-                        ...menuSections.map(({sectionId, content}) => (
-                            <SimpleMenuSection key={sectionId} sectionId={sectionId} type="options-menu" onDrag={this.handleMenuSectionDrag} onDragEnd={this.handleMenuSectionDragEnd} onDragStart={this.handleMenuSectionDragStart}>
-                                {content}
-                            </SimpleMenuSection>
-                        )),
+                        ...menuSectionsByLocation['top'].map(({sectionId, type}) => menuSectionsByTypeAndId[`${type}:${sectionId}`].element),
                     ]}
                 </Menu>
                 <div className="body">
-                    <Menu menuId="left" orientation="vertical" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}  wrapperRef={this.menus.left.ref}>
+                    <Menu menuId="left" orientation="vertical" draggingSection={dragging && dragging.menuId === 'left' ? draggingSection : null} wrapperRef={this.menus.left.ref}>
                         {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.left, layout, views)}
                     </Menu>
                     <div className="perspective-layout-container" ref={this.layoutContainerRef}>
@@ -486,11 +524,13 @@ export default class Perspective<V extends BaseView = BaseView> extends Componen
                             </ResizableContainer>
                         }
                     </div>
-                    <Menu menuId="right" orientation="vertical" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}  wrapperRef={this.menus.right.ref}>
+                    <Menu menuId="right" orientation="vertical" draggingSection={dragging && dragging.menuId === 'right' ? draggingSection : null}
+                          wrapperRef={this.menus.right.ref}>
                         {this.buildMinimizedGroups(!!maximizedGroup, minimizedGroups.right, layout, views)}
                     </Menu>
                 </div>
-                <Menu menuId="bottom" onDragEnter={this.handleMenuDragEnter} onDragLeave={this.handleMenuDragLeave} onDragOver={this.handleMenuDragOver}  wrapperRef={this.menus.bottom.ref}/>
+                <Menu menuId="bottom" draggingSection={dragging && dragging.menuId === 'bottom' ? draggingSection : null} wrapperRef={this.menus.bottom.ref}>
+                </Menu>
             </div>
         );
     }

@@ -1,3 +1,7 @@
+import React, {Component, JSXElementConstructor, PropsWithChildren, ReactComponentElement, ReactElement, ReactNode} from 'react';
+// import {EmotionJSX} from '@emotion/react/types/jsx-namespace';
+// import IntrinsicElements = EmotionJSX.IntrinsicElements;
+
 /**
  * Add separator element interleaved in the list. This function does NOT modify the list passed as parameter,
  * but creates a new one with the elements of the original.
@@ -38,6 +42,11 @@ export function filterMembers<S extends T, T>(source: S, target: T): T {
         }
     }
     return target;
+}
+
+export function getChildArray<T extends Component>(component: Component<{props: ReactElement<T> | ReactElement<T>[]}>): ReactElement<T>[] {
+    const {children} = component.props;
+    return Array.isArray(children) ? children : [children];
 }
 
 /**
@@ -123,6 +132,36 @@ export function isShortcutKeyPressed(event: KeyboardEvent, shortcutKey: Shortcut
         && !!event.ctrlKey === !!shortcutKey.ctrlKey
         && !!event.metaKey === !!shortcutKey.metaKey
         && !!event.shiftKey === !!shortcutKey.shiftKey;
+}
+
+/**
+ * Convert a list of elements to a dictionary based on a string key to be extracted from each element.
+ * @param keyFunctor Function that takes an element of the list and returns the key.
+ * @param list List of elements to convert to dictionary.
+ * @returns An object serving as a dictionary with all non-overlapping elements from the argument list as values and keys extracted from those elements.
+ *          The map will not necessarily be complete, i.e., may not result in having all keys from generic type "K".
+ */
+export function listToDictionary<K extends string, V>(keyFunctor: (element: V) => K, list: V[]): {[key in K]?: V} {
+    return list.reduce((acc: {[key in K]?: V}, element) => {
+        const key = keyFunctor(element);
+        acc[key] = element;
+        return acc;
+    }, {} as {[key in K]?: V});
+}
+
+/**
+ * Convert a list of elements to a dictionary with all keys of type "K" (extending string), to be extracted from each element.
+ * @param keyFunctor Function that takes an element of the list and returns the key.
+ * @param list List of elements to convert to dictionary.
+ * @returns An object serving as a dictionary with all non-overlapping elements from the argument list as values and keys extracted from those elements.
+ *          The dictionary will be complete, i.e., will have all possible keys from generic type "K".
+ */
+export function listToFullDictionary<K extends string, V>(keyFunctor: (element: V) => K, list: V[]): {[key in K]: V} {
+    return list.reduce((acc: {[key in K]: V}, element) => {
+        const key = keyFunctor(element);
+        acc[key] = element;
+        return acc;
+    }, {} as {[key in K]: V});
 }
 
 /**

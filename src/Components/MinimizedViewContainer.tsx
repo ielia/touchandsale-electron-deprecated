@@ -2,6 +2,7 @@ import React, {ReactElement} from 'react';
 
 import './_MinimizedViewContainer.scss';
 
+// import {getChildArray} from '../commons';
 import BaseRestoreButton from './RestoreButton';
 import BaseMenuSection, {Props as BaseMenuSectionProps} from './MenuSection';
 import BaseView from './View';
@@ -11,7 +12,9 @@ const RestoreButton = getBrandedComponent<InstanceType<typeof BaseRestoreButton>
 const MenuSection = getBrandedComponent<InstanceType<typeof BaseMenuSection>>('MenuSection') as typeof BaseMenuSection;
 const ViewIcon = getBrandedComponent<InstanceType<typeof BaseViewIcon>>('ViewIcon') as typeof BaseViewIcon;
 
-export type Props<V extends BaseView = BaseView> = BaseMenuSectionProps & {
+export type MinimizedViewContainerPropsType = 'view-container';
+
+export type Props<V extends BaseView = BaseView> = BaseMenuSectionProps<V> & {
     children: ReactElement<V> | ReactElement<V>[];
     onRestore: (sectionId: string) => void;
     onViewSelected: (sectionId: string, viewId: string) => void;
@@ -19,7 +22,7 @@ export type Props<V extends BaseView = BaseView> = BaseMenuSectionProps & {
     selectedView: string;
 };
 
-export default class MinimizedViewContainer<V extends BaseView = BaseView> extends MenuSection<BaseView, Props<V>> {
+export default class MinimizedViewContainer<V extends BaseView = BaseView> extends MenuSection<V, Props<V>> {
     static defaultProps = {
         type: 'view-container',
     };

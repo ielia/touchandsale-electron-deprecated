@@ -11,9 +11,15 @@
 
   &.dragging {
     border: 1px solid $main-border-color;
+    filter: grayscale(75%);
+    opacity: 90%;
     padding: 1px;
-    /* pointer-events: none; */
+    pointer-events: none;
     z-index: 2;
+  }
+
+  &.hung {
+    opacity: 0;
   }
 
   & > .handle {

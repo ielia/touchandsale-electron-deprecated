@@ -3,7 +3,7 @@ import React, {PureComponent} from 'react';
 
 import './_SalesPerspective.scss';
 
-import {Perspective, PerspectiveMenuItem, SimpleMenuSection, View} from '..';
+import {Perspective, PerspectiveMenuItem, View} from '..';
 
 export default class SalesPerspective extends PureComponent {
     static accentColor = Color('#006bb5');
@@ -53,6 +53,7 @@ export default class SalesPerspective extends PureComponent {
                 shortcutKey="aV"
                 menuSections={[
                     {
+                        menuId: 'top',
                         sectionId: 'section0',
                         content: [
                             <PerspectiveMenuItem key="op-type" accentColor={SalesPerspective.accentColor} title="Tipo de operación" label="Oper." shortcutKey={{key: 'F3'}}/>,
@@ -66,6 +67,7 @@ export default class SalesPerspective extends PureComponent {
                         ],
                     },
                     {
+                        menuId: 'top',
                         sectionId: 'section1',
                         content: [
                             <PerspectiveMenuItem key="load-obs" accentColor={SalesPerspective.accentColor} title="Cargar observaciones" label="Observ." shortcutKey={{key: 'O', ctrlKey: true}}/>,
@@ -78,10 +80,11 @@ export default class SalesPerspective extends PureComponent {
                         ],
                     },
                     {
+                        menuId: 'top',
                         sectionId: 'section2',
                         content: [
-                            <div className="TnS-about"/>,
-                            <div className="zWeb-link"/>,
+                            <div key="0" className="TnS-about"/>,
+                            <div key="1" className="zWeb-link"/>,
                         ],
                     },
                 ]}

@@ -27,6 +27,9 @@ export function BrandedComponentFactory(...brandPackages: string[]): <T extends 
             try {
                 component = require(`${brandPackage}/${componentName}`).default;
             } catch (exception) {
+                if (brandPackage == '.') {
+                    console.log('EXCEPTION:', exception);
+                }
             }
         }
         if (!component) {

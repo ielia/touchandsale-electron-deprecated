@@ -13,8 +13,7 @@ export default function Wrapped<T extends Constructor<{ selfRef: RefObject<E> }>
         }
 
         get offsetLeft(): number {
-            const selfElement = this.selfRef.current;
-            return selfElement ? selfElement.offsetLeft : null;
+            return this.selfRef.current?.offsetLeft ?? null;
         }
 
         get offsetRight(): number {
@@ -23,8 +22,11 @@ export default function Wrapped<T extends Constructor<{ selfRef: RefObject<E> }>
         }
 
         get offsetTop(): number {
-            const selfElement = this.selfRef.current;
-            return selfElement ? selfElement.offsetTop : null;
+            return this.selfRef.current?.offsetTop ?? null;
+        }
+
+        getBoundingClientRect(): DOMRect {
+            return this.selfRef.current?.getBoundingClientRect() ?? null;
         }
     }
 }
